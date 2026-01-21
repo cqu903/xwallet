@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zerofinance.xwallet.repository.VerificationCodeMapper">
+
+    <resultMap id="VerificationCodeResultMap" type="com.zerofinance.xwallet.model.entity.VerificationCode">
+        <id property="id" column="id"/>
+        <result property="email" column="email"/>
+        <result property="code" column="code"/>
+        <result property="codeType" column="code_type"/>
+        <result property="expiredAt" column="expired_at"/>
+        <result property="verified" column="verified"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="save" parameterType="com.zerofinance.xwallet.model.entity.VerificationCode">
+        INSERT INTO verification_code (email, code, code_type, expired_at, verified, created_at)
+        VALUES (#{email}, #{code}, #{codeType}, #{expiredAt}, #{verified}, #{createdAt})
+    </insert>
+
+    <select id="findLatestByEmail" resultMap="VerificationCodeResultMap">
+        SELECT id, email, code, code_type, expired_at, verified, created_at
+        FROM verification_code
+        WHERE email = #{email}
+          AND code_type = #{codeType}
+        ORDER BY created_at DESC
+        LIMIT 1
+    </select>
+
+    <update id="markAsVerified">
+        UPDATE verification_code
+        SET verified = TRUE
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteExpiredCodes">
+        DELETE FROM verification_code
+        WHERE expired_at &lt; NOW()
+    </delete>
+
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zerofinance.xwallet.repository.TokenBlacklistMapper">
+
+    <resultMap id="TokenBlacklistResultMap" type="com.zerofinance.xwallet.model.entity.TokenBlacklist">
+        <id property="id" column="id"/>
+        <result property="token" column="token"/>
+        <result property="expiryTime" column="expiry_time"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.TokenBlacklist">
+        INSERT INTO token_blacklist (token, expiry_time, created_at)
+        VALUES (#{token}, #{expiryTime}, #{createdAt})
+    </insert>
+
+    <select id="findByToken" resultMap="TokenBlacklistResultMap">
+        SELECT id, token, expiry_time, created_at
+        FROM token_blacklist
+        WHERE token = #{token}
+    </select>
+
+    <delete id="deleteExpiredTokens">
+        DELETE FROM token_blacklist
+        WHERE expiry_time &lt; NOW()
+    </delete>
+
+</mapper>

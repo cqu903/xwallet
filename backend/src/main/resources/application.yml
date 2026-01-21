@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: xwallet-backend
+  profiles:
+    active: dev
+
+# MyBatis 配置
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.zerofinance.xwallet.model.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+
+# 服务端口
+server:
+  port: 8080
+  servlet:
+    context-path: /api

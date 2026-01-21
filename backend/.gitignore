@@ -1,0 +1,21 @@
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.DS_Store
+
+# Build
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~

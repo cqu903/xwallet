@@ -1,0 +1,217 @@
+-- ============================================
+-- xWallet RBAC 权限系统初始化脚本
+-- ============================================
+
+USE xwallet;
+
+-- ============================================
+-- 表1: 菜单权限表 (核心表)
+-- ============================================
+DROP TABLE IF EXISTS `sys_menu`;
+CREATE TABLE `sys_menu` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '菜单ID',
+    `parent_id` BIGINT DEFAULT 0 COMMENT '父菜单ID,0表示顶级菜单',
+    `menu_name` VARCHAR(50) NOT NULL COMMENT '菜单名称',
+    `menu_type` TINYINT NOT NULL COMMENT '菜单类型: 1-目录 2-菜单 3-按钮',
+    `path` VARCHAR(200) COMMENT '路由地址(前端路由path)',
+    `component` VARCHAR(200) COMMENT '组件路径(前端组件路径)',
+    `permission` VARCHAR(100) COMMENT '权限标识(如: user:create, user:delete)',
+    `icon` VARCHAR(100) COMMENT '菜单图标',
+    `sort_order` INT DEFAULT 0 COMMENT '排序号',
+    `visible` TINYINT DEFAULT 1 COMMENT '显示状态: 1-显示 0-隐藏',
+    `status` TINYINT DEFAULT 1 COMMENT '状态: 1-启用 0-禁用',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX `idx_parent_id` (`parent_id`),
+    INDEX `idx_permission` (`permission`),
+    INDEX `idx_menu_type` (`menu_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='菜单权限表';
+
+-- ============================================
+-- 表2: 角色表
+-- ============================================
+DROP TABLE IF EXISTS `sys_role`;
+CREATE TABLE `sys_role` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '角色ID',
+    `role_code` VARCHAR(50) NOT NULL UNIQUE COMMENT '角色编码(如: ADMIN, OPERATOR)',
+    `role_name` VARCHAR(100) NOT NULL COMMENT '角色名称',
+    `description` VARCHAR(500) COMMENT '角色描述',
+    `sort_order` INT DEFAULT 0 COMMENT '排序号',
+    `status` TINYINT DEFAULT 1 COMMENT '状态: 1-启用 0-禁用',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX `idx_role_code` (`role_code`),
+    INDEX `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色表';
+
+-- ============================================
+-- 表3: 角色菜单关联表
+-- ============================================
+DROP TABLE IF EXISTS `sys_role_menu`;
+CREATE TABLE `sys_role_menu` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID',
+    `role_id` BIGINT NOT NULL COMMENT '角色ID',
+    `menu_id` BIGINT NOT NULL COMMENT '菜单ID',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    UNIQUE KEY `uk_role_menu` (`role_id`, `menu_id`),
+    INDEX `idx_role_id` (`role_id`),
+    INDEX `idx_menu_id` (`menu_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色菜单关联表';
+
+-- ============================================
+-- 表4: 用户角色关联表(可选,支持多角色)
+-- ============================================
+DROP TABLE IF EXISTS `sys_user_role`;
+CREATE TABLE `sys_user_role` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID',
+    `user_id` BIGINT NOT NULL COMMENT '用户ID',
+    `role_id` BIGINT NOT NULL COMMENT '角色ID',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    UNIQUE KEY `uk_user_role` (`user_id`, `role_id`),
+    INDEX `idx_user_id` (`user_id`),
+    INDEX `idx_role_id` (`role_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户角色关联表';
+
+-- ============================================
+-- 表5: 操作日志表(审计)
+-- ============================================
+DROP TABLE IF EXISTS `sys_operation_log`;
+CREATE TABLE `sys_operation_log` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '日志ID',
+    `user_id` BIGINT COMMENT '操作用户ID',
+    `username` VARCHAR(100) COMMENT '操作用户名',
+    `operation` VARCHAR(100) COMMENT '操作模块',
+    `method` VARCHAR(200) COMMENT '请求方法',
+    `params` TEXT COMMENT '请求参数',
+    `ip` VARCHAR(50) COMMENT 'IP地址',
+    `status` TINYINT COMMENT '状态: 1-成功 0-失败',
+    `error_msg` VARCHAR(2000) COMMENT '错误信息',
+    `execute_time` BIGINT COMMENT '执行时长(毫秒)',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '操作时间',
+    INDEX `idx_user_id` (`user_id`),
+    INDEX `idx_created_at` (`created_at`),
+    INDEX `idx_operation` (`operation`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表';
+
+-- ============================================
+-- 修改 sys_user 表,添加 remarks 字段
+-- ============================================
+SET @remarks_exists := (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'sys_user'
+      AND COLUMN_NAME = 'remarks'
+);
+SET @remarks_sql := IF(
+    @remarks_exists = 0,
+    'ALTER TABLE `sys_user` ADD COLUMN `remarks` VARCHAR(500) COMMENT ''备注'' AFTER `role`',
+    'SELECT 1'
+);
+PREPARE stmt FROM @remarks_sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- ============================================
+-- 初始化菜单数据
+-- ============================================
+
+-- 一级菜单: 仪表盘
+INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
+(0, '仪表盘', 2, '/dashboard', 'dashboard/index', 'dashboard:view', 'Dashboard', 1);
+
+-- 一级菜单: 用户管理
+INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
+(0, '用户管理', 2, '/users', 'users/index', 'user:view', 'User', 2);
+
+-- 用户管理按钮权限
+INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `sort_order`) VALUES
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'user:view') t), '新增用户', 3, 'user:create', 1),
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'user:view') t), '编辑用户', 3, 'user:update', 2),
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'user:view') t), '删除用户', 3, 'user:delete', 3),
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'user:view') t), '重置密码', 3, 'user:resetPwd', 4);
+
+-- 一级菜单: 钱包管理
+INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
+(0, '钱包管理', 2, '/wallets', 'wallets/index', 'wallet:view', 'Wallet', 3);
+
+-- 钱包管理按钮权限
+INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `sort_order`) VALUES
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'wallet:view') t), '创建钱包', 3, 'wallet:create', 1),
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'wallet:view') t), '冻结钱包', 3, 'wallet:freeze', 2),
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'wallet:view') t), '钱包详情', 3, 'wallet:detail', 3);
+
+-- 一级菜单: 交易记录
+INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
+(0, '交易记录', 2, '/transactions', 'transactions/index', 'transaction:view', 'Transaction', 4);
+
+-- 一级菜单: 系统管理(仅管理员)
+INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
+(0, '系统管理', 2, '/system', 'system/index', 'system:view', 'Setting', 99);
+
+-- 系统管理子菜单
+INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `sort_order`) VALUES
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '菜单管理', 2, '/system/menus', 'system/menus/index', 'system:menu', 1),
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '角色管理', 2, '/system/roles', 'system/roles/index', 'system:role', 2);
+
+-- ============================================
+-- 初始化角色数据
+-- ============================================
+INSERT INTO `sys_role` (`role_code`, `role_name`, `description`, `sort_order`) VALUES
+('ADMIN', '超级管理员', '拥有所有权限', 1),
+('OPERATOR', '操作员', '钱包日常操作权限', 2),
+('VIEWER', '查看员', '只读权限', 3);
+
+-- ============================================
+-- 初始化角色菜单关联 (ADMIN 拥有所有权限)
+-- ============================================
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`)
+SELECT
+    (SELECT id FROM sys_role WHERE role_code = 'ADMIN'),
+    id
+FROM sys_menu;
+
+-- ============================================
+-- 初始化角色菜单关联 (OPERATOR 权限)
+-- ============================================
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`)
+SELECT
+    (SELECT id FROM sys_role WHERE role_code = 'OPERATOR'),
+    id
+FROM sys_menu
+WHERE permission IN (
+    'dashboard:view',
+    'wallet:view',
+    'wallet:detail',
+    'transaction:view'
+);
+
+-- ============================================
+-- 初始化角色菜单关联 (VIEWER 权限)
+-- ============================================
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`)
+SELECT
+    (SELECT id FROM sys_role WHERE role_code = 'VIEWER'),
+    id
+FROM sys_menu
+WHERE permission IN (
+    'dashboard:view',
+    'transaction:view'
+);
+
+-- ============================================
+-- 初始化用户角色关联 (兼容现有 sys_user.role 字段)
+-- ============================================
+-- 为所有现有系统用户分配角色
+INSERT INTO `sys_user_role` (`user_id`, `role_id`)
+SELECT
+    u.id,
+    (SELECT id FROM sys_role WHERE role_code = u.role)
+FROM sys_user u
+WHERE u.role IN ('ADMIN', 'OPERATOR');
+
+-- ============================================
+-- 初始化完成
+-- ============================================
+-- 默认管理员账号: ADMIN001 / admin123
+-- 该账号已被分配 ADMIN 角色,拥有所有权限

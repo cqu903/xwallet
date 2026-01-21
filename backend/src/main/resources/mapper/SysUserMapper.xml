@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zerofinance.xwallet.repository.SysUserMapper">
+
+    <resultMap id="SysUserResultMap" type="com.zerofinance.xwallet.model.entity.SysUser">
+        <id property="id" column="id"/>
+        <result property="employeeNo" column="employee_no"/>
+        <result property="username" column="username"/>
+        <result property="email" column="email"/>
+        <result property="password" column="password"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <resultMap id="SysUserWithRolesResultMap" type="com.zerofinance.xwallet.model.entity.SysUser" extends="SysUserResultMap">
+        <collection property="roles" ofType="com.zerofinance.xwallet.model.entity.SysRole">
+            <id property="id" column="role_id"/>
+            <result property="roleCode" column="role_code"/>
+            <result property="roleName" column="role_name"/>
+            <result property="description" column="role_description"/>
+            <result property="sortOrder" column="role_sort_order"/>
+            <result property="status" column="role_status"/>
+        </collection>
+    </resultMap>
+
+    <select id="findByEmployeeNo" resultMap="SysUserResultMap">
+        SELECT id, employee_no, username, email, password, status, created_at, updated_at
+        FROM sys_user
+        WHERE employee_no = #{employeeNo}
+    </select>
+
+    <select id="findActiveByEmployeeNo" resultMap="SysUserResultMap">
+        SELECT id, employee_no, username, email, password, status, created_at, updated_at
+        FROM sys_user
+        WHERE employee_no = #{employeeNo}
+          AND status = 1
+    </select>
+
+    <select id="findByEmail" resultMap="SysUserResultMap">
+        SELECT id, employee_no, username, email, password, status, created_at, updated_at
+        FROM sys_user
+        WHERE email = #{email}
+    </select>
+
+    <select id="findById" resultMap="SysUserWithRolesResultMap">
+        SELECT u.id,
+               u.employee_no,
+               u.username,
+               u.email,
+               u.password,
+               u.status,
+               u.created_at,
+               u.updated_at,
+               r.id          as role_id,
+               r.role_code,
+               r.role_name,
+               r.description as role_description,
+               r.sort_order   as role_sort_order,
+               r.status      as role_status
+        FROM sys_user u
+                 LEFT JOIN sys_user_role ur ON u.id = ur.user_id
+                 LEFT JOIN sys_role r ON ur.role_id = r.id
+        WHERE u.id = #{id}
+    </select>
+
+    <select id="findByPage" resultMap="SysUserWithRolesResultMap">
+        SELECT u.id,
+               u.employee_no,
+               u.username,
+               u.email,
+               u.status,
+               u.created_at,
+               u.updated_at,
+               r.id          as role_id,
+               r.role_code,
+               r.role_name,
+               r.description as role_description,
+               r.sort_order   as role_sort_order,
+               r.status      as role_status
+        FROM sys_user u
+                 LEFT JOIN sys_user_role ur ON u.id = ur.user_id
+                 LEFT JOIN sys_role r ON ur.role_id = r.id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (u.employee_no LIKE CONCAT('%', #{keyword}, '%')
+                OR u.username LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="roleIds != null and roleIds.size() > 0">
+                AND r.id IN
+                <foreach collection="roleIds" item="roleId" open="(" separator="," close=")">
+                    #{roleId}
+                </foreach>
+            </if>
+            <if test="status != null">
+                AND u.status = #{status}
+            </if>
+        </where>
+        ORDER BY u.created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countByCondition" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT u.id)
+        FROM sys_user u
+                 LEFT JOIN sys_user_role ur ON u.id = ur.user_id
+                 LEFT JOIN sys_role r ON ur.role_id = r.id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (u.employee_no LIKE CONCAT('%', #{keyword}, '%')
+                OR u.username LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="roleIds != null and roleIds.size() > 0">
+                AND r.id IN
+                <foreach collection="roleIds" item="roleId" open="(" separator="," close=")">
+                    #{roleId}
+                </foreach>
+            </if>
+            <if test="status != null">
+                AND u.status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.SysUser" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_user (employee_no, username, email, password, status)
+        VALUES (#{employeeNo}, #{username}, #{email}, #{password}, 1)
+    </insert>
+
+    <update id="update" parameterType="com.zerofinance.xwallet.model.entity.SysUser">
+        UPDATE sys_user
+        SET username = #{username},
+            email    = #{email}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE sys_user
+        SET status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updatePassword">
+        UPDATE sys_user
+        SET password = #{password}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

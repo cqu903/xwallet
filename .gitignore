@@ -1,0 +1,25 @@
+# IDE
+.idea/
+.vscode/
+.DS_Store
+*.iml
+*.ipr
+*.iws
+
+# Logs
+logs/
+*.log
+
+# Build output
+target/
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~

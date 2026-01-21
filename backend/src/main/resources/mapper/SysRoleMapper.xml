@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zerofinance.xwallet.repository.SysRoleMapper">
+
+    <resultMap id="BaseResultMap" type="com.zerofinance.xwallet.model.entity.SysRole">
+        <id column="id" property="id"/>
+        <result column="role_code" property="roleCode"/>
+        <result column="role_name" property="roleName"/>
+        <result column="description" property="description"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="status" property="status"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <select id="selectRoleCodesByUserId" resultType="java.lang.String">
+        SELECT r.role_code
+        FROM sys_role r
+        INNER JOIN sys_user_role ur ON r.id = ur.role_id
+        WHERE ur.user_id = #{userId}
+          AND r.status = 1
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT * FROM sys_role
+        ORDER BY sort_order ASC, id ASC
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM sys_role WHERE id = #{id}
+    </select>
+
+    <select id="selectByRoleCode" resultMap="BaseResultMap">
+        SELECT * FROM sys_role WHERE role_code = #{roleCode}
+    </select>
+
+    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.SysRole" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_role (role_code, role_name, description, sort_order, status)
+        VALUES (#{roleCode}, #{roleName}, #{description}, #{sortOrder}, #{status})
+    </insert>
+
+    <update id="update" parameterType="com.zerofinance.xwallet.model.entity.SysRole">
+        UPDATE sys_role
+        SET role_name = #{roleName},
+            description = #{description},
+            sort_order = #{sortOrder},
+            status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM sys_role WHERE id = #{id}
+    </delete>
+
+</mapper>
