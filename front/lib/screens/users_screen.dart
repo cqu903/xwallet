@@ -4,6 +4,7 @@ import '../providers/layout_provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/role_provider.dart';
 import '../models/user.dart' as model;
+import '../theme/app_theme.dart';
 import '../widgets/user_dialog.dart';
 import '../widgets/reset_password_dialog.dart';
 
@@ -82,7 +83,7 @@ class _UsersScreenState extends State<UsersScreen> {
           label: const Text('新增用户'),
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            backgroundColor: Colors.blue,
+            backgroundColor: AppTheme.primaryPurple,
             foregroundColor: Colors.white,
           ),
         ),
@@ -232,7 +233,7 @@ class _UsersScreenState extends State<UsersScreen> {
                       label: Text(role.roleName),
                       labelStyle: const TextStyle(fontSize: 12),
                       padding: const EdgeInsets.symmetric(horizontal: 4),
-                      backgroundColor: Colors.blue.shade50,
+                      backgroundColor: AppTheme.lightPurple.withOpacity(0.1),
                     ))
                 .toList(),
           ),

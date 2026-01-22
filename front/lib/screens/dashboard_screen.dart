@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/layout_provider.dart';
+import '../theme/app_theme.dart';
 
 /// 仪表盘页面
 /// 登录后的默认首页
@@ -42,7 +43,7 @@ class DashboardScreen extends StatelessWidget {
                     title: '总用户数',
                     value: '1,234',
                     icon: Icons.people,
-                    color: Colors.blue,
+                    color: AppTheme.primaryPurple,
                   ),
                   _DashboardCard(
                     title: '交易总额',

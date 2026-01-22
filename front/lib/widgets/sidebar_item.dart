@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../models/menu_item.dart';
 import '../providers/layout_provider.dart';
+import '../theme/app_theme.dart';
 
 /// 单个菜单项组件
 /// 支持一级菜单和二级菜单展开/折叠
@@ -54,7 +55,7 @@ class SidebarItem extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                color: isActive ? Colors.blue.shade700 : Colors.grey.shade700,
+                color: isActive ? Colors.white : Colors.white.withOpacity(0.8),
               ),
               textAlign: TextAlign.center,
               maxLines: 1,
@@ -76,8 +77,16 @@ class SidebarItem extends StatelessWidget {
         bottom: 2.0,
       ),
       decoration: BoxDecoration(
-        color: isActive ? Colors.blue.shade50 : Colors.transparent,
+        color: isActive
+            ? Colors.white.withOpacity(0.2)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
+        border: isActive
+            ? Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: 1,
+              )
+            : null,
       ),
       child: InkWell(
         onTap: () => _handleTap(context),
@@ -95,7 +104,9 @@ class SidebarItem extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                    color: isActive ? Colors.blue.shade700 : Colors.grey.shade800,
+                    color: isActive
+                        ? Colors.white
+                        : Colors.white.withOpacity(0.8),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -115,9 +126,14 @@ class SidebarItem extends StatelessWidget {
         dividerColor: Colors.transparent,
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
+        iconTheme: IconThemeData(
+          color: Colors.white.withOpacity(0.8),
+        ),
       ),
       child: ExpansionTile(
         leading: null,
+        iconColor: Colors.white.withOpacity(0.8),
+        collapsedIconColor: Colors.white.withOpacity(0.8),
         title: Padding(
           padding: const EdgeInsets.only(left: 0),
           child: Text(
@@ -125,7 +141,9 @@ class SidebarItem extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-              color: isActive ? Colors.blue.shade700 : Colors.grey.shade800,
+              color: isActive
+                  ? Colors.white
+                  : Colors.white.withOpacity(0.8),
             ),
           ),
         ),
