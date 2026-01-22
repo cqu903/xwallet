@@ -61,11 +61,11 @@ public class PermissionServiceImpl implements PermissionService {
         // 先从关联表查询
         List<String> roleCodes = sysRoleMapper.selectRoleCodesByUserId(userId);
 
-        // 如果关联表没有数据,回退到 sys_user.role 字段(兼容现有数据)
+        // 如果关联表没有数据,回退到 UserContext 中的角色列表(兼容现有数据)
         if (roleCodes.isEmpty()) {
-            String role = UserContext.getRole();
-            if (role != null && !role.isEmpty()) {
-                return Collections.singletonList(role);
+            List<String> contextRoles = UserContext.getRoles();
+            if (contextRoles != null && !contextRoles.isEmpty()) {
+                return contextRoles;
             }
         }
 

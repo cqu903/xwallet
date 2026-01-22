@@ -86,17 +86,8 @@ public class MenuServiceImpl implements MenuService {
      * 先从关联表查询,如果没有数据则回退到 sys_user.role 字段
      */
     private List<String> getUserRoles(Long userId) {
-        // 先从关联表查询
+        // 从关联表查询用户角色
         List<String> roleCodes = sysRoleMapper.selectRoleCodesByUserId(userId);
-
-        // 如果关联表没有数据,回退到 sys_user.role 字段(兼容现有数据)
-        if (roleCodes.isEmpty()) {
-            String role = UserContext.getRole();
-            if (role != null && !role.isEmpty()) {
-                return Collections.singletonList(role);
-            }
-        }
-
         return roleCodes;
     }
 

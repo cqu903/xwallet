@@ -43,7 +43,7 @@ public class WebConfig implements WebMvcConfigurer {
         // 注意：由于 context-path=/api，拦截器路径不需要包含 /api 前缀
         registry.addInterceptor(authInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/auth/**");
+                .excludePathPatterns("/auth/**", "/test/**");
 
         // 权限拦截器(第二道关卡,在认证通过后执行)
         registry.addInterceptor(permissionInterceptor)

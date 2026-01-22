@@ -167,7 +167,7 @@ public class AuthServiceImpl implements AuthService {
                         .userId(customer.getId())
                         .username(customer.getNickname() != null ? customer.getNickname() : customer.getEmail())
                         .userType("CUSTOMER")
-                        .role(null)
+                        .roles(null)
                         .build())
                 .build();
     }
@@ -248,7 +248,7 @@ public class AuthServiceImpl implements AuthService {
                         .userId(customer.getId())
                         .username(customer.getNickname() != null ? customer.getNickname() : customer.getEmail())
                         .userType("CUSTOMER")
-                        .role(null)
+                        .roles(null)
                         .build())
                 .build();
     }
