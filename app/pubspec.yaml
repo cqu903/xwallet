@@ -44,9 +44,23 @@ dependencies:
   # 本地存储
   shared_preferences: ^2.2.2
 
+  # MQTT埋点相关
+  mqtt_client: ^10.0.0
+  sqflite: ^2.3.0
+  path_provider: ^2.1.0
+  device_info_plus: ^9.0.0
+  connectivity_plus: ^5.0.0
+  uuid: ^4.0.0
+  json_annotation: ^4.9.0
+  package_info_plus: ^4.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  # JSON序列化代码生成
+  json_serializable: ^6.11.4
+  build_runner: ^2.4.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
