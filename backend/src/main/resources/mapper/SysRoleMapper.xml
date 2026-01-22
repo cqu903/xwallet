@@ -53,4 +53,16 @@
         DELETE FROM sys_role WHERE id = #{id}
     </delete>
 
+    <select id="countUsersByRoleId" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM sys_user_role
+        WHERE role_id = #{roleId}
+    </select>
+
+    <select id="countUsersByRoleIds" resultType="java.util.HashMap">
+        SELECT role_id AS roleId, COUNT(*) AS userCount
+        FROM sys_user_role
+        GROUP BY role_id
+    </select>
+
 </mapper>
