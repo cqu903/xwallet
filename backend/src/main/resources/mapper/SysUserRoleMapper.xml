@@ -22,8 +22,4 @@
         DELETE FROM sys_user_role WHERE user_id = #{userId} AND role_id = #{roleId}
     </delete>
 
-    <delete id="deleteByRoleId">
-        DELETE FROM sys_user_role WHERE role_id = #{roleId}
-    </delete>
-
 </mapper>
