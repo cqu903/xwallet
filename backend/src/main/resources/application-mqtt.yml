@@ -1,0 +1,8 @@
+mqtt:
+  broker: tcp://${MQTT_BROKER_HOST:broker.emqxsl.com}:1883
+  client-id: xwallet-backend-${random.value}
+  username: ${MQTT_USERNAME:}
+  password: ${MQTT_PASSWORD:}
+  topic: app/prod/+
+  qos: 1
+  completion-timeout: 30000
