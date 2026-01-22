@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/layout_provider.dart';
 import '../providers/menu_provider.dart';
+import '../theme/app_theme.dart';
 import 'sidebar_item.dart';
 
 /// 侧边栏组件
@@ -17,16 +18,13 @@ class Sidebar extends StatelessWidget {
 
     return Container(
       width: width,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          right: BorderSide(color: Colors.grey.shade200),
-        ),
+      decoration: const BoxDecoration(
+        gradient: AppTheme.sidebarGradient,
         boxShadow: [
           BoxShadow(
             color: Colors.black12,
-            blurRadius: 4,
-            offset: const Offset(2, 0),
+            blurRadius: 8,
+            offset: Offset(2, 0),
           ),
         ],
       ),
@@ -54,16 +52,26 @@ class Sidebar extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: isExpanded ? 16.0 : 0),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Colors.grey.shade200),
+          bottom: BorderSide(
+            color: Colors.white.withOpacity(0.2),
+            width: 1,
+          ),
         ),
       ),
       child: Row(
         mainAxisAlignment: isExpanded ? MainAxisAlignment.start : MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.account_balance_wallet,
-            color: Colors.blue.shade700,
-            size: 32,
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.account_balance_wallet,
+              color: Colors.white,
+              size: 24,
+            ),
           ),
           if (isExpanded) ...[
             const SizedBox(width: 12),
@@ -72,7 +80,7 @@ class Sidebar extends StatelessWidget {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: Colors.white,
               ),
             ),
           ],
@@ -98,7 +106,7 @@ class Sidebar extends StatelessWidget {
             children: [
               Icon(
                 Icons.error_outline,
-                color: Colors.red.shade300,
+                color: Colors.white.withOpacity(0.8),
                 size: 48,
               ),
               const SizedBox(height: 16),
@@ -106,7 +114,7 @@ class Sidebar extends StatelessWidget {
                 menuProvider.errorMessage!,
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey.shade600,
+                  color: Colors.white.withOpacity(0.9),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -128,7 +136,7 @@ class Sidebar extends StatelessWidget {
           children: [
             Icon(
               Icons.menu_outlined,
-              color: Colors.grey.shade300,
+              color: Colors.white.withOpacity(0.5),
               size: 48,
             ),
             const SizedBox(height: 16),
@@ -136,7 +144,7 @@ class Sidebar extends StatelessWidget {
               '暂无菜单',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey.shade500,
+                color: Colors.white.withOpacity(0.7),
               ),
             ),
           ],
@@ -162,17 +170,23 @@ class Sidebar extends StatelessWidget {
 
     return Column(
       children: [
-        Divider(color: Colors.grey.shade200, height: 1),
+        Divider(
+          color: Colors.white.withOpacity(0.2),
+          height: 1,
+        ),
         // 折叠/展开按钮
         ListTile(
           leading: Icon(
             isExpanded ? Icons.menu_open : Icons.menu,
-            color: Colors.grey.shade700,
+            color: Colors.white.withOpacity(0.9),
           ),
           title: isExpanded
-              ? const Text(
+              ? Text(
                   '折叠菜单',
-                  style: TextStyle(fontSize: 14),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white.withOpacity(0.9),
+                  ),
                 )
               : null,
           onTap: layoutProvider.toggleSidebar,

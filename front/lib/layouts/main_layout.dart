@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/layout_provider.dart';
+import '../theme/app_theme.dart';
 import '../widgets/sidebar.dart';
 
 /// 主布局组件
@@ -41,7 +42,9 @@ class MainLayout extends StatelessWidget {
   /// 构建内容区域
   Widget _buildContentArea(BuildContext context, Widget child) {
     return Container(
-      color: Colors.grey.shade50,
+      decoration: const BoxDecoration(
+        gradient: AppTheme.lightGradient,
+      ),
       child: child,
     );
   }

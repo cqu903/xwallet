@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../theme/app_theme.dart';
 
 /// 登录页面
 /// Web管理系统员工使用工号登录
@@ -50,26 +51,25 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.blue.shade50,
-              Colors.white,
-            ],
-          ),
+        decoration: const BoxDecoration(
+          gradient: AppTheme.lightGradient,
         ),
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 32.0),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 400),
-              child: Card(
-                elevation: 8,
-                shadowColor: Colors.black26,
-                shape: RoundedRectangleBorder(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: AppTheme.cardGradient,
                   borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primaryPurple.withOpacity(0.1),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(32.0),
@@ -80,19 +80,38 @@ class _LoginScreenState extends State<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // Logo或标题
-                        Icon(
-                          Icons.account_balance_wallet,
-                          size: 80,
-                          color: Colors.blue.shade700,
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            gradient: AppTheme.primaryGradient,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTheme.primaryPurple.withOpacity(0.3),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.account_balance_wallet,
+                            size: 64,
+                            color: Colors.white,
+                          ),
                         ),
                         const SizedBox(height: 16),
-                        Text(
-                          'xWallet 管理系统',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade800,
+                        ShaderMask(
+                          shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(
+                            Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                          ),
+                          child: const Text(
+                            'xWallet 管理系统',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -117,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             filled: true,
-                            fillColor: Colors.grey.shade50,
+                            fillColor: Colors.white,
                           ),
                           keyboardType: TextInputType.text,
                           textInputAction: TextInputAction.next,
@@ -153,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             filled: true,
-                            fillColor: Colors.grey.shade50,
+                            fillColor: Colors.white,
                           ),
                           obscureText: _obscurePassword,
                           textInputAction: TextInputAction.done,
@@ -173,20 +192,39 @@ class _LoginScreenState extends State<LoginScreen> {
                         // 登录按钮
                         Consumer<AuthProvider>(
                           builder: (context, authProvider, child) {
-                            return ElevatedButton(
-                              onPressed: authProvider.isLoggingIn
-                                  ? null
-                                  : _handleLogin,
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                backgroundColor: Colors.blue.shade700,
-                                foregroundColor: Colors.white,
+                            return Container(
+                              decoration: BoxDecoration(
+                                gradient: authProvider.isLoggingIn
+                                    ? null
+                                    : AppTheme.buttonGradient,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: authProvider.isLoggingIn
+                                    ? null
+                                    : [
+                                        BoxShadow(
+                                          color: AppTheme.primaryPurple.withOpacity(0.4),
+                                          blurRadius: 12,
+                                          offset: const Offset(0, 6),
+                                        ),
+                                      ],
                               ),
+                              child: ElevatedButton(
+                                onPressed: authProvider.isLoggingIn
+                                    ? null
+                                    : _handleLogin,
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  backgroundColor: authProvider.isLoggingIn
+                                      ? Colors.grey.shade400
+                                      : Colors.transparent,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                ),
                               child: authProvider.isLoggingIn
                                   ? const SizedBox(
                                       height: 20,
@@ -205,6 +243,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
+                              ),
                             );
                           },
                         ),

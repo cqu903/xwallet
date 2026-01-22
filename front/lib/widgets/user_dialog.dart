@@ -4,6 +4,7 @@ import '../models/user.dart';
 import '../providers/user_provider.dart';
 import '../providers/role_provider.dart';
 import '../services/user_service.dart';
+import '../theme/app_theme.dart';
 
 /// 用户编辑弹窗
 /// 用于创建和编辑用户
@@ -190,8 +191,8 @@ class _UserDialogState extends State<UserDialog> {
                       }
                     });
                   },
-                  selectedColor: Colors.blue.shade100,
-                  checkmarkColor: Colors.blue,
+                  selectedColor: AppTheme.lightPurple.withOpacity(0.2),
+                  checkmarkColor: AppTheme.primaryPurple,
                 );
               }).toList(),
             ),

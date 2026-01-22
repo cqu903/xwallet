@@ -6,6 +6,7 @@ import 'providers/menu_provider.dart';
 import 'providers/user_provider.dart';
 import 'providers/role_provider.dart';
 import 'routes/app_router.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,13 +28,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp.router(
         title: 'xWallet 管理系统',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blue,
-            primary: Colors.blue.shade700,
-          ),
-          useMaterial3: true,
-        ),
+        theme: AppTheme.getTheme(),
         routerConfig: appRouter,
       ),
     );
