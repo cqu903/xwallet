@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../models/menu_item.dart';
 import '../providers/layout_provider.dart';
-import '../theme/app_theme.dart';
 
 /// 单个菜单项组件
 /// 支持一级菜单和二级菜单展开/折叠
@@ -40,7 +39,11 @@ class SidebarItem extends StatelessWidget {
   }
 
   /// 构建折叠状态的菜单项
-  Widget _buildCollapsedItem(BuildContext context, bool isActive, bool hasChildren) {
+  Widget _buildCollapsedItem(
+    BuildContext context,
+    bool isActive,
+    bool hasChildren,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Tooltip(
@@ -77,15 +80,10 @@ class SidebarItem extends StatelessWidget {
         bottom: 2.0,
       ),
       decoration: BoxDecoration(
-        color: isActive
-            ? Colors.white.withOpacity(0.2)
-            : Colors.transparent,
+        color: isActive ? Colors.white.withOpacity(0.2) : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
         border: isActive
-            ? Border.all(
-                color: Colors.white.withOpacity(0.3),
-                width: 1,
-              )
+            ? Border.all(color: Colors.white.withOpacity(0.3), width: 1)
             : null,
       ),
       child: InkWell(
@@ -95,9 +93,7 @@ class SidebarItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Row(
             children: [
-              if (indent > 0) ...[
-                SizedBox(width: 16.0 * indent),
-              ],
+              if (indent > 0) ...[SizedBox(width: 16.0 * indent)],
               Expanded(
                 child: Text(
                   menu.name,
@@ -120,15 +116,17 @@ class SidebarItem extends StatelessWidget {
   }
 
   /// 构建有子菜单的展开项
-  Widget _buildExpansionItem(BuildContext context, bool isExpanded, bool isActive) {
+  Widget _buildExpansionItem(
+    BuildContext context,
+    bool isExpanded,
+    bool isActive,
+  ) {
     return Theme(
       data: Theme.of(context).copyWith(
         dividerColor: Colors.transparent,
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
-        iconTheme: IconThemeData(
-          color: Colors.white.withOpacity(0.8),
-        ),
+        iconTheme: IconThemeData(color: Colors.white.withOpacity(0.8)),
       ),
       child: ExpansionTile(
         leading: null,
@@ -141,9 +139,7 @@ class SidebarItem extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-              color: isActive
-                  ? Colors.white
-                  : Colors.white.withOpacity(0.8),
+              color: isActive ? Colors.white : Colors.white.withOpacity(0.8),
             ),
           ),
         ),

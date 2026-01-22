@@ -26,3 +26,13 @@ build/
 
 # Tools
 .serena/
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+*.env
+
+# 特定环境的配置文件（如果包含敏感信息）
+backend/src/main/resources/application-local.yml
+backend/src/main/resources/application-prod.yml

@@ -30,4 +30,9 @@ public interface SysUserRoleMapper {
      * 删除用户的指定角色
      */
     int delete(@Param("userId") Long userId, @Param("roleId") Long roleId);
+
+    /**
+     * 删除角色的所有用户关联
+     */
+    int deleteByRoleId(@Param("roleId") Long roleId);
 }
