@@ -5,8 +5,11 @@ import com.zerofinance.xwallet.model.entity.SysRole;
 import com.zerofinance.xwallet.repository.SysRoleMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,6 +47,29 @@ public class RoleService {
             return null;
         }
         return convertToDTO(role);
+    }
+
+    /**
+     * 获取用户角色编码列表（带缓存）
+     * 缓存 key: roles:userId
+     * 缓存过期时间: 30 分钟
+     * @param userId 用户ID
+     * @return 角色编码列表
+     */
+    @Cacheable(value = "roles", key = "'roles:' + #userId")
+    public List<String> getUserRoles(Long userId) {
+        log.debug("从数据库获取用户角色 - userId: {}", userId);
+        List<String> roles = sysRoleMapper.selectRoleCodesByUserId(userId);
+        return roles != null ? roles : Collections.emptyList();
+    }
+
+    /**
+     * 刷新用户角色缓存
+     * @param userId 用户ID
+     */
+    @CacheEvict(value = "roles", key = "'roles:' + #userId")
+    public void refreshUserRolesCache(Long userId) {
+        log.info("已刷新用户角色缓存 - userId: {}", userId);
     }
 
     /**

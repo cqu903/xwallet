@@ -13,6 +13,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -69,11 +70,12 @@ public class PermissionInterceptor implements HandlerInterceptor {
     }
 
     /**
-     * 校验角色
+     * 校验角色（支持多角色）
      */
     private boolean checkRole(RequireRole requireRole) {
-        String currentRole = UserContext.getRole();
-        if (currentRole == null) {
+        List<String> userRoles = UserContext.getRoles();
+        if (userRoles == null || userRoles.isEmpty()) {
+            log.debug("用户没有任何角色");
             return false;
         }
 
@@ -82,19 +84,21 @@ public class PermissionInterceptor implements HandlerInterceptor {
 
         if (logical == RequirePermission.Logical.AND) {
             // AND 模式: 需要拥有所有角色
-            for (String role : requiredRoles) {
-                if (!role.equalsIgnoreCase(currentRole)) {
+            for (String requiredRole : requiredRoles) {
+                if (!userRoles.contains(requiredRole)) {
+                    log.debug("用户缺少角色: {}, 当前角色: {}", requiredRole, userRoles);
                     return false;
                 }
             }
             return true;
         } else {
             // OR 模式: 拥有任一角色即可
-            for (String role : requiredRoles) {
-                if (role.equalsIgnoreCase(currentRole)) {
+            for (String requiredRole : requiredRoles) {
+                if (userRoles.contains(requiredRole)) {
                     return true;
                 }
             }
+            log.debug("用户缺少任一角色: {}, 当前角色: {}", String.join(",", requiredRoles), userRoles);
             return false;
         }
     }

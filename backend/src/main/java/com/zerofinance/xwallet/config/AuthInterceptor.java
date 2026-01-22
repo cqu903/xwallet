@@ -2,6 +2,7 @@ package com.zerofinance.xwallet.config;
 
 import com.zerofinance.xwallet.model.entity.SysUser;
 import com.zerofinance.xwallet.repository.SysUserMapper;
+import com.zerofinance.xwallet.service.RoleService;
 import com.zerofinance.xwallet.util.JwtUtil;
 import com.zerofinance.xwallet.util.UserContext;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+
+import java.util.List;
 
 /**
  * 认证拦截器
@@ -22,6 +25,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     private final JwtUtil jwtUtil;
     private final SysUserMapper sysUserMapper;
+    private final RoleService roleService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -54,7 +58,6 @@ public class AuthInterceptor implements HandlerInterceptor {
             Long userId = jwtUtil.getUserIdFromToken(token);
             String username = jwtUtil.getUsernameFromToken(token);
             String userType = jwtUtil.getUserTypeFromToken(token);
-            String role = jwtUtil.getRoleFromToken(token);
 
             // 对于系统用户，检查用户状态
             if ("SYSTEM".equalsIgnoreCase(userType) && userId != null) {
@@ -73,8 +76,25 @@ public class AuthInterceptor implements HandlerInterceptor {
                 }
             }
 
+            // 从数据库加载用户角色列表（带缓存）
+            List<String> roles = List.of(); // 默认为空列表
+            if ("SYSTEM".equalsIgnoreCase(userType) && userId != null) {
+                try {
+                    roles = roleService.getUserRoles(userId);
+                    if (roles == null || roles.isEmpty()) {
+                        log.warn("用户没有任何角色 - userId: {}", userId);
+                        roles = List.of();
+                    } else {
+                        log.debug("用户角色加载成功 - userId: {}, roles: {}", userId, roles);
+                    }
+                } catch (Exception e) {
+                    log.error("加载用户角色失败 - userId: {}", userId, e);
+                    roles = List.of();
+                }
+            }
+
             // 将用户信息存入 ThreadLocal
-            UserContext.UserInfo userInfo = new UserContext.UserInfo(userId, username, userType, role);
+            UserContext.UserInfo userInfo = new UserContext.UserInfo(userId, username, userType, roles);
             UserContext.setUser(userInfo);
 
             return true;

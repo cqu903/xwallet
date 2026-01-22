@@ -1,5 +1,8 @@
 package com.zerofinance.xwallet.util;
 
+import java.util.List;
+import java.util.Set;
+
 /**
  * 用户上下文工具类
  * 使用 ThreadLocal 存储当前请求的用户信息
@@ -47,11 +50,19 @@ public class UserContext {
     }
 
     /**
-     * 获取当前用户角色
+     * 获取当前用户角色列表
      */
-    public static String getRole() {
+    public static List<String> getRoles() {
         UserInfo userInfo = getUser();
-        return userInfo != null ? userInfo.getRole() : null;
+        return userInfo != null ? userInfo.getRoles() : null;
+    }
+
+    /**
+     * 检查用户是否拥有指定角色
+     */
+    public static boolean hasRole(String roleCode) {
+        List<String> roles = getRoles();
+        return roles != null && roles.contains(roleCode);
     }
 
     /**
@@ -69,13 +80,13 @@ public class UserContext {
         private final Long userId;
         private final String username;
         private final String userType;
-        private final String role;
+        private final List<String> roles;
 
-        public UserInfo(Long userId, String username, String userType, String role) {
+        public UserInfo(Long userId, String username, String userType, List<String> roles) {
             this.userId = userId;
             this.username = username;
             this.userType = userType;
-            this.role = role;
+            this.roles = roles;
         }
 
         public Long getUserId() {
@@ -90,8 +101,8 @@ public class UserContext {
             return userType;
         }
 
-        public String getRole() {
-            return role;
+        public List<String> getRoles() {
+            return roles;
         }
     }
 }

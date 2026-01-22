@@ -10,6 +10,7 @@ import com.zerofinance.xwallet.repository.SysUserMapper;
 import com.zerofinance.xwallet.repository.CustomerMapper;
 import com.zerofinance.xwallet.repository.TokenBlacklistMapper;
 import com.zerofinance.xwallet.service.AuthService;
+import com.zerofinance.xwallet.service.RoleService;
 import com.zerofinance.xwallet.service.VerificationCodeService;
 import com.zerofinance.xwallet.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 认证服务实现类
@@ -32,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
     private final TokenBlacklistMapper tokenBlacklistMapper;
     private final JwtUtil jwtUtil;
     private final VerificationCodeService verificationCodeService;
+    private final RoleService roleService;
 
     @Override
     public LoginResponse login(LoginRequest request) {
@@ -187,7 +190,10 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("工号或密码错误");
         }
 
-        // 生成token（角色信息从 sys_user_role 表获取，token 中不存储）
+        // 查询用户角色列表
+        List<String> roles = roleService.getUserRoles(user.getId());
+
+        // 生成token（角色信息不存储在 token 中，每次请求从数据库加载）
         String token = jwtUtil.generateToken(
                 user.getId(),
                 user.getUsername(),
@@ -195,7 +201,7 @@ public class AuthServiceImpl implements AuthService {
                 null
         );
 
-        log.info("系统用户登录成功 - 工号: {}, 姓名: {}", employeeNo, user.getUsername());
+        log.info("系统用户登录成功 - 工号: {}, 姓名: {}, 角色: {}", employeeNo, user.getUsername(), roles);
 
         return LoginResponse.builder()
                 .token(token)
@@ -203,7 +209,7 @@ public class AuthServiceImpl implements AuthService {
                         .userId(user.getId())
                         .username(user.getUsername())
                         .userType("SYSTEM")
-                        .role(null)
+                        .roles(roles)
                         .build())
                 .build();
     }

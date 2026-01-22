@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * 登录响应DTO
  */
@@ -24,6 +26,6 @@ public class LoginResponse {
         private Long userId;
         private String username;
         private String userType; // "SYSTEM" 或 "CUSTOMER"
-        private String role; // 仅系统用户有值
+        private List<String> roles; // 系统用户的角色列表
     }
 }
