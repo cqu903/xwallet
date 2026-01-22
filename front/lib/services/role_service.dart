@@ -13,7 +13,7 @@ class RoleService {
     try {
       final token = await _apiService.getToken();
       if (token == null || token.isEmpty) {
-        return (const [], '未登录');
+        return (<Role>[], '未登录');
       }
 
       final response = await http.get(
@@ -33,12 +33,12 @@ class RoleService {
           return (roles, null);
         }
         final errorMsg = responseData['errmsg'] ?? '获取角色列表失败';
-        return (const [], errorMsg as String?);
+        return (<Role>[], errorMsg as String?);
       } else {
-        return (const [], '服务器错误: ${response.statusCode}');
+        return (<Role>[], '服务器错误: ${response.statusCode}');
       }
     } catch (e) {
-      return (const [], '网络错误: $e');
+      return (<Role>[], '网络错误: $e');
     }
   }
 }
