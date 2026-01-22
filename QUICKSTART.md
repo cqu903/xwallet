@@ -14,7 +14,7 @@
 mysql -u root -p
 
 # 执行初始化脚本
-source /home/roy/codes/claudes/xwallet/backend/database/init.sql
+source /home/roy/codes/claudes/xwallet/backend/database/init_all.sql
 
 # 验证数据表
 USE xwallet;

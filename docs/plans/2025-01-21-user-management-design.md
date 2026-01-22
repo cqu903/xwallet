@@ -221,8 +221,8 @@ class RoleProvider extends ChangeNotifier {
 
 ### 数据库
 
-**新增脚本：**
-- `backend/database/user_management_update.sql`
+**已合并：**
+- `backend/database/init_all.sql` (包含用户管理相关表结构和权限)
 
 ## 9. 实施顺序
 

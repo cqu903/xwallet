@@ -54,8 +54,7 @@ mvn test
 # MySQL 运行在 Docker 容器中
 # 执行 SQL 脚本需要先连接到 MySQL 容器
 
-docker exec -i <mysql-container-name> mysql -u root -p123321qQ < backend/database/init.sql
-docker exec -i <mysql-container-name> mysql -u root -p123321qQ < backend/database/rbac_init.sql
+docker exec -i <mysql-container-name> mysql -u root -p123321qQ < backend/database/init_all.sql
 
 # 或进入容器
 docker exec -it <mysql-container-name> mysql -u root -p123321qQ
@@ -132,9 +131,16 @@ front/lib/
 
 ## 数据库表结构
 
-核心表 (`backend/database/`):
-- `init.sql`: sys_user (系统用户), customer (顾客), token_blacklist, verification_code
-- `rbac_init.sql`: sys_menu (菜单权限), sys_role (角色), sys_role_menu, sys_user_role, sys_operation_log
+核心表 (`backend/database/init_all.sql`):
+- `sys_user` (系统用户) - 包含 employee_no, username, email, password, status
+- `customer` (顾客) - 包含 email, password, nickname, status
+- `token_blacklist` (Token黑名单)
+- `verification_code` (验证码)
+- `sys_menu` (菜单权限) - RBAC核心表
+- `sys_role` (角色)
+- `sys_role_menu` (角色菜单关联)
+- `sys_user_role` (用户角色关联)
+- `sys_operation_log` (操作日志)
 
 ## 测试账号
 

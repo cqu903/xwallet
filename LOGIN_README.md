@@ -110,7 +110,7 @@ app/
 mysql -u root -p
 
 # 执行初始化脚本
-source /home/roy/codes/claudes/xwallet/backend/database/init.sql
+source /home/roy/codes/claudes/xwallet/backend/database/init_all.sql
 ```
 
 ### 2. 后端启动
