@@ -67,11 +67,17 @@ class Role {
   final String id;
   final String roleCode;
   final String roleName;
+  final String? description;
+  final int? status;
+  final int? userCount;
 
   Role({
     required this.id,
     required this.roleCode,
     required this.roleName,
+    this.description,
+    this.status,
+    this.userCount,
   });
 
   /// 从 JSON 创建角色
@@ -80,6 +86,9 @@ class Role {
       id: json['id']?.toString() ?? '',
       roleCode: json['roleCode'] as String? ?? '',
       roleName: json['roleName'] as String? ?? '',
+      description: json['description'] as String?,
+      status: json['status'] as int?,
+      userCount: json['userCount'] as int?,
     );
   }
 
@@ -89,6 +98,12 @@ class Role {
       'id': id,
       'roleCode': roleCode,
       'roleName': roleName,
+      if (description != null) 'description': description,
+      if (status != null) 'status': status,
+      if (userCount != null) 'userCount': userCount,
     };
   }
+
+  /// 是否启用
+  bool get isEnabled => status == 1;
 }

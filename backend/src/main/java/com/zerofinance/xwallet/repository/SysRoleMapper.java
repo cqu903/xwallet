@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 角色 Mapper
@@ -46,4 +47,15 @@ public interface SysRoleMapper {
      * 删除角色
      */
     int deleteById(@Param("id") Long id);
+
+    /**
+     * 查询角色关联的用户数量
+     */
+    int countUsersByRoleId(@Param("roleId") Long roleId);
+
+    /**
+     * 批量查询角色关联的用户数量
+     * 返回 Map<roleId, userCount>
+     */
+    List<Map<String, Object>> countUsersByRoleIds();
 }

@@ -6,6 +6,7 @@ import '../providers/auth_provider.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/placeholder_screen.dart';
+import '../screens/roles_screen.dart';
 import '../screens/users_screen.dart';
 
 /// 应用路由配置
@@ -74,6 +75,13 @@ final _appRoutes = [
         path: '/users',
         pageBuilder: (context, state) => const NoTransitionPage(
           child: UsersScreen(),
+        ),
+      ),
+      // 角色管理
+      GoRoute(
+        path: '/system/roles',
+        pageBuilder: (context, state) => const NoTransitionPage(
+          child: RolesScreen(),
         ),
       ),
       // 通用占位页（匹配所有未定义路由）

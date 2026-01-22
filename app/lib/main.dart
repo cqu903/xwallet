@@ -6,19 +6,8 @@ import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/account_screen.dart';
 import 'screens/profile_screen.dart';
-import 'services/analytics_service.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // 初始化埋点服务
-  try {
-    await AnalyticsService.instance.initialize();
-  } catch (e) {
-    print('Analytics initialization failed: $e');
-    // 即使初始化失败也继续启动应用
-  }
-
+void main() {
   runApp(const MyApp());
 }
 
