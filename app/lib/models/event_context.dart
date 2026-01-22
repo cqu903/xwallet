@@ -1,4 +1,8 @@
+import 'dart:io';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import '../utils/device_info_collector.dart';
+import '../utils/app_info.dart';
 
 part 'event_context.g.dart';
 
@@ -33,7 +37,29 @@ class EventContext {
 
   /// 自动采集上下文信息
   static Future<EventContext> collect() async {
-    // TODO: Task 2 实现
-    throw UnimplementedError();
+    final networkType = await DeviceInfoCollector.getNetworkType();
+    final carrier = await DeviceInfoCollector.getCarrier();
+
+    return EventContext(
+      appVersion: await AppInfo.getVersion(),
+      os: Platform.isIOS ? 'iOS' : 'Android',
+      osVersion: await _getOsVersion(),
+      deviceModel: await DeviceInfoCollector.getDeviceModel(),
+      networkType: networkType,
+      carrier: carrier,
+      screenSize: DeviceInfoCollector.getScreenSize(),
+      timezone: DateTime.now().timeZoneName,
+      language: Platform.localeName,
+    );
+  }
+
+  static Future<String> _getOsVersion() async {
+    if (Platform.isIOS) {
+      IosDeviceInfo iosInfo = await DeviceInfoPlugin().iosInfo;
+      return iosInfo.systemVersion;
+    } else {
+      AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
+      return androidInfo.release;
+    }
   }
 }
