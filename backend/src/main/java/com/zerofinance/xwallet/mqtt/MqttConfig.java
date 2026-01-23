@@ -29,14 +29,22 @@ public class MqttConfig {
     public MqttPahoClientFactory mqttClientFactory() {
         DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
         MqttConnectOptions options = new MqttConnectOptions();
+        
+        // 设置 broker URL
+        options.setServerURIs(new String[]{broker});
+        
+        // 连接选项
         options.setAutomaticReconnect(true);
         options.setCleanSession(false);
         options.setConnectionTimeout(30);
         options.setKeepAliveInterval(60);
 
-        if (!username.isEmpty()) {
+        // 认证信息（如果提供）
+        if (username != null && !username.isEmpty()) {
             options.setUserName(username);
-            options.setPassword(password.toCharArray());
+            if (password != null && !password.isEmpty()) {
+                options.setPassword(password.toCharArray());
+            }
         }
 
         factory.setConnectionOptions(options);

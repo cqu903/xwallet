@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/menu_provider.dart';
 import '../theme/app_theme.dart';
 
 /// 登录页面
@@ -31,12 +32,16 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     final authProvider = context.read<AuthProvider>();
+    final menuProvider = context.read<MenuProvider>();
     final success = await authProvider.login(
       _employeeNoController.text.trim(),
       _passwordController.text,
     );
 
-    if (!success && mounted) {
+    if (success) {
+      // 登录成功后，加载菜单数据
+      menuProvider.refresh();
+    } else if (mounted) {
       // 显示错误消息
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

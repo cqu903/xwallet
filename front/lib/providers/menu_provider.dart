@@ -15,9 +15,11 @@ class MenuProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  /// 初始化：加载菜单数据
+  /// 初始化：不立即加载菜单
+  /// 菜单将在用户登录后通过 refresh() 方法加载
   MenuProvider() {
-    loadMenus();
+    // 不在构造函数中立即加载，避免在用户未登录时失败
+    // 菜单将在登录成功后通过 refresh() 方法加载
   }
 
   /// 从后端加载菜单数据

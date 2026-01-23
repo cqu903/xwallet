@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  emqx:
+    image: emqx/emqx:5.4.0
+    container_name: xwallet-emqx
+    ports:
+      - "1883:1883"   # MQTT TCP 端口
+      - "8083:8083"   # MQTT WebSocket 端口
+      - "8084:8084"   # MQTT SSL/TLS 端口
+      - "18083:18083" # Dashboard Web 管理界面
+    environment:
+      # 允许匿名连接（开发环境）
+      - EMQX_ALLOW_ANONYMOUS=true
+      # Dashboard 默认用户名密码
+      - EMQX_DASHBOARD__DEFAULT_USERNAME=admin
+      - EMQX_DASHBOARD__DEFAULT_PASSWORD=public
+      # 集群名称
+      - EMQX_NAME=emqx
+      # 节点 Cookie（集群用）
+      - EMQX_CLUSTER__DISCOVERY_STRATEGY=static
+      # 日志级别
+      - EMQX_LOG__LEVEL=info
+    volumes:
+      - ./mqtt/emqx/data:/opt/emqx/data
+      - ./mqtt/emqx/log:/opt/emqx/log
+    restart: unless-stopped
+    networks:
+      - xwallet-network
+    healthcheck:
+      test: ["CMD", "/opt/emqx/bin/emqx", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  xwallet-network:
+    driver: bridge

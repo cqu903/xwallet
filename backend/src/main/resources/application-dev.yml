@@ -52,3 +52,10 @@ jwt:
 app:
   verification-code:
     expiration-minutes: 5  # 验证码有效期（分钟）
+
+# MQTT 配置（开发环境使用本地 EMQX）
+mqtt:
+  broker: tcp://localhost:1883
+  client-id: xwallet-backend-dev-${random.value}
+  username: ${MQTT_USERNAME:}  # 可选，开发环境允许匿名连接
+  password: ${MQTT_PASSWORD:}  # 可选

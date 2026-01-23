@@ -56,13 +56,24 @@ class MenuService {
         return (null, '未登录');
       }
 
+      final url = Uri.parse('${ApiService.baseUrl}/menus');
+      print('正在请求菜单数据: $url');
+      
       final response = await http.get(
-        Uri.parse('${ApiService.baseUrl}/menus'),
+        url,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw Exception('请求超时');
+        },
       );
+
+      print('菜单API响应状态码: ${response.statusCode}');
+      print('菜单API响应体: ${response.body}');
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
@@ -79,20 +90,27 @@ class MenuService {
           return (menus, null);
         } else {
           final errorMsg = responseData['errmsg'] ?? '获取菜单失败';
+          print('菜单API返回错误: code=$code, errmsg=$errorMsg');
           return (null, errorMsg as String?);
         }
       } else {
         // API 调用失败，尝试返回缓存
         final cached = await getCachedMenu();
         if (cached.isNotEmpty) {
+          print('API调用失败，使用缓存菜单');
           return (cached, null);
         }
+        print('菜单API调用失败: statusCode=${response.statusCode}, body=${response.body}');
         return (null, '服务器错误: ${response.statusCode}');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('获取菜单时发生异常: $e');
+      print('堆栈跟踪: $stackTrace');
+      
       // 发生异常，尝试返回缓存
       final cached = await getCachedMenu();
       if (cached.isNotEmpty) {
+        print('发生异常，使用缓存菜单');
         return (cached, null);
       }
       return (null, '网络错误: $e');

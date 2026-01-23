@@ -30,8 +30,7 @@ class DeviceInfoCollector {
 
   /// 获取网络类型
   static Future<String> getNetworkType() async {
-    final results = await connectivity.checkConnectivity();
-    final result = results.first;
+    final result = await connectivity.checkConnectivity();
 
     switch (result) {
       case ConnectivityResult.wifi:
@@ -50,11 +49,8 @@ class DeviceInfoCollector {
   }
 
   /// 获取运营商（仅 Android）
+  /// device_info_plus 不提供运营商接口，需搭配 telephony 等插件；暂返回 null
   static Future<String?> getCarrier() async {
-    if (Platform.isAndroid) {
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      return androidInfo.androidId;
-    }
     return null;
   }
 

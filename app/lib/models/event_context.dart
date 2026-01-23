@@ -59,7 +59,7 @@ class EventContext {
       return iosInfo.systemVersion;
     } else {
       AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
-      return androidInfo.release;
+      return androidInfo.version.release;
     }
   }
 }

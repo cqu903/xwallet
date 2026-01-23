@@ -75,7 +75,7 @@ class MqttClientWrapper {
 
   /// 断开连接
   Future<void> disconnect() async {
-    await _client.disconnect();
+    _client.disconnect();
     _isConnected = false;
   }
 }
