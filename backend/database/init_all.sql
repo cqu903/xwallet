@@ -225,8 +225,9 @@ INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `componen
 (0, '交易记录', 2, '/transactions', 'transactions/index', 'transaction:view', 'Transaction', 4);
 
 -- 一级菜单: 系统管理(仅管理员)
+-- 注意: path 设置为 NULL，因为系统管理只是父级容器菜单，不需要导航
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
-(0, '系统管理', 2, '/system', 'system/index', 'system:view', 'Setting', 99);
+(0, '系统管理', 2, NULL, 'system/index', 'system:view', 'Setting', 99);
 
 -- 系统管理子菜单
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `sort_order`) VALUES

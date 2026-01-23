@@ -41,15 +41,15 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         // 认证拦截器(第一道关卡)
         // 注意：由于 context-path=/api，拦截器路径不需要包含 /api 前缀
-        // OPTIONS 请求由 CORS 配置处理，不需要经过认证拦截器
+        // 例如: /api/auth/login 在拦截器中匹配 /auth/login
+        // 拦截器内部会通过 requestURI 判断是否需要认证
         registry.addInterceptor(authInterceptor)
-                .addPathPatterns("/**")
-                .excludePathPatterns("/auth/**", "/test/**");
+                .addPathPatterns("/**");
 
         // 权限拦截器(第二道关卡,在认证通过后执行)
         registry.addInterceptor(permissionInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/auth/**", "/test/**") // 同样排除不需要权限的路径
+                .excludePathPatterns("/auth/**", "/test/**") // 排除不需要权限的路径
                 .order(1); // 确保在 authInterceptor 之后执行
     }
 }

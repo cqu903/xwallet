@@ -25,24 +25,70 @@ SELECT * FROM sys_user;
 SELECT * FROM customer;
 ```
 
-## 第二步：启动后端服务
+## 第二步：配置环境变量
+
+项目使用 **spring-dotenv** 从 `.env` 文件自动加载环境变量。
+
+### 环境变量配置文件
+
+**文件位置：** `backend/.env` ⚠️ **唯一需要**
+
+**创建配置文件：**
+```bash
+cd backend
+vim .env
+```
+
+**示例配置：**
+```bash
+# 数据库配置
+DB_URL=jdbc:mysql://localhost:3306/xwallet?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8
+DB_USERNAME=root
+DB_PASSWORD=your_password_here
+
+# 邮件配置
+MAIL_HOST=smtp.exmail.qq.com
+MAIL_PORT=465
+MAIL_USERNAME=your_email@example.com
+MAIL_PASSWORD=your_email_password
+
+# JWT配置
+JWT_SECRET=your_jwt_secret_key_here
+
+# MQTT配置（可选）
+MQTT_BROKER_HOST=broker.emqxsl.com
+MQTT_USERNAME=your_mqtt_username
+MQTT_PASSWORD=your_mqtt_password
+```
+
+**重要说明：**
+- spring-dotenv 会从 backend/ 目录加载 .env 文件
+- 修改配置后需要重启后端才能生效
+- 如果启动时遇到数据库连接错误，首先检查 backend/.env 文件是否存在且配置正确
+
+## 第三步：启动后端服务
 
 ```bash
-cd /home/roy/codes/claudes/xwallet/backend
+# 方式1：从项目根目录启动（推荐，开发环境）
+cd /home/roy/codes/claudes/xwallet
+mvn -f backend/pom.xml spring-boot:run
 
-# 方式1：使用Maven直接运行
+# 方式2：从 backend 目录启动（效果相同）
+cd /home/roy/codes/claudes/xwallet/backend
 mvn spring-boot:run
 
-# 方式2：先打包再运行
-mvn clean package -DskipTests
-java -jar target/xwallet-backend-1.0.0.jar
+# 方式3：先打包再运行（生产环境）
+cd /home/roy/codes/claudes/xwallet
+mvn -f backend/pom.xml clean package -DskipTests
+java -jar backend/target/xwallet-backend-1.0.0.jar
 ```
 
 **验证后端是否启动成功：**
-- 访问: http://localhost:8080/api
-- 应该看到404错误（这是正常的，说明服务已启动）
+- 访问: http://localhost:8080/api/auth/login
+- 应该看到 401 错误或 {"code":401,"errmsg":"未登录或登录已过期"}
+- 查看启动日志，确认没有数据库连接错误
 
-## 第三步：启动前端Web管理系统
+## 第四步：启动前端Web管理系统
 
 ```bash
 cd /home/roy/codes/claudes/xwallet/front
@@ -58,7 +104,7 @@ flutter run -d chrome
 - 工号: `ADMIN001`
 - 密码: `admin123`
 
-## 第四步：启动移动端App
+## 第五步：启动移动端App
 
 ```bash
 cd /home/roy/codes/claudes/xwallet/app
@@ -173,19 +219,63 @@ curl -X POST http://localhost:8080/api/auth/logout \
 
 ## 常见问题
 
-### Q1: 后端启动失败 - 连接数据库错误
-**解决方案：**
-1. 检查MySQL是否运行: `sudo systemctl status mysql`
-2. 检查数据库配置: `/home/roy/codes/claudes/xwallet/backend/src/main/resources/application-dev.yml`
-3. 确认数据库已创建: `SHOW DATABASES;`
+### Q1: 后端启动失败 - 找不到环境变量
+**症状：**
+```
+Could not resolve placeholder 'DB_URL' in value "${DB_URL}"
+或
+Could not resolve placeholder 'MAIL_HOST' in value "${MAIL_HOST}"
+```
 
-### Q2: 前端无法连接后端
+**原因：**
+- backend/.env 文件不存在或配置不完整
+
 **解决方案：**
-1. 确认后端已启动: `curl http://localhost:8080/api`
-2. 检查API地址配置: `/home/roy/codes/claudes/xwallet/front/lib/services/api_service.dart`
+1. 确认 backend/.env 文件存在：
+   ```bash
+   ls backend/.env
+   ```
+2. 如果不存在，创建配置文件：
+   ```bash
+   cd backend
+   vim .env
+   ```
+3. 确认 backend/.env 文件包含所有必需的环境变量配置（参考文档中的示例配置）
+
+### Q2: 后端启动失败 - 数据库连接错误
+**症状：**
+```
+java.sql.SQLException: Access denied for user 'root'@'localhost'
+或
+Communications link failure
+```
+
+**解决方案：**
+1. 检查 MySQL 是否运行: `docker ps | grep mysql` 或 `sudo systemctl status mysql`
+2. 检查 backend/.env 文件中的数据库配置是否正确
+3. 确认数据库已创建: `SHOW DATABASES;`
+4. 测试数据库连接: `mysql -u root -p -h localhost`
+
+### Q3: 修改了 .env 文件但后端没有读取新配置
+**解决方案：**
+1. 重启后端服务：
+   ```bash
+   # 停止旧进程
+   pkill -f "spring-boot:run"
+
+   # 重新启动
+   cd /home/roy/codes/claudes/xwallet
+   mvn -f backend/pom.xml spring-boot:run
+   ```
+2. 确认修改的是 backend/.env 文件（不是项目根目录的 .env）
+
+### Q4: 前端无法连接后端
+**解决方案：**
+1. 确认后端已启动: `curl http://localhost:8080/api/auth/login`
+2. 检查API地址配置: `front/lib/services/api_service.dart`
 3. 确认baseUrl为: `http://localhost:8080/api`
 
-### Q3: Flutter依赖安装失败
+### Q5: Flutter依赖安装失败
 **解决方案：**
 ```bash
 # 清理并重新获取依赖
@@ -196,7 +286,7 @@ flutter pub get
 flutter upgrade
 ```
 
-### Q4: Token验证失败
+### Q6: Token验证失败
 **原因：**
 - Token已过期（30分钟有效期）
 - Token格式错误
@@ -206,7 +296,7 @@ flutter upgrade
 - 重新登录获取新Token
 - 检查Token格式：`Bearer {token}`
 
-### Q5: 密码错误
+### Q7: 密码错误
 **注意：**
 - 测试账号的密码已经在数据库中预先加密
 - 密码区分大小写

@@ -30,6 +30,16 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
+        String requestURI = request.getRequestURI();
+        String servletPath = request.getServletPath();
+        log.debug("请求路径 - requestURI: {}, servletPath: {}", requestURI, servletPath);
+
+        // 排除不需要认证的路径
+        if (servletPath.startsWith("/auth/") || servletPath.startsWith("/test/")) {
+            log.debug("跳过认证 - 路径: {}", servletPath);
+            return true;
+        }
+
         // 允许 OPTIONS 预检请求通过，由 CORS 配置处理
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             return true;
