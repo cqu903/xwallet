@@ -43,10 +43,12 @@ export async function fetchRoles(): Promise<Role[]> {
 }
 
 /**
- * 获取角色详情
+ * 获取角色详情（解包 ResponseResult）
  */
 export async function fetchRole(id: number): Promise<RoleDetail> {
-  return get<RoleDetail>(`/role/${id}`);
+  const r = await get<{ data?: RoleDetail }>(`/role/${id}`);
+  if (!r?.data) throw new Error((r as { message?: string })?.message || '角色不存在');
+  return r.data;
 }
 
 /**
@@ -65,10 +67,10 @@ export async function updateRole(id: number, data: UpdateRoleRequest): Promise<v
 }
 
 /**
- * 切换角色状态
+ * 切换角色状态（后端为 PUT /role/{id}/status?status=）
  */
 export async function toggleRoleStatus(id: number, status: number): Promise<void> {
-  return get<void>(`/role/${id}/status?status=${status}`);
+  return put<void>(`/role/${id}/status?status=${status}`);
 }
 
 /**

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,8 +22,20 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { fetchRoles, fetchRole, createRole, updateRole, deleteRole, toggleRoleStatus, type Role, type CreateRoleRequest, type UpdateRoleRequest } from '@/lib/api/roles';
+import { fetchRole, createRole, updateRole, deleteRole, toggleRoleStatus, type Role, type CreateRoleRequest, type UpdateRoleRequest } from '@/lib/api/roles';
 import { useApi } from '@/lib/hooks/use-api';
+
+/** 后端 ResponseResult 的 data 结构 */
+interface RoleListResponse {
+  data?: Role[];
+}
+
+/** 菜单树节点（后端 MenuItemDTO：id 为 string，可能有 children） */
+interface MenuTreeItem {
+  id: string | number;
+  name: string;
+  children?: MenuTreeItem[];
+}
 
 export default function RolesPage() {
   const t = useTranslations();
@@ -31,7 +43,6 @@ export default function RolesPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
   const [deletingRole, setDeletingRole] = useState<Role | null>(null);
-  const [availableMenus, setAvailableMenus] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     roleCode: '',
     roleName: '',
@@ -40,24 +51,13 @@ export default function RolesPage() {
     menuIds: [] as number[],
   });
 
-  // 获取角色列表
-  const { data: roles, isLoading, mutate } = useApi<Role[] | null>('/api/role/list');
+  // 获取角色列表（后端返回 ResponseResult{ data: Role[] }，需解包）
+  const { data: res, isLoading, mutate } = useApi<RoleListResponse | null>('/role/list');
+  const roles = res?.data ?? null;
 
-  useEffect(() => {
-    // 加载角色列表和菜单
-    mutate();
-    loadMenus();
-  }, []);
-
-  const loadMenus = async () => {
-    try {
-      const response = await fetch('/api/menu/list');
-      const menus = await response.json();
-      setAvailableMenus(menus.data || []);
-    } catch (error) {
-      console.error('加载菜单失败:', error);
-    }
-  };
+  // 获取菜单树（用于角色权限勾选，后端返回 ResponseResult{ data }）
+  const { data: menuRes } = useApi<{ data?: MenuTreeItem[] }>('/menus');
+  const availableMenus = menuRes?.data ?? [];
 
   const handleOpenCreateDialog = () => {
     setEditingRole(null);
@@ -184,35 +184,40 @@ export default function RolesPage() {
     }
   };
 
-  const renderMenuTree = (menus: any[], level = 0) => {
+  const renderMenuTree = (menus: MenuTreeItem[], level = 0) => {
     if (!menus || menus.length === 0) return null;
+    // 后端 MenuItemDTO.id 为 string，角色 menuIds 为 number[]，需转换
+    const toNum = (id: string | number) => (typeof id === 'string' ? Number(id) : id);
 
     return (
       <div key={`level-${level}`} className={`ml-${level * 4}`}>
-        {menus.map((menu) => (
-          <div key={menu.id}>
-            <label className="flex items-center gap-2 py-1">
-              <Checkbox
-                checked={formData.menuIds.includes(menu.id)}
-                onCheckedChange={(checked) => {
-                  if (checked) {
-                    setFormData({
-                      ...formData,
-                      menuIds: [...formData.menuIds, menu.id],
-                    });
-                  } else {
-                    setFormData({
-                      ...formData,
-                      menuIds: formData.menuIds.filter((id) => id !== menu.id),
-                    });
-                  }
-                }}
-              />
-              <span>{menu.name}</span>
-            </label>
-            {menu.children && renderMenuTree(menu.children, level + 1)}
-          </div>
-        ))}
+        {menus.map((menu) => {
+          const menuId = toNum(menu.id);
+          return (
+            <div key={menu.id}>
+              <label className="flex items-center gap-2 py-1">
+                <Checkbox
+                  checked={formData.menuIds.includes(menuId)}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setFormData({
+                        ...formData,
+                        menuIds: [...formData.menuIds, menuId],
+                      });
+                    } else {
+                      setFormData({
+                        ...formData,
+                        menuIds: formData.menuIds.filter((id) => id !== menuId),
+                      });
+                    }
+                  }}
+                />
+                <span>{menu.name}</span>
+              </label>
+              {menu.children && renderMenuTree(menu.children, level + 1)}
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -413,7 +418,7 @@ export default function RolesPage() {
               {t('common.cancel')}
             </Button>
             <Button onClick={handleSubmit}>
-              {editingUser ? '保存' : '创建'}
+              {editingRole ? '保存' : '创建'}
             </Button>
           </DialogFooter>
         </DialogContent>
