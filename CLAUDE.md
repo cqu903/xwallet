@@ -7,25 +7,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 多平台钱包应用 (xWallet)，由三个主要组件组成：
 
 - **app/** - Android 和 iOS 移动应用 (Flutter)，面向顾客，邮箱登录
-- **front/** - 基于 Web 浏览器的管理后台 (Flutter Web)，面向系统员工，工号登录
+- **apps/front-web/** - 基于 Web 浏览器的管理后台 (Next.js + React)，面向系统员工，工号登录
 - **backend/** - Spring Boot API 服务器 (Spring Boot 3.3.0 + MyBatis)
 
 ## 开发命令
 
-### Flutter 项目 (app/ 和 front/)
+### Flutter 移动端项目 (app/)
 
-`app/` 和 `front/` 都使用 Dart SDK ^3.10.4。
+使用 Dart SDK ^3.10.4。
 
 ```bash
-cd app/  # 或 front/
+cd app/
 flutter pub get              # 安装依赖
 flutter run                  # 运行应用
-flutter run -d chrome        # 运行 Web 版本 (front/ 主要使用此方式)
 flutter run -d android       # 在 Android 设备/模拟器运行
 flutter run -d ios           # 在 iOS 设备/模拟器运行
 flutter test                 # 运行测试
 flutter analyze              # 代码分析
 flutter clean                # 清理构建缓存
+```
+
+### Web 管理后台 (apps/front-web/)
+
+使用 Next.js 14 + React 18 + TypeScript。
+
+```bash
+cd apps/front-web/
+npm install                  # 安装依赖
+npm run dev                  # 启动开发服务器 (http://localhost:3000)
+npm run build                # 构建生产版本
+npm run start                # 启动生产服务器
+npm run lint                 # 运行 ESLint
 ```
 
 ### Backend (Spring Boot)
@@ -64,7 +76,8 @@ docker exec -it <mysql-container-name> mysql -u root -p123321qQ
 
 ### 技术栈
 
-- **移动端和 Web 端**: Flutter 3.10+ (Dart SDK ^3.10.4)
+- **移动端**: Flutter 3.10+ (Dart SDK ^3.10.4)
+- **Web 管理后台**: Next.js 14 + React 18 + TypeScript + Tailwind CSS v4 + shadcn/ui + Zustand + SWR
 - **后端**: Spring Boot 3.3.0 + MyBatis 3.0.3 + MySQL 8.x (Java 17)
 - **认证**: JWT (jjwt 0.12.5) + BCrypt 密码加密
 - **权限**: 自定义 RBAC (基于角色的访问控制)
@@ -97,34 +110,46 @@ backend/src/main/java/com/zerofinance/xwallet/
 2. 权限拦截器 (`PermissionInterceptor`) 检查 `@RequireRole` 和 `@RequirePermission` 注解
 3. 请求完成后清理 ThreadLocal 避免内存泄漏
 
-### 前端架构 (front/)
+### Web 管理后台架构 (apps/front-web/)
 
 ```
-front/lib/
-├── layouts/           # 布局组件
-│   └── main_layout.dart       # 主布局 (侧边栏 + 内容区)
-├── providers/         # 状态管理 (Provider)
-│   ├── auth_provider.dart     # 认证状态
-│   ├── menu_provider.dart     # 菜单状态 (动态菜单)
-│   └── layout_provider.dart   # 布局状态 (侧边栏宽度等)
-├── routes/            # 路由 (go_router)
-│   └── app_router.dart        # 路由配置 + 登录重定向
-├── screens/           # 页面
-├── widgets/           # 可复用组件
-│   ├── sidebar.dart            # 侧边栏
-│   └── sidebar_item.dart       # 侧边栏项
-├── services/          # API 服务
-└── models/            # 数据模型
+apps/front-web/src/
+├── app/               # Next.js App Router 页面
+│   ├── [locale]/              # 国际化路由
+│   │   ├── (dashboard)/       # 受保护的管理页面
+│   │   │   ├── dashboard/     # 仪表板
+│   │   │   ├── users/         # 用户管理
+│   │   │   └── roles/         # 角色管理
+│   │   └── login/             # 登录页
+│   └── globals.css            # 全局样式
+├── components/
+│   ├── layout/                # 布局组件
+│   │   ├── DashboardLayout    # 主布局
+│   │   ├── Header             # 顶部栏
+│   │   └── Sidebar            # 侧边栏
+│   └── ui/                    # shadcn/ui 组件
+├── lib/
+│   ├── api/                   # API 客户端
+│   ├── stores/                # Zustand 状态管理
+│   ├── hooks/                 # React Hooks
+│   ├── i18n/                  # 国际化配置
+│   └── utils.ts               # 工具函数
+└── middleware.ts              # Next.js 中间件 (认证)
 ```
 
 **核心特性**:
-- `go_router` 用于声明式路由，支持登录状态重定向
-- `ShellRoute` 实现固定侧边栏布局
+- Next.js 14 App Router (Server Components + Client Components)
+- shadcn/ui 组件库 (基于 Radix UI)
+- Zustand 状态管理 (auth, menu, layout)
+- SWR 数据获取和缓存
+- next-intl 国际化 (中文/英文)
+- Tailwind CSS v4 样式
 - 动态菜单从后端加载，根据用户角色显示不同菜单
+- JWT 认证 + 中间件路由保护
 
 ### 移动端架构 (app/)
 
-与 front/ 类似，但面向顾客：
+Flutter 移动应用，面向顾客：
 - 邮箱登录 (而非工号)
 - 绿色主题 (区别于管理系统的蓝色)
 - 支持用户注册功能
@@ -158,10 +183,11 @@ front/lib/
 
 ## 开发注意事项
 
-1. **app/ 和 front/ 是独立的 Flutter 应用**，不是 monorepo，不共享代码
+1. **app/ 是独立的 Flutter 应用**，与 Web 管理后台是独立的代码库
 2. **Backend 开发顺序**: entity → repository/mapper → service → controller
 3. **MySQL 在 Docker 中运行**，执行 SQL 需要连接容器
 4. **RBAC 权限**: 新增 API 需要配置对应菜单权限和角色关联
-5. **动态菜单**: 前端菜单从 `/api/menu/list` 获取，根据用户角色动态加载
+5. **动态菜单**: Web 管理后台菜单从 `/api/menu/list` 获取，根据用户角色动态加载
 6. **认证拦截**: 所有需要认证的 API 都会被 `AuthInterceptor` 拦截
 7. **权限注解**: 使用 `@RequireRole("ADMIN")` 或 `@RequirePermission("user:create")` 控制访问
+8. **Web 项目结构**: `apps/front-web/` 使用 Monorepo 结构，共享 packages 中的类型和工具
