@@ -61,8 +61,8 @@ export async function fetchApi<T>(
 /**
  * GET 请求
  */
-export function get<T>(endpoint: string): Promise<T> {
-  return fetchApi<T>(endpoint, { method: 'GET' });
+export function get<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  return fetchApi<T>(endpoint, { method: 'GET', ...options });
 }
 
 /**
@@ -78,10 +78,11 @@ export function post<T>(endpoint: string, data?: unknown): Promise<T> {
 /**
  * PUT 请求
  */
-export function put<T>(endpoint: string, data?: unknown): Promise<T> {
+export function put<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
   return fetchApi<T>(endpoint, {
     method: 'PUT',
     body: JSON.stringify(data),
+    ...options,
   });
 }
 
