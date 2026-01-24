@@ -1,42 +1,61 @@
 import { post } from './client';
 import { useAuthStore } from '@/lib/stores';
 
+/** 管理后台登录入参：工号 + 密码 */
 export interface LoginRequest {
   employeeNo: string;
   password: string;
 }
 
-export interface LoginResponse {
+/** 后端 LoginResponse（data 字段结构） */
+interface LoginResponseData {
   token: string;
-  user: {
-    id: number;
-    employeeNo: string;
+  userInfo: {
+    userId: number;
     username: string;
-    email: string;
-    status: number;
-    roles: Array<{
-      id: number;
-      roleCode: string;
-      roleName: string;
-    }>;
+    userType: string;
+    roles?: string[];
   };
-  permissions: string[];
+}
+
+/** 后端统一包装：ResponseResult<T> */
+interface ApiResult<T> {
+  code?: number;
+  message?: string;
+  data?: T;
 }
 
 /**
- * 登录
+ * 登录（管理后台：userType=SYSTEM，account=工号）
  */
-export async function login(credentials: LoginRequest): Promise<LoginResponse> {
-  const response = await post<LoginResponse>('/auth/login', credentials);
+export async function login(credentials: LoginRequest): Promise<void> {
+  const body = {
+    userType: 'SYSTEM',
+    account: credentials.employeeNo,
+    password: credentials.password,
+  };
+  const raw = await post<ApiResult<LoginResponseData>>('/auth/login', body);
 
-  // 保存认证信息到 Zustand store
-  useAuthStore.getState().setAuth(
-    response.user,
-    response.token,
-    response.permissions
-  );
+  if (raw.code !== 200 || !raw.data) {
+    throw new Error(raw?.message || '登录失败');
+  }
 
-  return response;
+  const { token, userInfo } = raw.data;
+
+  const user = {
+    id: userInfo.userId,
+    employeeNo: credentials.employeeNo,
+    username: userInfo.username,
+    email: '',
+    status: 1,
+    roles: (userInfo.roles || []).map((r, i) => ({
+      id: i,
+      roleCode: r,
+      roleName: r,
+    })),
+  };
+
+  useAuthStore.getState().setAuth(user, token, []);
 }
 
 /**

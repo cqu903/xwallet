@@ -12,12 +12,11 @@ export async function fetchApi<T>(
 ): Promise<T> {
   const token = useAuthStore.getState().token;
 
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...options.headers,
+    ...(options.headers as Record<string, string>),
   };
 
-  // 添加 JWT Token
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
@@ -25,35 +24,26 @@ export async function fetchApi<T>(
   const url = `${API_BASE_URL}${endpoint}`;
 
   try {
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    });
+    const response = await fetch(url, { ...options, headers });
 
-    // 处理 401 未授权
     if (response.status === 401) {
-      // 清除认证信息
       useAuthStore.getState().logout();
-      // 重定向到登录页
       if (typeof window !== 'undefined') {
-        window.location.href = '/zh-CN/login';
+        const m = /^\/([a-z]{2}-[A-Z]{2})\b/.exec(window.location.pathname);
+        const locale = m ? m[1] : 'zh-CN';
+        window.location.href = `/${locale}/login`;
       }
       throw new Error('Unauthorized');
     }
 
-    // 处理其他错误状态
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({
-        message: response.statusText,
-      }));
+      const errorData = await response.json().catch(() => ({ message: response.statusText }));
       throw new Error(errorData.message || '请求失败');
     }
 
     return await response.json();
   } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    }
+    if (error instanceof Error) throw error;
     throw new Error('网络错误');
   }
 }

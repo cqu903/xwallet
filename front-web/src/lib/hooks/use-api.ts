@@ -1,5 +1,7 @@
 import useSWR, { SWRConfiguration } from 'swr';
 import { get } from '@/lib/api/client';
+import { fetchMenus } from '@/lib/api/menu';
+import type { MenuItem } from '@/lib/api/menu';
 
 /**
  * SWR 配置
@@ -28,10 +30,8 @@ export function useApi<T>(url: string | null, config?: SWRConfiguration) {
 }
 
 /**
- * 菜单 Hook
+ * 菜单 Hook（/menus 返回 ResponseResult，由 fetchMenus 解包并写入 store）
  */
 export function useMenus() {
-  return useApi<MenuItem[]>('/menu/list');
+  return useSWR<MenuItem[]>('menus', fetchMenus, swrConfig);
 }
-
-import type { MenuItem } from '@/lib/api/menu';

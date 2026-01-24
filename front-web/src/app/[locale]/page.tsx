@@ -1,7 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { getTranslations } from 'next-intl/server';
+import { LoginForm } from '@/components/LoginForm';
 
 export async function generateMetadata({
   params,
@@ -34,24 +32,7 @@ export default async function Home({
           </p>
         </div>
 
-        <div className="space-y-4 rounded-lg border p-6">
-          <div className="space-y-2">
-            <Label htmlFor="employeeNo">{t('auth.employeeNo')}</Label>
-            <Input id="employeeNo" placeholder={t('auth.employeeNoPlaceholder')} />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">{t('auth.password')}</Label>
-            <Input id="password" type="password" placeholder={t('auth.passwordPlaceholder')} />
-          </div>
-
-          <div className="flex gap-2">
-            <Button className="flex-1">{t('auth.login')}</Button>
-            <Button variant="outline" className="flex-1">
-              {t('common.cancel')}
-            </Button>
-          </div>
-        </div>
+        <LoginForm />
 
         <div className="text-center text-sm text-muted-foreground">
           <p>✅ Next.js 14 + TypeScript</p>
