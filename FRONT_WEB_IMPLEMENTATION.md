@@ -19,8 +19,7 @@
 **目录结构**：
 ```
 xwallet/
-├── apps/
-│   └── front-web/          # Next.js 应用
+├── front-web/              # Next.js 应用
 ├── packages/
 │   ├── shared-types/       # 共享类型定义
 │   └── shared-utils/       # 共享工具函数
@@ -129,7 +128,7 @@ xwallet/
 ### 6. 基础目录结构
 
 ```
-apps/front-web/src/
+front-web/src/
 ├── app/                    # Next.js App Router
 │   ├── layout.tsx         # 根布局
 │   ├── page.tsx           # 首页（测试页面）

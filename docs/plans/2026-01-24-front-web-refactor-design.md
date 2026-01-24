@@ -68,10 +68,9 @@
 
 ```
 xwallet/
-├── apps/
-│   ├── backend/          # Spring Boot 后端（现有）
-│   ├── front/            # Flutter Web（保留，不维护）
-│   └── front-web/        # Next.js 前端（新建）
+├── backend/              # Spring Boot 后端（现有）
+├── front-web/            # Next.js 前端（新建）
+├── app/                  # Flutter 移动端（现有）
 ├── packages/
 │   ├── shared-types/     # 共享 TypeScript 类型定义
 │   ├── shared-utils/     # 共享工具函数
@@ -103,7 +102,7 @@ xwallet/
 ### 4.1 front-web 详细结构
 
 ```
-apps/front-web/
+front-web/
 ├── src/
 │   ├── app/                          # Next.js App Router
 │   │   ├── [locale]/                 # 国际化路由
@@ -160,7 +159,7 @@ apps/front-web/
 ├── tests/                           # 测试文件
 │   ├── unit/
 │   └── e2e/
-├── .env.local                       # 环境变量
+├── .env.local                       # 环境变量（可选，仅在需要自定义时创建）
 ├── next.config.js                   # Next.js 配置
 ├── tailwind.config.ts               # Tailwind 配置
 ├── package.json
@@ -444,13 +443,20 @@ test('should login successfully', async ({ page }) => {
 
 ## 10. 环境配置
 
-### 10.1 环境变量
+### 10.1 环境变量（可选）
+
+前端项目默认使用硬编码的 API 地址 `http://localhost:8080/api`。如需自定义配置，可创建 `.env.local` 文件：
 
 ```env
-# .env.local
+# .env.local（可选）
 NEXT_PUBLIC_API_URL=http://localhost:8080/api
 NEXT_PUBLIC_APP_NAME=xWallet
 ```
+
+**注意：**
+- `.env.local` 文件已加入 `.gitignore`，不会提交到版本控制
+- 大多数情况下不需要创建此文件，使用默认配置即可
+- 如需修改后端地址或添加其他环境变量，才需要创建此文件
 
 ### 10.2 依赖安装
 

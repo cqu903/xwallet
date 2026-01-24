@@ -43,14 +43,49 @@ backend/
 - Maven 3.6+
 - MySQL 8.0+
 
-### 配置数据库
+### 配置数据库和环境变量
 
 1. 创建数据库：
 ```sql
 CREATE DATABASE xwallet CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-2. 修改 `application-dev.yml` 中的数据库连接信息（如需要）
+2. 配置环境变量：
+
+项目使用 **spring-dotenv** 从 `.env` 文件自动加载环境变量。
+
+**创建 `.env` 文件：**
+```bash
+cd backend
+vim .env
+```
+
+**示例配置：**
+```bash
+# 数据库配置
+DB_URL=jdbc:mysql://localhost:3306/xwallet?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8
+DB_USERNAME=root
+DB_PASSWORD=your_password_here
+
+# 邮件配置
+MAIL_HOST=smtp.exmail.qq.com
+MAIL_PORT=465
+MAIL_USERNAME=your_email@example.com
+MAIL_PASSWORD=your_email_password
+
+# JWT配置
+JWT_SECRET=your_jwt_secret_key_here
+
+# MQTT配置（可选）
+MQTT_BROKER_HOST=broker.emqxsl.com
+MQTT_USERNAME=your_mqtt_username
+MQTT_PASSWORD=your_mqtt_password
+```
+
+**重要说明：**
+- spring-dotenv 会从 backend/ 目录加载 .env 文件
+- 修改配置后需要重启后端才能生效
+- `.env` 文件已加入 `.gitignore`，不会提交到版本控制
 
 ### 构建和运行
 

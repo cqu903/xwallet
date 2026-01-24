@@ -1,4 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# xWallet Front-Web
+
+xWallet Web 管理后台，基于 Next.js 14 + React 18 + TypeScript + shadcn/ui。
+
+## 技术栈
+
+- Next.js 14 (App Router)
+- React 18
+- TypeScript
+- Tailwind CSS v4
+- shadcn/ui
+- Zustand (状态管理)
+- SWR (数据获取)
+- next-intl (国际化)
+
+## 环境变量（可选）
+
+前端项目默认使用硬编码的 API 地址 `http://localhost:8080/api`。如需自定义配置，可创建 `.env.local` 文件：
+
+```env
+# .env.local（可选）
+NEXT_PUBLIC_API_URL=http://localhost:8080/api
+NEXT_PUBLIC_APP_NAME=xWallet
+```
+
+**注意：**
+- `.env.local` 文件已加入 `.gitignore`，不会提交到版本控制
+- 大多数情况下不需要创建此文件，使用默认配置即可
 
 ## Getting Started
 

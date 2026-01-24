@@ -88,14 +88,16 @@ java -jar target/xwallet-backend-1.0.0.jar --spring.profiles.active=dev
 ## 第四步：启动前端Web管理系统
 
 ```bash
-cd /home/roy/codes/claudes/xwallet/front
+cd front-web
 
 # 安装依赖（首次运行）
-flutter pub get
+npm install
 
-# 启动Web版本
-flutter run -d chrome
+# 启动开发服务器
+npm run dev
 ```
+
+Web 管理系统将在浏览器中打开: http://localhost:3000
 
 **测试登录：**
 - 工号: `ADMIN001`
@@ -311,7 +313,14 @@ xwallet/
 │   │   └── resources/# 配置文件和Mapper XML
 │   └── pom.xml       # Maven配置
 │
-├── front/            # Web管理系统 (Flutter Web)
+├── front-web/        # Web管理系统 (Next.js + React)
+│   ├── src/
+│   │   ├── app/      # Next.js App Router 页面
+│   │   ├── components/# React 组件
+│   │   └── lib/      # 工具库、API、状态管理
+│   └── package.json  # npm 配置
+│
+├── app/              # 移动端App (Flutter)
 │   └── lib/
 │       ├── models/   # 数据模型
 │       ├── services/ # API服务
@@ -319,13 +328,9 @@ xwallet/
 │       ├── screens/  # UI页面
 │       └── main.dart # 应用入口
 │
-├── app/              # 移动端App (Flutter)
-│   └── lib/
-│       ├── models/   # 数据模型（复用front）
-│       ├── services/ # API服务（复用front）
-│       ├── providers/# 状态管理
-│       ├── screens/  # UI页面
-│       └── main.dart # 应用入口
+├── packages/         # 共享包
+│   ├── shared-types/ # 共享类型定义
+│   └── shared-utils/ # 共享工具函数
 │
 ├── LOGIN_README.md           # 详细功能说明
 ├── IMPLEMENTATION_SUMMARY.md # 实现总结
