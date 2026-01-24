@@ -69,18 +69,15 @@ MQTT_PASSWORD=your_mqtt_password
 ## 第三步：启动后端服务
 
 ```bash
-# 方式1：从项目根目录启动（推荐，开发环境）
-cd /home/roy/codes/claudes/xwallet
-mvn -f backend/pom.xml spring-boot:run
+# 进入 backend 目录
+cd backend
 
-# 方式2：从 backend 目录启动（效果相同）
-cd /home/roy/codes/claudes/xwallet/backend
-mvn spring-boot:run
+# 启动开发环境服务（使用 dev profile）
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
-# 方式3：先打包再运行（生产环境）
-cd /home/roy/codes/claudes/xwallet
-mvn -f backend/pom.xml clean package -DskipTests
-java -jar backend/target/xwallet-backend-1.0.0.jar
+# 或者先打包再运行（生产环境）
+mvn clean package -DskipTests
+java -jar target/xwallet-backend-1.0.0.jar --spring.profiles.active=dev
 ```
 
 **验证后端是否启动成功：**
@@ -264,8 +261,8 @@ Communications link failure
    pkill -f "spring-boot:run"
 
    # 重新启动
-   cd /home/roy/codes/claudes/xwallet
-   mvn -f backend/pom.xml spring-boot:run
+   cd backend
+   mvn spring-boot:run -Dspring-boot.run.profiles=dev
    ```
 2. 确认修改的是 backend/.env 文件（不是项目根目录的 .env）
 

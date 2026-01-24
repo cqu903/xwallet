@@ -121,8 +121,8 @@ cd /home/roy/codes/claudes/xwallet/backend
 # 安装依赖
 mvn clean install
 
-# 启动应用
-mvn spring-boot:run
+# 启动应用（使用 dev profile）
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
 后端将在 `http://localhost:8080/api` 启动

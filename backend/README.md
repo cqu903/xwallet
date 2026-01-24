@@ -61,12 +61,12 @@ cd backend
 # 构建项目
 mvn clean install
 
-# 运行应用
-mvn spring-boot:run
+# 运行应用（使用 dev profile）
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 # 或者打包后运行
-mvn clean package
-java -jar target/xwallet-backend-1.0.0.jar
+mvn clean package -DskipTests
+java -jar target/xwallet-backend-1.0.0.jar --spring.profiles.active=dev
 ```
 
 ### 访问

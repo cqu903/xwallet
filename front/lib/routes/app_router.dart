@@ -20,7 +20,8 @@ final appRouter = GoRouter(
 /// 路由重定向逻辑
 /// 根据登录状态决定是否跳转到登录页
 String? _redirect(BuildContext context, GoRouterState state) {
-  final auth = context.watch<AuthProvider>();
+  // 使用 read 而不是 watch，因为 _redirect 不在 widget build 上下文中
+  final auth = context.read<AuthProvider>();
   final isLoggedIn = auth.isLoggedIn;
 
   // 如果未登录且不在登录页，跳转到登录页
@@ -43,19 +44,13 @@ final _appRoutes = [
   GoRoute(
     path: '/loading',
     pageBuilder: (context, state) => const MaterialPage(
-      child: Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      ),
+      child: Scaffold(body: Center(child: CircularProgressIndicator())),
     ),
   ),
   // 登录页
   GoRoute(
     path: '/login',
-    pageBuilder: (context, state) => const MaterialPage(
-      child: LoginScreen(),
-    ),
+    pageBuilder: (context, state) => const MaterialPage(child: LoginScreen()),
   ),
   // 主应用路由（使用 ShellRoute 实现侧边栏固定）
   ShellRoute(
@@ -66,23 +61,20 @@ final _appRoutes = [
       // 仪表盘（首页）
       GoRoute(
         path: '/dashboard',
-        pageBuilder: (context, state) => const NoTransitionPage(
-          child: DashboardScreen(),
-        ),
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: DashboardScreen()),
       ),
       // 用户管理
       GoRoute(
         path: '/users',
-        pageBuilder: (context, state) => const NoTransitionPage(
-          child: UsersScreen(),
-        ),
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: UsersScreen()),
       ),
       // 角色管理
       GoRoute(
         path: '/system/roles',
-        pageBuilder: (context, state) => const NoTransitionPage(
-          child: RolesScreen(),
-        ),
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: RolesScreen()),
       ),
       // 通用占位页（匹配所有未定义路由）
       GoRoute(
@@ -90,9 +82,7 @@ final _appRoutes = [
         pageBuilder: (context, state) {
           final path = state.pathParameters['path'] ?? '未知页面';
           return NoTransitionPage(
-            child: PlaceholderScreen(
-              title: _formatTitle(path),
-            ),
+            child: PlaceholderScreen(title: _formatTitle(path)),
           );
         },
       ),

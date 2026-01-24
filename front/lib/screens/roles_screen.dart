@@ -160,88 +160,108 @@ class _RolesScreenState extends State<RolesScreen> {
                       );
                     }
 
-                    return SingleChildScrollView(
-                      child: Card(
-                        child: DataTable(
-                          columns: const [
-                            DataColumn(label: Text('角色编码')),
-                            DataColumn(label: Text('角色名称')),
-                            DataColumn(label: Text('角色描述')),
-                            DataColumn(label: Text('关联用户')),
-                            DataColumn(label: Text('状态')),
-                            DataColumn(label: Text('操作')),
-                          ],
-                          rows: roleProvider.roles.map((role) {
-                            return DataRow(
-                              cells: [
-                                DataCell(Text(role.roleCode)),
-                                DataCell(Text(role.roleName)),
-                                DataCell(
-                                  Text(
-                                    role.description ?? '无',
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                DataCell(Text('${role.userCount ?? 0}')),
-                                DataCell(
-                                  Chip(
-                                    label: Text(
-                                      role.isEnabled ? '启用' : '禁用',
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                    backgroundColor: role.isEnabled
-                                        ? Colors.green.shade100
-                                        : Colors.grey.shade300,
-                                  ),
-                                ),
-                                DataCell(
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.edit, size: 20),
-                                        onPressed: () async {
-                                          // 获取角色详情
-                                          final (detail, error) =
-                                              await roleProvider.getRoleDetail(role.id);
-                                          if (detail != null) {
-                                            _showRoleForm(detail);
-                                          } else if (mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                content: Text(error ?? '获取角色详情失败'),
-                                                backgroundColor: Colors.red,
-                                              ),
-                                            );
-                                          }
-                                        },
-                                        tooltip: '编辑',
-                                      ),
-                                      IconButton(
-                                        icon: Icon(
-                                          role.isEnabled
-                                              ? Icons.block
-                                              : Icons.check_circle,
-                                          size: 20,
-                                          color: role.isEnabled
-                                              ? Colors.orange
-                                              : Colors.green,
+                    return Card(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minWidth: constraints.maxWidth,
+                              ),
+                              child: SingleChildScrollView(
+                                child: DataTable(
+                                  columnSpacing: 24,
+                                  horizontalMargin: 16,
+                                  columns: const [
+                                    DataColumn(label: Text('角色编码')),
+                                    DataColumn(label: Text('角色名称')),
+                                    DataColumn(label: Text('角色描述')),
+                                    DataColumn(label: Text('关联用户')),
+                                    DataColumn(label: Text('状态')),
+                                    DataColumn(label: Text('操作')),
+                                  ],
+                                  rows: roleProvider.roles.map((role) {
+                                    return DataRow(
+                                      cells: [
+                                        DataCell(Text(role.roleCode)),
+                                        DataCell(Text(role.roleName)),
+                                        DataCell(
+                                          ConstrainedBox(
+                                            constraints: const BoxConstraints(
+                                              maxWidth: 200,
+                                            ),
+                                            child: Text(
+                                              role.description ?? '无',
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
                                         ),
-                                        onPressed: () => _handleToggleStatus(role),
-                                        tooltip: role.isEnabled ? '禁用' : '启用',
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.delete, size: 20),
-                                        onPressed: () => _handleDelete(role),
-                                        tooltip: '删除',
-                                        color: Colors.red,
-                                      ),
-                                    ],
-                                  ),
+                                        DataCell(Text('${role.userCount ?? 0}')),
+                                        DataCell(
+                                          Chip(
+                                            label: Text(
+                                              role.isEnabled ? '启用' : '禁用',
+                                              style: const TextStyle(fontSize: 12),
+                                            ),
+                                            backgroundColor: role.isEnabled
+                                                ? Colors.green.shade100
+                                                : Colors.grey.shade300,
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              IconButton(
+                                                icon: const Icon(Icons.edit, size: 20),
+                                                onPressed: () async {
+                                                  // 获取角色详情
+                                                  final (detail, error) =
+                                                      await roleProvider.getRoleDetail(role.id);
+                                                  if (detail != null) {
+                                                    _showRoleForm(detail);
+                                                  } else if (mounted) {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(error ?? '获取角色详情失败'),
+                                                        backgroundColor: Colors.red,
+                                                      ),
+                                                    );
+                                                  }
+                                                },
+                                                tooltip: '编辑',
+                                              ),
+                                              IconButton(
+                                                icon: Icon(
+                                                  role.isEnabled
+                                                      ? Icons.block
+                                                      : Icons.check_circle,
+                                                  size: 20,
+                                                  color: role.isEnabled
+                                                      ? Colors.orange
+                                                      : Colors.green,
+                                                ),
+                                                onPressed: () => _handleToggleStatus(role),
+                                                tooltip: role.isEnabled ? '禁用' : '启用',
+                                              ),
+                                              IconButton(
+                                                icon: const Icon(Icons.delete, size: 20),
+                                                onPressed: () => _handleDelete(role),
+                                                tooltip: '删除',
+                                                color: Colors.red,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }).toList(),
                                 ),
-                              ],
-                            );
-                          }).toList(),
-                        ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     );
                   },

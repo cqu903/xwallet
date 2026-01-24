@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/menu_provider.dart';
@@ -41,6 +42,10 @@ class _LoginScreenState extends State<LoginScreen> {
     if (success) {
       // 登录成功后，加载菜单数据
       menuProvider.refresh();
+      // 手动触发路由导航
+      if (mounted) {
+        context.go('/dashboard');
+      }
     } else if (mounted) {
       // 显示错误消息
       ScaffoldMessenger.of(context).showSnackBar(
@@ -56,9 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppTheme.lightGradient,
-        ),
+        decoration: const BoxDecoration(gradient: AppTheme.lightGradient),
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 32.0),
@@ -106,9 +109,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 16),
                         ShaderMask(
-                          shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(
-                            Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-                          ),
+                          shaderCallback: (bounds) =>
+                              AppTheme.primaryGradient.createShader(
+                                Rect.fromLTWH(
+                                  0,
+                                  0,
+                                  bounds.width,
+                                  bounds.height,
+                                ),
+                              ),
                           child: const Text(
                             'xWallet 管理系统',
                             textAlign: TextAlign.center,
@@ -207,7 +216,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ? null
                                     : [
                                         BoxShadow(
-                                          color: AppTheme.primaryPurple.withOpacity(0.4),
+                                          color: AppTheme.primaryPurple
+                                              .withOpacity(0.4),
                                           blurRadius: 12,
                                           offset: const Offset(0, 6),
                                         ),
@@ -230,24 +240,25 @@ class _LoginScreenState extends State<LoginScreen> {
                                   foregroundColor: Colors.white,
                                   elevation: 0,
                                 ),
-                              child: authProvider.isLoggingIn
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white,
+                                child: authProvider.isLoggingIn
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                        ),
+                                      )
+                                    : const Text(
+                                        '登录',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                    )
-                                  : const Text(
-                                      '登录',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
                               ),
                             );
                           },
