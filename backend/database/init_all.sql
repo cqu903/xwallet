@@ -2,6 +2,7 @@
 -- xWallet 完整数据库初始化脚本
 -- 合并了 init.sql, rbac_init.sql, user_management_update.sql
 -- 日期: 2025-01-22
+-- 更新: 2025-01-25 - 添加软删除支持（deleted 字段）
 -- ============================================
 
 -- 创建数据库
@@ -31,11 +32,13 @@ CREATE TABLE `sys_user` (
     `remarks` VARCHAR(500) COMMENT '备注',
     `password` VARCHAR(255) NOT NULL COMMENT '密码(BCrypt加密)',
     `status` TINYINT DEFAULT 1 COMMENT '状态: 1-启用 0-禁用',
+    `deleted` TINYINT DEFAULT 0 NOT NULL COMMENT '是否删除: 0-未删除 1-已删除',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     INDEX `idx_employee_no` (`employee_no`),
     INDEX `idx_email` (`email`),
-    INDEX `idx_status` (`status`)
+    INDEX `idx_status` (`status`),
+    INDEX `idx_deleted` (`deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统用户表';
 
 -- ============================================
