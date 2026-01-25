@@ -5,6 +5,12 @@ import com.zerofinance.xwallet.model.dto.*;
 import com.zerofinance.xwallet.service.RoleService;
 import com.zerofinance.xwallet.service.UserService;
 import com.zerofinance.xwallet.util.ResponseResult;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.annotations.ParameterObject;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,9 +21,9 @@ import java.util.Map;
 
 /**
  * 用户管理控制器
- * 处理用户管理相关请求
- * 认证由拦截器统一处理
+ * 处理用户管理相关请求；需 JWT 认证及对应权限。
  */
+@Tag(name = "用户管理", description = "系统用户的增删改查、启用/禁用、重置密码；需权限：user:view / user:create / user:update / user:toggleStatus / user:resetPwd")
 @Slf4j
 @RestController
 @RequestMapping("/user")
@@ -27,14 +33,11 @@ public class UserController {
     private final UserService userService;
     private final RoleService roleService;
 
-    /**
-     * 分页查询用户列表
-     * @param request 查询条件
-     * @return 用户列表
-     */
+    @Operation(summary = "分页查询用户列表", description = "按关键字（工号/姓名）、角色、状态分页查询。返回 list、total、page、size。")
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "成功"), @ApiResponse(responseCode = "401", description = "未登录"), @ApiResponse(responseCode = "403", description = "无 user:view 权限"), @ApiResponse(responseCode = "500", description = "系统错误") })
     @GetMapping("/list")
     @RequirePermission("user:view")
-    public ResponseResult<Map<String, Object>> getUserList(UserQueryRequest request) {
+    public ResponseResult<Map<String, Object>> getUserList(@ParameterObject UserQueryRequest request) {
         log.info("收到查询用户列表请求 - request: {}", request);
 
         try {
@@ -46,14 +49,11 @@ public class UserController {
         }
     }
 
-    /**
-     * 根据ID获取用户详情
-     * @param id 用户ID
-     * @return 用户详情
-     */
+    @Operation(summary = "根据 ID 获取用户详情", description = "返回用户基本信息、角色列表及创建/更新时间。")
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "成功"), @ApiResponse(responseCode = "401", description = "未登录"), @ApiResponse(responseCode = "403", description = "无权限"), @ApiResponse(responseCode = "404", description = "用户不存在"), @ApiResponse(responseCode = "500", description = "系统错误") })
     @GetMapping("/{id}")
     @RequirePermission("user:view")
-    public ResponseResult<UserResponse> getUserById(@PathVariable Long id) {
+    public ResponseResult<UserResponse> getUserById(@Parameter(description = "用户 ID") @PathVariable Long id) {
         log.info("收到获取用户详情请求 - id: {}", id);
 
         try {
@@ -68,11 +68,8 @@ public class UserController {
         }
     }
 
-    /**
-     * 创建用户
-     * @param request 创建请求
-     * @return 创建的用户ID
-     */
+    @Operation(summary = "创建用户", description = "工号 3–20 位大写字母或数字，密码 6–20 位，至少一个角色。")
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "成功，data 为新建用户 ID"), @ApiResponse(responseCode = "400", description = "参数错误或工号/邮箱已存在"), @ApiResponse(responseCode = "401", description = "未登录"), @ApiResponse(responseCode = "403", description = "无 user:create 权限"), @ApiResponse(responseCode = "500", description = "系统错误") })
     @PostMapping
     @RequirePermission("user:create")
     public ResponseResult<Long> createUser(@Valid @RequestBody CreateUserRequest request) {
@@ -95,16 +92,12 @@ public class UserController {
         }
     }
 
-    /**
-     * 更新用户
-     * @param id 用户ID
-     * @param request 更新请求
-     * @return 成功信息
-     */
+    @Operation(summary = "更新用户", description = "可更新姓名、邮箱、角色；工号不可改。")
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "成功"), @ApiResponse(responseCode = "400", description = "参数错误"), @ApiResponse(responseCode = "401", description = "未登录"), @ApiResponse(responseCode = "403", description = "无 user:update 权限"), @ApiResponse(responseCode = "404", description = "用户不存在"), @ApiResponse(responseCode = "500", description = "系统错误") })
     @PutMapping("/{id}")
     @RequirePermission("user:update")
     public ResponseResult<Void> updateUser(
-            @PathVariable Long id,
+            @Parameter(description = "用户 ID") @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest request) {
         log.info("收到更新用户请求 - id: {}, username: {}", id, request.getUsername());
 
@@ -123,17 +116,13 @@ public class UserController {
         }
     }
 
-    /**
-     * 启用/禁用用户
-     * @param id 用户ID
-     * @param status 状态：1-启用 0-禁用
-     * @return 成功信息
-     */
+    @Operation(summary = "启用/禁用用户", description = "status=1 启用，0 禁用。禁用后该用户无法登录。")
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "成功"), @ApiResponse(responseCode = "400", description = "参数错误"), @ApiResponse(responseCode = "401", description = "未登录"), @ApiResponse(responseCode = "403", description = "无 user:toggleStatus 权限"), @ApiResponse(responseCode = "404", description = "用户不存在"), @ApiResponse(responseCode = "500", description = "系统错误") })
     @PutMapping("/{id}/status")
     @RequirePermission("user:toggleStatus")
     public ResponseResult<Void> toggleUserStatus(
-            @PathVariable Long id,
-            @RequestParam Integer status) {
+            @Parameter(description = "用户 ID") @PathVariable Long id,
+            @Parameter(description = "1-启用 0-禁用", required = true) @RequestParam Integer status) {
         log.info("收到更新用户状态请求 - id: {}, status: {}", id, status);
 
         try {
@@ -152,16 +141,12 @@ public class UserController {
         }
     }
 
-    /**
-     * 重置用户密码
-     * @param id 用户ID
-     * @param request 重置密码请求
-     * @return 成功信息
-     */
+    @Operation(summary = "重置用户密码", description = "由管理员设置新密码，6–20 位。")
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "成功"), @ApiResponse(responseCode = "400", description = "密码格式不符合"), @ApiResponse(responseCode = "401", description = "未登录"), @ApiResponse(responseCode = "403", description = "无 user:resetPwd 权限"), @ApiResponse(responseCode = "404", description = "用户不存在"), @ApiResponse(responseCode = "500", description = "系统错误") })
     @PutMapping("/{id}/password")
     @RequirePermission("user:resetPwd")
     public ResponseResult<Void> resetPassword(
-            @PathVariable Long id,
+            @Parameter(description = "用户 ID") @PathVariable Long id,
             @Valid @RequestBody ResetPasswordRequest request) {
         log.info("收到重置用户密码请求 - id: {}", id);
 
@@ -180,10 +165,8 @@ public class UserController {
         }
     }
 
-    /**
-     * 获取所有角色列表（用于创建/编辑用户时选择角色）
-     * @return 角色列表
-     */
+    @Operation(summary = "获取所有角色列表", description = "用于创建/编辑用户时选择角色，返回 id、roleCode、roleName、description、status、userCount。")
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "成功"), @ApiResponse(responseCode = "401", description = "未登录"), @ApiResponse(responseCode = "403", description = "无 user:view 权限"), @ApiResponse(responseCode = "500", description = "系统错误") })
     @GetMapping("/roles/all")
     @RequirePermission("user:view")
     public ResponseResult<List<com.zerofinance.xwallet.model.dto.RoleDTO>> getAllRoles() {

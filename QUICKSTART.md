@@ -85,6 +85,11 @@ java -jar target/xwallet-backend-1.0.0.jar --spring.profiles.active=dev
 - 应该看到 401 错误或 {"code":401,"errmsg":"未登录或登录已过期"}
 - 查看启动日志，确认没有数据库连接错误
 
+**API 文档 (Swagger UI)：**
+- 在线文档与调试: http://localhost:8080/api/swagger-ui.html
+- OpenAPI JSON: http://localhost:8080/api/v3/api-docs
+- 在 Swagger UI 中先调用「认证 > 用户登录」获取 token，再点击右上角「Authorize」填入 token，即可调试需鉴权的接口。
+
 ## 第四步：启动前端Web管理系统
 
 ```bash

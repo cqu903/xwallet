@@ -198,9 +198,16 @@ INSERT INTO `customer` (`email`, `password`, `nickname`, `status`) VALUES
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
 (0, '仪表盘', 2, '/dashboard', 'dashboard/index', 'dashboard:view', 'Dashboard', 1);
 
--- 一级菜单: 用户管理
+-- 一级菜单: 系统管理(仅管理员)
+-- 注意: path 设置为 NULL，因为系统管理只是父级容器菜单，不需要导航
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
-(0, '用户管理', 2, '/users', 'users/index', 'user:view', 'User', 2);
+(0, '系统管理', 2, NULL, 'system/index', 'system:view', 'Setting', 99);
+
+-- 系统管理子菜单: 用户管理、菜单管理、角色管理
+INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '用户管理', 2, '/users', 'users/index', 'user:view', 'User', 1),
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '菜单管理', 2, '/system/menus', 'system/menus/index', 'system:menu', NULL, 2),
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '角色管理', 2, '/system/roles', 'system/roles/index', 'system:role', NULL, 3);
 
 -- 用户管理按钮权限
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `sort_order`) VALUES
@@ -223,16 +230,6 @@ INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `so
 -- 一级菜单: 交易记录
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
 (0, '交易记录', 2, '/transactions', 'transactions/index', 'transaction:view', 'Transaction', 4);
-
--- 一级菜单: 系统管理(仅管理员)
--- 注意: path 设置为 NULL，因为系统管理只是父级容器菜单，不需要导航
-INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
-(0, '系统管理', 2, NULL, 'system/index', 'system:view', 'Setting', 99);
-
--- 系统管理子菜单
-INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `sort_order`) VALUES
-((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '菜单管理', 2, '/system/menus', 'system/menus/index', 'system:menu', 1),
-((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '角色管理', 2, '/system/roles', 'system/roles/index', 'system:role', 2);
 
 -- ============================================
 -- 4. 初始化角色数据

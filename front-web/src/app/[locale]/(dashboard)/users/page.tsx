@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { fetchUsers, createUser, updateUser, deleteUser, type User, type CreateUserRequest, type UpdateUserRequest } from '@/lib/api/users';
-import { useApi } from '@/lib/hooks/use-api';
+import useSWR from 'swr';
 
 export default function UsersPage() {
   const t = useTranslations();
@@ -48,9 +48,11 @@ export default function UsersPage() {
     roleIds: [] as number[],
   });
 
-  // 获取用户列表
-  const { data: usersData, isLoading, mutate } = useApi(
-    page > 0 ? `/api/users?page=${page}&size=10&keyword=${keyword}` : null
+  // 获取用户列表（GET /user/list）
+  const { data: usersData, isLoading, mutate } = useSWR(
+    ['users', page, keyword],
+    () => fetchUsers({ page, size: 10, keyword: keyword || undefined }),
+    { revalidateOnFocus: false, shouldRetryOnError: false }
   );
 
   useEffect(() => {
@@ -110,7 +112,6 @@ export default function UsersPage() {
       if (editingUser) {
         // 更新用户
         await updateUser(editingUser.id, {
-          id: editingUser.id,
           username: formData.username,
           email: formData.email,
           roleIds: formData.roleIds,
@@ -256,7 +257,7 @@ export default function UsersPage() {
       {usersData && (
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span>
-            共 {usersData.totalElements} 条记录，第 {usersData.page + 1} / {usersData.totalPages} 页
+            共 {usersData.totalElements} 条记录，第 {usersData.page} / {usersData.totalPages} 页
           </span>
           <div className="flex gap-2">
             <Button

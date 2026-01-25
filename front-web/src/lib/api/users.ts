@@ -1,5 +1,10 @@
 import { get, post, put, del } from './client';
-import { PageResponse } from '@/lib/stores/auth-store';
+
+/** 后端 ResponseResult 解包：code!==200 时抛出，否则返回 data */
+function unwrap<T>(res: { code?: number; message?: string; data?: T }): T {
+  if (res?.code !== 200) throw new Error(res?.message || '请求失败');
+  return res.data as T;
+}
 
 export interface User {
   id: number;
@@ -27,7 +32,6 @@ export interface CreateUserRequest {
 }
 
 export interface UpdateUserRequest {
-  id: number;
   username: string;
   email: string;
   roleIds: number[];
@@ -49,7 +53,7 @@ export interface UserPageResponse {
 }
 
 /**
- * 获取用户列表
+ * 获取用户列表（GET /user/list，返回 list/total 映射为 content/totalElements）
  */
 export async function fetchUsers(params: UserQueryRequest): Promise<UserPageResponse> {
   const queryParams = new URLSearchParams();
@@ -58,40 +62,56 @@ export async function fetchUsers(params: UserQueryRequest): Promise<UserPageResp
   if (params.keyword) queryParams.append('keyword', params.keyword);
   if (params.status !== undefined) queryParams.append('status', params.status.toString());
 
-  return get<UserPageResponse>(`/users?${queryParams.toString()}`);
+  const res = await get<{ code?: number; message?: string; data?: { list?: User[]; total?: number; page?: number; size?: number; totalPages?: number } }>(
+    `/user/list?${queryParams.toString()}`
+  );
+  const d = unwrap(res);
+  return {
+    content: d?.list ?? [],
+    totalElements: d?.total ?? 0,
+    totalPages: d?.totalPages ?? 0,
+    page: d?.page ?? 1,
+    size: d?.size ?? 10,
+  };
 }
 
 /**
- * 获取用户详情
+ * 获取用户详情（GET /user/{id}）
  */
 export async function fetchUser(id: number): Promise<User> {
-  return get<User>(`/users/${id}`);
+  const res = await get<{ code?: number; message?: string; data?: User }>(`/user/${id}`);
+  return unwrap(res) as User;
 }
 
 /**
- * 创建用户
+ * 创建用户（POST /user，需 user:create 权限）
  */
-export async function createUser(data: CreateUserRequest): Promise<User> {
-  return post<User>('/users', data);
+export async function createUser(data: CreateUserRequest): Promise<void> {
+  const res = await post<{ code?: number; message?: string }>('/user', data);
+  unwrap(res);
 }
 
 /**
- * 更新用户
+ * 更新用户（PUT /user/{id}）
  */
-export async function updateUser(id: number, data: UpdateUserRequest): Promise<User> {
-  return put<User>(`/users/${id}`, data);
+export async function updateUser(id: number, data: UpdateUserRequest): Promise<void> {
+  const res = await put<{ code?: number; message?: string }>(`/user/${id}`, data);
+  unwrap(res);
 }
 
 /**
- * 删除用户
+ * 删除用户（DELETE /user/{id}）
+ * 注意：当前后端未实现该接口，调用会 404。
  */
 export async function deleteUser(id: number): Promise<void> {
-  return del<void>(`/users/${id}`);
+  const res = await del<{ code?: number; message?: string }>(`/user/${id}`);
+  unwrap(res);
 }
 
 /**
- * 启用/禁用用户
+ * 启用/禁用用户（PUT /user/{id}/status?status=）
  */
 export async function toggleUserStatus(id: number, status: number): Promise<void> {
-  return put<void>(`/users/${id}/status`, { status });
+  const res = await put<{ code?: number; message?: string }>(`/user/${id}/status?status=${status}`, undefined);
+  unwrap(res);
 }

@@ -120,6 +120,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- SpringDoc OpenAPI 3 + Swagger UI - 接口文档与在线调试 -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.6.0</version>
+        </dependency>
+
         <!-- MQTT Analytics -->
         <dependency>
             <groupId>org.eclipse.paho</groupId>

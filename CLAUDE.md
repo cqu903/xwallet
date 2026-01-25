@@ -250,6 +250,7 @@ Flutter 移动应用，面向顾客：
 - 后端地址: `http://localhost:8080/api`
 - 认证方式: JWT Bearer Token
 - Token 有效期: 30 分钟
+- **接口文档**: Swagger UI `/api/swagger-ui.html`，OpenAPI JSON `/api/v3/api-docs`，便于对接与调试；基于 OpenAPI 在前端生成类型与请求代码见 [docs/openapi-guide.md](docs/openapi-guide.md)
 
 ## 开发注意事项
 

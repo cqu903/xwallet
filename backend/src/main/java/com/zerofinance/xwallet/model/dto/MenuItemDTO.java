@@ -1,5 +1,6 @@
 package com.zerofinance.xwallet.model.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,31 +8,23 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
- * 菜单项DTO
- * 用于返回菜单结构给前端
+ * 菜单项DTO，用于返回菜单树给前端
  */
+@Schema(description = "菜单节点：id、name、path、children 子菜单")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class MenuItemDTO {
-    /**
-     * 菜单ID
-     */
+    @Schema(description = "菜单 ID，字符串")
     private String id;
 
-    /**
-     * 菜单名称
-     */
+    @Schema(description = "菜单名称")
     private String name;
 
-    /**
-     * 路由路径
-     */
+    @Schema(description = "前端路由 path")
     private String path;
 
-    /**
-     * 子菜单列表
-     */
+    @Schema(description = "子菜单，叶子节点为 null 或空列表")
     private List<MenuItemDTO> children;
 
     /**

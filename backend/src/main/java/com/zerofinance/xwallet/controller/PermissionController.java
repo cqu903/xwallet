@@ -4,6 +4,10 @@ import com.zerofinance.xwallet.model.entity.SysMenu;
 import com.zerofinance.xwallet.service.MenuService;
 import com.zerofinance.xwallet.service.PermissionService;
 import com.zerofinance.xwallet.util.UserContext;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +21,9 @@ import java.util.Set;
 
 /**
  * 权限管理 API
+ * 返回当前用户的权限码、角色列表及完整菜单树（含按钮级 permission）。
  */
+@Tag(name = "权限", description = "获取当前用户权限、角色与菜单树；需 JWT 认证")
 @Slf4j
 @RestController
 @RequestMapping("/permissions")
@@ -27,9 +33,8 @@ public class PermissionController {
     private final PermissionService permissionService;
     private final MenuService menuService;
 
-    /**
-     * 获取当前用户的权限和菜单
-     */
+    @Operation(summary = "获取当前用户权限与菜单", description = "返回 { permissions: string[], roles: string[], menus: SysMenu[] }。menus 为完整树形结构，含 permission 等字段。")
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "成功"), @ApiResponse(responseCode = "401", description = "未登录"), @ApiResponse(responseCode = "500", description = "系统错误") })
     @GetMapping("/mine")
     public Map<String, Object> getMyPermissions() {
         Long userId = UserContext.getUserId();

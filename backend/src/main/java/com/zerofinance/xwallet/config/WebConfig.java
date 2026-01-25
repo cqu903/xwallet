@@ -44,12 +44,16 @@ public class WebConfig implements WebMvcConfigurer {
         // 例如: /api/auth/login 在拦截器中匹配 /auth/login
         registry.addInterceptor(authInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/auth/**", "/test/**"); // 排除登录、登出、验证码、测试等无需认证的路径
+                .excludePathPatterns(
+                        "/auth/**", "/test/**",
+                        "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**"); // 排除 Swagger 文档路径
 
         // 权限拦截器(第二道关卡,在认证通过后执行)
         registry.addInterceptor(permissionInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/auth/**", "/test/**") // 排除不需要权限的路径
+                .excludePathPatterns(
+                        "/auth/**", "/test/**",
+                        "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**")
                 .order(1); // 确保在 authInterceptor 之后执行
     }
 }

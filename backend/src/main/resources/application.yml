@@ -17,3 +17,14 @@ server:
   port: 8080
   servlet:
     context-path: /api
+
+# SpringDoc OpenAPI / Swagger UI
+# 文档: /api/swagger-ui.html  OpenAPI JSON: /api/v3/api-docs
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    display-request-duration: true
+    operations-sorter: method
+    tags-sorter: alpha
