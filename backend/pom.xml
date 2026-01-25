@@ -112,6 +112,14 @@
             <version>4.0.0</version>
         </dependency>
 
+        <!-- Spring Boot DevTools - 开发时热加载，检测到文件修改自动重启 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+
         <!-- MQTT Analytics -->
         <dependency>
             <groupId>org.eclipse.paho</groupId>
@@ -145,6 +153,10 @@
                         <exclude>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
+                        </exclude>
+                        <exclude>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-devtools</artifactId>
                         </exclude>
                     </excludes>
                 </configuration>
