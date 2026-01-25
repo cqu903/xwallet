@@ -42,9 +42,9 @@ public class WebConfig implements WebMvcConfigurer {
         // 认证拦截器(第一道关卡)
         // 注意：由于 context-path=/api，拦截器路径不需要包含 /api 前缀
         // 例如: /api/auth/login 在拦截器中匹配 /auth/login
-        // 拦截器内部会通过 requestURI 判断是否需要认证
         registry.addInterceptor(authInterceptor)
-                .addPathPatterns("/**");
+                .addPathPatterns("/**")
+                .excludePathPatterns("/auth/**", "/test/**"); // 排除登录、登出、验证码、测试等无需认证的路径
 
         // 权限拦截器(第二道关卡,在认证通过后执行)
         registry.addInterceptor(permissionInterceptor)
