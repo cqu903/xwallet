@@ -51,4 +51,10 @@ public interface UserService {
      * @param request 重置密码请求
      */
     void resetPassword(Long id, ResetPasswordRequest request);
+
+    /**
+     * 删除用户（软删除）
+     * @param id 用户ID
+     */
+    void deleteUser(Long id);
 }

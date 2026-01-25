@@ -180,4 +180,26 @@ public class UserController {
             return ResponseResult.error(500, "获取角色列表失败");
         }
     }
+
+    @Operation(summary = "删除用户", description = "软删除用户，将 deleted 设置为 1。不能删除当前登录用户。")
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "成功"), @ApiResponse(responseCode = "400", description = "不能删除当前登录用户或用户不存在"), @ApiResponse(responseCode = "401", description = "未登录"), @ApiResponse(responseCode = "403", description = "无 user:delete 权限"), @ApiResponse(responseCode = "500", description = "系统错误") })
+    @DeleteMapping("/{id}")
+    @RequirePermission("user:delete")
+    public ResponseResult<Void> deleteUser(@Parameter(description = "用户 ID") @PathVariable Long id) {
+        log.info("收到删除用户请求 - id: {}", id);
+
+        try {
+            userService.deleteUser(id);
+            return ResponseResult.<Void>builder()
+                    .code(200)
+                    .message("用户删除成功")
+                    .build();
+        } catch (IllegalArgumentException e) {
+            log.warn("删除用户失败 - {}", e.getMessage());
+            return ResponseResult.error(400, e.getMessage());
+        } catch (Exception e) {
+            log.error("删除用户失败", e);
+            return ResponseResult.error(500, "删除用户失败");
+        }
+    }
 }
