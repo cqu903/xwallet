@@ -22,7 +22,7 @@ export default function LoginPage() {
 
         <div className="text-center text-sm text-muted-foreground">
           <p>测试账号: ADMIN001 / admin123</p>
-          <p>当前版本: release-0.1.0</p>
+          <p>当前版本: hotfix-0.1.0</p>
         </div>
       </div>
     </div>
