@@ -210,6 +210,30 @@ public class UserServiceImpl implements UserService {
         log.info("用户密码重置成功 - id: {}", id);
     }
 
+    @Override
+    @Transactional
+    public void deleteUser(Long id) {
+        log.info("软删除用户 - id: {}", id);
+
+        // 检查用户是否存在
+        SysUser user = sysUserMapper.findById(id);
+        if (user == null) {
+            throw new IllegalArgumentException("用户不存在");
+        }
+
+        // 不能删除当前登录用户
+        Long currentUserId = UserContext.getUserId();
+        if (currentUserId != null && currentUserId.equals(id)) {
+            throw new IllegalArgumentException("不能删除当前登录用户");
+        }
+
+        // 先删除用户角色关联，再软删除用户（确保事务一致性）
+        sysUserRoleMapper.deleteByUserId(id);
+        sysUserMapper.softDelete(id);
+
+        log.info("用户软删除成功 - id: {}", id);
+    }
+
     /**
      * 转换为响应 DTO
      */

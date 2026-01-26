@@ -95,4 +95,11 @@ public interface SysUserMapper {
      * @return 影响行数
      */
     int updatePassword(@Param("id") Long id, @Param("password") String password);
+
+    /**
+     * 软删除用户
+     * @param id 用户ID
+     * @return 影响行数
+     */
+    int softDelete(@Param("id") Long id);
 }

@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { fetchUsers, createUser, updateUser, deleteUser, type User, type CreateUserRequest, type UpdateUserRequest } from '@/lib/api/users';
+import { RoleMultiSelect } from '@/components/users/RoleMultiSelect';
 import useSWR from 'swr';
 
 export default function UsersPage() {
@@ -90,7 +91,7 @@ export default function UsersPage() {
       username: user.username,
       email: user.email,
       password: '',
-      roleIds: user.roles.map(r => r.id),
+      roleIds: user.roles?.map(r => r.id) || [],
     });
     setIsDialogOpen(true);
   };
@@ -108,6 +109,20 @@ export default function UsersPage() {
   };
 
   const handleSubmit = async () => {
+    // 提交前验证：确保角色已选择
+    if (formData.roleIds.length === 0) {
+      alert('请至少选择一个角色');
+      return;
+    }
+
+    // 提交前验证：新增时检查必填字段
+    if (!editingUser) {
+      if (!formData.employeeNo || !formData.username || !formData.email || !formData.password) {
+        alert('请填写所有必填字段');
+        return;
+      }
+    }
+
     try {
       if (editingUser) {
         // 更新用户
@@ -218,7 +233,7 @@ export default function UsersPage() {
                   <TableCell>{user.username}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    {user.roles.map((role) => role.roleName).join(', ') || '-'}
+                    {user.roles?.map((role) => role.roleName).join(', ') || '-'}
                   </TableCell>
                   <TableCell className={getStatusClass(user.status)}>
                     {getStatusText(user.status)}
@@ -342,19 +357,18 @@ export default function UsersPage() {
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="roles">角色</Label>
-              <Input
-                id="roles"
-                value={formData.roleIds.join(',')}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  roleIds: e.target.value.split(',').map(Number).filter(n => !isNaN(n))
-                })}
-                placeholder="请输入角色ID，多个用逗号分隔"
+              <Label htmlFor="roles">
+                角色 <span className="text-destructive">*</span>
+              </Label>
+              <RoleMultiSelect
+                selectedRoleIds={formData.roleIds}
+                onChange={(roleIds) => setFormData({ ...formData, roleIds })}
               />
-              <p className="text-xs text-muted-foreground">
-                提示：输入角色ID，多个用逗号分隔（例如：1,2）
-              </p>
+              {formData.roleIds.length === 0 && (
+                <p className="text-xs text-destructive">
+                  请至少选择一个角色
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter>

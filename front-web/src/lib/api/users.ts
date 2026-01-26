@@ -1,6 +1,6 @@
 import { get, post, put, del } from './client';
+import type { Role } from './roles';
 
-/** 后端 ResponseResult 解包：code!==200 时抛出，否则返回 data */
 function unwrap<T>(res: { code?: number; message?: string; data?: T }): T {
   if (res?.code !== 200) throw new Error(res?.message || '请求失败');
   return res.data as T;
@@ -15,12 +15,6 @@ export interface User {
   roles: Role[];
   createdAt: string;
   updatedAt: string;
-}
-
-export interface Role {
-  id: number;
-  roleCode: string;
-  roleName: string;
 }
 
 export interface CreateUserRequest {

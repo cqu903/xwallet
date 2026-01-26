@@ -10,6 +10,7 @@
         <result property="email" column="email"/>
         <result property="password" column="password"/>
         <result property="status" column="status"/>
+        <result property="deleted" column="deleted"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
@@ -26,22 +27,25 @@
     </resultMap>
 
     <select id="findByEmployeeNo" resultMap="SysUserResultMap">
-        SELECT id, employee_no, username, email, password, status, created_at, updated_at
+        SELECT id, employee_no, username, email, password, status, deleted, created_at, updated_at
         FROM sys_user
         WHERE employee_no = #{employeeNo}
+          AND deleted = 0
     </select>
 
     <select id="findActiveByEmployeeNo" resultMap="SysUserResultMap">
-        SELECT id, employee_no, username, email, password, status, created_at, updated_at
+        SELECT id, employee_no, username, email, password, status, deleted, created_at, updated_at
         FROM sys_user
         WHERE employee_no = #{employeeNo}
           AND status = 1
+          AND deleted = 0
     </select>
 
     <select id="findByEmail" resultMap="SysUserResultMap">
-        SELECT id, employee_no, username, email, password, status, created_at, updated_at
+        SELECT id, employee_no, username, email, password, status, deleted, created_at, updated_at
         FROM sys_user
         WHERE email = #{email}
+          AND deleted = 0
     </select>
 
     <select id="findById" resultMap="SysUserWithRolesResultMap">
@@ -51,6 +55,7 @@
                u.email,
                u.password,
                u.status,
+               u.deleted,
                u.created_at,
                u.updated_at,
                r.id          as role_id,
@@ -63,6 +68,7 @@
                  LEFT JOIN sys_user_role ur ON u.id = ur.user_id
                  LEFT JOIN sys_role r ON ur.role_id = r.id
         WHERE u.id = #{id}
+          AND u.deleted = 0
     </select>
 
     <select id="findByPage" resultMap="SysUserWithRolesResultMap">
@@ -83,6 +89,7 @@
                  LEFT JOIN sys_user_role ur ON u.id = ur.user_id
                  LEFT JOIN sys_role r ON ur.role_id = r.id
         <where>
+            u.deleted = 0
             <if test="keyword != null and keyword != ''">
                 AND (u.employee_no LIKE CONCAT('%', #{keyword}, '%')
                 OR u.username LIKE CONCAT('%', #{keyword}, '%'))
@@ -107,6 +114,7 @@
                  LEFT JOIN sys_user_role ur ON u.id = ur.user_id
                  LEFT JOIN sys_role r ON ur.role_id = r.id
         <where>
+            u.deleted = 0
             <if test="keyword != null and keyword != ''">
                 AND (u.employee_no LIKE CONCAT('%', #{keyword}, '%')
                 OR u.username LIKE CONCAT('%', #{keyword}, '%'))
@@ -133,18 +141,29 @@
         SET username = #{username},
             email    = #{email}
         WHERE id = #{id}
+          AND deleted = 0
     </update>
 
     <update id="updateStatus">
         UPDATE sys_user
         SET status = #{status}
         WHERE id = #{id}
+          AND deleted = 0
     </update>
 
     <update id="updatePassword">
         UPDATE sys_user
         SET password = #{password}
         WHERE id = #{id}
+          AND deleted = 0
+    </update>
+
+    <update id="softDelete">
+        UPDATE sys_user
+        SET deleted = 1,
+            updated_at = NOW()
+        WHERE id = #{id}
+          AND deleted = 0
     </update>
 
 </mapper>

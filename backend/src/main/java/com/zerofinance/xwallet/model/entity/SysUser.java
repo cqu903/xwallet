@@ -19,6 +19,7 @@ public class SysUser {
     private String email;
     private String password;
     private Integer status;
+    private Integer deleted;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

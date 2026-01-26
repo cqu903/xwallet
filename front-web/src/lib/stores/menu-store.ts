@@ -3,7 +3,7 @@ import { create } from 'zustand';
 interface MenuItem {
   id: string;
   name: string;
-  path: string;
+  path?: string | null;
   children?: MenuItem[];
 }
 
