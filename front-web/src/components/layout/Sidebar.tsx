@@ -87,21 +87,34 @@ export function Sidebar() {
   return (
     <aside
       className={`
-        flex flex-col border-r bg-card transition-all duration-300
+        flex flex-col border-r border-border bg-card transition-all duration-300
         ${sidebarCollapsed ? 'w-16' : 'w-64'}
       `}
     >
       {/* Logo */}
-      <div className="flex h-16 items-center justify-between border-b px-4">
-        {!sidebarCollapsed && (
-          <span className="text-lg font-bold">xWallet</span>
+      <div className="flex h-14 items-center justify-between border-b border-border px-3">
+        {sidebarCollapsed ? (
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary">
+            <svg className="h-4 w-4 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary">
+              <svg className="h-4 w-4 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <span className="font-display text-base font-semibold tracking-tight text-foreground">xWallet</span>
+          </div>
         )}
         <button
           onClick={toggleSidebar}
-          className="rounded-md p-1 hover:bg-accent"
+          className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           aria-label={sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'}
         >
-          {sidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+          {sidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </button>
       </div>
 
@@ -113,7 +126,7 @@ export function Sidebar() {
       </nav>
 
       {/* 底部信息 */}
-      <div className="border-t p-4">
+      <div className="border-t border-border p-3">
         {!sidebarCollapsed && (
           <div className="text-xs text-muted-foreground">
             xWallet v1.0.0

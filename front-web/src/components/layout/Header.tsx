@@ -35,12 +35,10 @@ export function Header() {
   const currentLocale = pathname?.split('/')[1] || 'zh-CN';
 
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-card px-6">
-      <div className="flex-1">
-        {/* 左侧可以放置面包屑或其他内容 */}
-      </div>
+    <header className="flex h-14 items-center justify-between border-b border-border bg-card px-6 shadow-sm">
+      <div className="flex-1" />
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         {/* 语言切换 */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
