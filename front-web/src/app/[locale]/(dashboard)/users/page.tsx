@@ -30,6 +30,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { fetchUsers, createUser, updateUser, deleteUser, type User, type CreateUserRequest, type UpdateUserRequest } from '@/lib/api/users';
 import { RoleMultiSelect } from '@/components/users/RoleMultiSelect';
+import { validateCreateUserForm, validateUpdateUserForm, type CreateUserFormData } from '@/lib/utils/validation';
 import useSWR from 'swr';
 
 export default function UsersPage() {
@@ -48,6 +49,7 @@ export default function UsersPage() {
     password: '',
     roleIds: [] as number[],
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // 获取用户列表（GET /user/list）
   const { data: usersData, isLoading, mutate } = useSWR(
@@ -106,19 +108,38 @@ export default function UsersPage() {
       password: '',
       roleIds: [],
     });
+    setErrors({});
   };
 
   const handleSubmit = async () => {
-    // 提交前验证：确保角色已选择
-    if (formData.roleIds.length === 0) {
-      alert('请至少选择一个角色');
-      return;
-    }
+    // 清空之前的错误
+    setErrors({});
 
-    // 提交前验证：新增时检查必填字段
-    if (!editingUser) {
-      if (!formData.employeeNo || !formData.username || !formData.email || !formData.password) {
-        alert('请填写所有必填字段');
+    // 表单验证
+    if (editingUser) {
+      // 更新用户验证
+      const validationResult = validateUpdateUserForm({
+        username: formData.username,
+        email: formData.email,
+        roleIds: formData.roleIds,
+      });
+
+      if (!validationResult.valid) {
+        setErrors(validationResult.errors);
+        return;
+      }
+    } else {
+      // 新增用户验证
+      const validationResult = validateCreateUserForm({
+        employeeNo: formData.employeeNo,
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        roleIds: formData.roleIds,
+      });
+
+      if (!validationResult.valid) {
+        setErrors(validationResult.errors);
         return;
       }
     }
@@ -131,6 +152,7 @@ export default function UsersPage() {
           email: formData.email,
           roleIds: formData.roleIds,
         });
+        alert('用户更新成功');
       } else {
         // 新增用户
         await createUser({
@@ -140,12 +162,14 @@ export default function UsersPage() {
           password: formData.password,
           roleIds: formData.roleIds,
         });
+        alert('用户创建成功');
       }
       handleCloseDialog();
       mutate();
     } catch (error) {
       console.error('操作失败:', error);
-      alert(error instanceof Error ? error.message : '操作失败');
+      const errorMessage = error instanceof Error ? error.message : '操作失败';
+      alert(errorMessage);
     }
   };
 
@@ -314,10 +338,14 @@ export default function UsersPage() {
               <Input
                 id="employeeNo"
                 value={formData.employeeNo}
-                onChange={(e) => setFormData({ ...formData, employeeNo: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, employeeNo: e.target.value.toUpperCase() })}
                 disabled={!!editingUser}
-                placeholder="请输入工号"
+                placeholder="请输入工号（3-20位大写字母或数字）"
+                className={errors.employeeNo ? 'border-destructive' : ''}
               />
+              {errors.employeeNo && (
+                <p className="text-xs text-destructive">{errors.employeeNo}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="username">
@@ -328,7 +356,11 @@ export default function UsersPage() {
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 placeholder="请输入用户名"
+                className={errors.username ? 'border-destructive' : ''}
               />
+              {errors.username && (
+                <p className="text-xs text-destructive">{errors.username}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">
@@ -340,7 +372,11 @@ export default function UsersPage() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="请输入邮箱"
+                className={errors.email ? 'border-destructive' : ''}
               />
+              {errors.email && (
+                <p className="text-xs text-destructive">{errors.email}</p>
+              )}
             </div>
             {!editingUser && (
               <div className="space-y-2">
@@ -352,8 +388,12 @@ export default function UsersPage() {
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="请输入密码"
+                  placeholder="请输入密码（6-20位）"
+                  className={errors.password ? 'border-destructive' : ''}
                 />
+                {errors.password && (
+                  <p className="text-xs text-destructive">{errors.password}</p>
+                )}
               </div>
             )}
             <div className="space-y-2">
@@ -362,10 +402,23 @@ export default function UsersPage() {
               </Label>
               <RoleMultiSelect
                 selectedRoleIds={formData.roleIds}
-                onChange={(roleIds) => setFormData({ ...formData, roleIds })}
+                onChange={(roleIds) => {
+                  setFormData({ ...formData, roleIds });
+                  // 清除角色错误
+                  if (roleIds.length > 0) {
+                    setErrors(prev => {
+                      const newErrors = { ...prev };
+                      delete newErrors.roleIds;
+                      return newErrors;
+                    });
+                  }
+                }}
               />
-              {formData.roleIds.length === 0 && (
-                <p className="text-xs text-destructive">
+              {errors.roleIds && (
+                <p className="text-xs text-destructive">{errors.roleIds}</p>
+              )}
+              {formData.roleIds.length === 0 && !errors.roleIds && (
+                <p className="text-xs text-muted-foreground">
                   请至少选择一个角色
                 </p>
               )}
