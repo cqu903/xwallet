@@ -4,53 +4,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-多平台钱包应用 (xWallet)，采用 Monorepo 架构，由以下组件组成：
+多平台钱包应用 (xWallet)，由以下独立组件组成：
 
 - **app/** - Android 和 iOS 移动应用 (Flutter)，面向顾客，邮箱登录
 - **front-web/** - 基于 Web 浏览器的管理后台 (Next.js 16 + React 19)，面向系统员工，工号登录
 - **backend/** - Spring Boot API 服务器 (Spring Boot 3.3.0 + MyBatis)
-- **packages/** - 共享包（shared-types, shared-utils）
 
 ```
 xwallet/
-├── app/                  # Flutter 移动应用
-├── front-web/            # Next.js Web 管理后台
-├── backend/              # Spring Boot 后端
-├── packages/             # 共享包
-│   ├── shared-types/     # TypeScript 类型定义
-│   └── shared-utils/     # 共享工具函数
-├── package.json          # 根 package.json
-├── pnpm-workspace.yaml   # pnpm workspace 配置 (包含 front-web 和 packages/*)
-└── turbo.json            # Turborepo 配置
+├── app/                  # Flutter 移动应用（独立项目）
+├── front-web/            # Next.js Web 管理后台（独立项目）
+└── backend/              # Spring Boot 后端（独立项目）
 ```
 
-**注意**: `app/` (Flutter) 和 `backend/` (Spring Boot) 不在 pnpm workspace 中，它们有独立的依赖管理。
+**注意**: 三个项目完全独立，各自管理自己的依赖。
 
 ## 开发命令
-
-### Monorepo 根目录命令
-
-项目使用 **pnpm workspace** + **Turborepo** 进行包管理和构建优化。
-
-```bash
-# 安装所有依赖
-pnpm install
-
-# 构建所有包
-pnpm build
-
-# 启动 front-web 开发服务器
-pnpm --filter front-web dev
-
-# 运行所有测试
-pnpm test
-
-# 代码检查
-pnpm lint
-
-# 代码格式化
-pnpm format
-```
 
 ### Flutter 移动端项目 (app/)
 
@@ -155,7 +124,6 @@ docker exec -it <mysql-container-name> mysql -u root -p123321qQ
   - API 文档: SpringDoc OpenAPI (Swagger UI)
   - 消息队列: Spring Integration MQTT (埋点数据收集)
 
-- **构建**: Turborepo + pnpm workspace
 
 ### 后端架构
 
@@ -288,18 +256,18 @@ Flutter 移动应用，面向顾客：
 
 ## 开发注意事项
 
-1. **app/ 是独立的 Flutter 应用**，与 Web 管理后台是独立的代码库
-2. **Monorepo 架构**: 项目使用 pnpm workspace + Turborepo，`packages/` 包含共享类型和工具
-   - `@xwallet/shared-types`: TypeScript 类型定义（User, Role, ApiResponse 等）
-   - `@xwallet/shared-utils`: 共享工具函数（cn, formatDate, storage 等）
-3. **Backend 开发顺序**: entity → repository/mapper → service → controller
-4. **MySQL 在 Docker 中运行**，执行 SQL 需要连接容器
-5. **RBAC 权限**: 新增 API 需要配置对应菜单权限和角色关联
-6. **动态菜单**: Web 管理后台菜单从 `/api/menu/list` 获取，根据用户角色动态加载
-7. **环境变量**:
+1. **项目独立性**: app、front-web、backend 三个项目完全独立，各自管理依赖
+2. **Backend 开发顺序**: entity → repository/mapper → service → controller
+3. **MySQL 在 Docker 中运行**，执行 SQL 需要连接容器
+4. **RBAC 权限**: 新增 API 需要配置对应菜单权限和角色关联
+5. **动态菜单**: Web 管理后台菜单从 `/api/menu/list` 获取，根据用户角色动态加载
+6. **环境变量**:
    - Backend: 必须创建 `backend/.env` 文件（spring-dotenv 自动加载）
    - Front-web: 默认使用硬编码 API 地址，`.env.local` 为可选配置
-8. **包管理**: 使用 pnpm 而非 npm，优先使用 `pnpm --filter <package>` 命令操作子包
+7. **包管理**:
+   - app: 使用 Flutter pub
+   - front-web: 使用 pnpm
+   - backend: 使用 Maven
 
 ## 主题色彩
 
