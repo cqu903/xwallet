@@ -36,9 +36,13 @@
     "passwordPlaceholder": "请输入密码",
     "loginSuccess": "登录成功",
     "loginFailed": "登录失败",
+    "loginFailedWithRetry": "工号或密码错误，剩余尝试次数：{count}",
     "invalidCredentials": "工号或密码错误",
     "pleaseInputEmployeeNo": "请输入工号",
-    "pleaseInputPassword": "请输入密码"
+    "pleaseInputPassword": "请输入密码",
+    "rememberMe": "记住我（7天）",
+    "accountLocked": "账户已锁定，请在 {seconds} 秒后重试",
+    "locked": "账户已锁定 {seconds} 秒"
   },
   "user": {
     "title": "用户管理",

@@ -36,9 +36,13 @@
     "passwordPlaceholder": "Enter password",
     "loginSuccess": "Login successful",
     "loginFailed": "Login failed",
+    "loginFailedWithRetry": "Invalid employee number or password. Remaining attempts: {count}",
     "invalidCredentials": "Invalid employee number or password",
     "pleaseInputEmployeeNo": "Please enter employee number",
-    "pleaseInputPassword": "Please enter password"
+    "pleaseInputPassword": "Please enter password",
+    "rememberMe": "Remember me (7 days)",
+    "accountLocked": "Account locked. Please try again in {seconds} seconds",
+    "locked": "Locked for {seconds} seconds"
   },
   "user": {
     "title": "User Management",
