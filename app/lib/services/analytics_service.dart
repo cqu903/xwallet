@@ -6,7 +6,7 @@ import 'event_reporter.dart';
 import 'mqtt_client_wrapper.dart';
 import '../database/event_database.dart';
 import '../utils/device_info_collector.dart';
-import '../config/analytics_config.dart';
+import '../utils/platform_config.dart';
 
 class AnalyticsService {
   static final AnalyticsService instance = AnalyticsService._internal();
@@ -23,16 +23,20 @@ class AnalyticsService {
     final clientId = 'xwallet-$deviceId';
 
     _mqttClient = MqttClientWrapper(
-      broker: AnalyticsConfig.broker,
+      broker: PlatformConfig.mqttBroker,
       clientId: clientId,
-      username: AnalyticsConfig.mqttUsername.isNotEmpty ? AnalyticsConfig.mqttUsername : null,
-      password: AnalyticsConfig.mqttPassword.isNotEmpty ? AnalyticsConfig.mqttPassword : null,
+      port: PlatformConfig.mqttPort,
+      useSSL: PlatformConfig.mqttUseSSL,
+      username: null, // 开发环境允许匿名连接
+      password: null,
     );
 
     try {
       await _mqttClient.connect();
+      print('✅ MQTT connected to ${PlatformConfig.mqttBroker}:${PlatformConfig.mqttPort}');
     } catch (e) {
-      print('MQTT connection failed during initialization: $e');
+      print('⚠️  MQTT connection failed: $e');
+      print('📦 Events will be saved to SQLite for retry');
       // 即使MQTT连接失败也继续,事件会存入SQLite
     }
 

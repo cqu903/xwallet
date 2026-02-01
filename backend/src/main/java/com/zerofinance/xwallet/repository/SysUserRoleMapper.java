@@ -35,4 +35,9 @@ public interface SysUserRoleMapper {
      * 删除角色的所有用户关联
      */
     int deleteByRoleId(@Param("roleId") Long roleId);
+
+    /**
+     * 根据角色ID查询用户ID列表
+     */
+    List<Long> selectUserIdsByRoleId(@Param("roleId") Long roleId);
 }

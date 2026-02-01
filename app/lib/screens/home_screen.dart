@@ -2,10 +2,32 @@ import 'package:flutter/material.dart';
 import '../widgets/loan_card.dart';
 import '../widgets/activity_grid.dart';
 import '../models/activity.dart';
+import '../services/analytics_service.dart';
+import '../models/analytics_event.dart';
 
 /// 主页 - 贷款申请落地页
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // 上报页面浏览事件
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AnalyticsService.instance.trackEvent(
+        eventType: 'page_view',
+        properties: {
+          'pageName': 'HomeScreen',
+        },
+        category: EventCategory.behavior,
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +63,16 @@ class HomeScreen extends StatelessWidget {
               // 贷款申请卡片
               LoanCard(
                 onApply: () {
+                  // 上报按钮点击事件
+                  AnalyticsService.instance.trackEvent(
+                    eventType: 'button_click',
+                    properties: {
+                      'buttonName': 'apply_loan',
+                      'page': 'HomeScreen',
+                    },
+                    category: EventCategory.behavior,
+                  );
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('跳转到贷款申请页面...'),
@@ -54,6 +86,17 @@ class HomeScreen extends StatelessWidget {
               ActivityGrid(
                 activities: activities,
                 onActivityTap: (activity) {
+                  // 上报活动点击事件
+                  AnalyticsService.instance.trackEvent(
+                    eventType: 'activity_click',
+                    properties: {
+                      'activityId': activity.id,
+                      'activityTitle': activity.title,
+                      'page': 'HomeScreen',
+                    },
+                    category: EventCategory.behavior,
+                  );
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('查看活动: ${activity.title}'),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../services/analytics_service.dart';
+import '../models/analytics_event.dart';
+import '../main.dart';
 import 'register_screen.dart';
 
 /// 登录页面
@@ -31,9 +34,23 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     final authProvider = context.read<AuthProvider>();
+    final email = _emailController.text.trim();
+
     final success = await authProvider.login(
-      _emailController.text.trim(),
+      email,
       _passwordController.text,
+    );
+
+    // 上报登录事件（只记录简单信息）
+    await AnalyticsService.instance.trackEvent(
+      eventType: 'login',
+      properties: {
+        'loginMethod': 'email',
+        'success': success,
+        'hasError': !success,
+      },
+      userId: success ? authProvider.currentUser?.userInfo.userId.toString() : null,
+      category: success ? EventCategory.critical : EventCategory.behavior,
     );
 
     if (!success && mounted) {
@@ -42,6 +59,13 @@ class _LoginScreenState extends State<LoginScreen> {
         SnackBar(
           content: Text(authProvider.errorMessage ?? '登录失败'),
           backgroundColor: Colors.red,
+        ),
+      );
+    } else if (success && mounted) {
+      // 登录成功，导航到主页
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => const MainNavigation(),
         ),
       );
     }

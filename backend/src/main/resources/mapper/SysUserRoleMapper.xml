@@ -26,4 +26,10 @@
         DELETE FROM sys_user_role WHERE role_id = #{roleId}
     </delete>
 
+    <select id="selectUserIdsByRoleId" resultType="java.lang.Long">
+        SELECT user_id
+        FROM sys_user_role
+        WHERE role_id = #{roleId}
+    </select>
+
 </mapper>

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:json_annotation/json_annotation.dart';
 import 'event_context.dart';
 import 'event_properties.dart';
@@ -35,7 +36,7 @@ class AnalyticsEvent {
 
   /// 转换为 MQTT payload
   String toPayload() {
-    return toJson().toString();
+    return jsonEncode(toJson());
   }
 
   /// 获取 MQTT Topic

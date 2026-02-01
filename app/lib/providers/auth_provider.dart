@@ -49,9 +49,15 @@ class AuthProvider with ChangeNotifier {
     final isValid = await _apiService.isLoggedIn();
 
     if (isValid) {
-      _status = AuthStatus.loggedIn;
-      // 注意：这里只设置了状态，没有设置用户信息
-      // 如果需要完整的用户信息，需要额外的API获取
+      // 从 SharedPreferences 读取用户信息
+      final userInfo = await _apiService.getUserInfo();
+      if (userInfo != null) {
+        _currentUser = userInfo;
+        _status = AuthStatus.loggedIn;
+      } else {
+        _status = AuthStatus.notLoggedIn;
+        _currentUser = null;
+      }
     } else {
       _status = AuthStatus.notLoggedIn;
       _currentUser = null;
@@ -78,19 +84,18 @@ class AuthProvider with ChangeNotifier {
     final (success, error) = await _apiService.login(request);
 
     if (success) {
-      _status = AuthStatus.loggedIn;
-      // 注意：这里没有保存完整的用户信息
-      // 如果需要，可以从token解析或调用额外的API
-      _currentUser = LoginResponse(
-        token: (await _apiService.getToken())!,
-        userInfo: UserInfo(
-          userId: 0, // 暂时设为0，实际应从后端获取
-          username: email,
-          userType: 'CUSTOMER',
-          role: null,
-        ),
-      );
-      _errorMessage = null;
+      // 从 SharedPreferences 读取保存的用户信息
+      final userInfo = await _apiService.getUserInfo();
+      if (userInfo != null) {
+        _currentUser = userInfo;
+        _status = AuthStatus.loggedIn;
+        _errorMessage = null;
+      } else {
+        // 如果保存失败，使用默认值（理论上不应该发生）
+        _status = AuthStatus.error;
+        _errorMessage = '用户信息保存失败';
+        _currentUser = null;
+      }
     } else {
       _status = AuthStatus.error;
       _errorMessage = error ?? '登录失败';
@@ -153,19 +158,18 @@ class AuthProvider with ChangeNotifier {
     final (success, error) = await _apiService.register(request);
 
     if (success) {
-      _status = AuthStatus.loggedIn;
-      // 注册成功，自动登录
-      final token = await _apiService.getToken();
-      _currentUser = LoginResponse(
-        token: token!,
-        userInfo: UserInfo(
-          userId: 0, // 暂时设为0，实际应从后端获取
-          username: nickname ?? email,
-          userType: 'CUSTOMER',
-          role: null,
-        ),
-      );
-      _errorMessage = null;
+      // 从 SharedPreferences 读取保存的用户信息
+      final userInfo = await _apiService.getUserInfo();
+      if (userInfo != null) {
+        _currentUser = userInfo;
+        _status = AuthStatus.loggedIn;
+        _errorMessage = null;
+      } else {
+        // 如果保存失败，使用默认值（理论上不应该发生）
+        _status = AuthStatus.error;
+        _errorMessage = '用户信息保存失败';
+        _currentUser = null;
+      }
     } else {
       _status = AuthStatus.error;
       _errorMessage = error ?? '注册失败';

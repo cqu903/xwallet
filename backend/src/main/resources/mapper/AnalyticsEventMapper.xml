@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zerofinance.xwallet.repository.AnalyticsEventMapper">
+
+    <resultMap id="AnalyticsEventResultMap" type="com.zerofinance.xwallet.model.entity.AnalyticsEventEntity">
+        <id property="id" column="id"/>
+        <result property="eventId" column="event_id"/>
+        <result property="deviceId" column="device_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="eventType" column="event_type"/>
+        <result property="environment" column="environment"/>
+        <result property="topic" column="topic"/>
+        <result property="payload" column="payload"/>
+        <result property="appVersion" column="app_version"/>
+        <result property="os" column="os"/>
+        <result property="osVersion" column="os_version"/>
+        <result property="deviceModel" column="device_model"/>
+        <result property="networkType" column="network_type"/>
+        <result property="sessionId" column="session_id"/>
+        <result property="isCritical" column="is_critical"/>
+        <result property="receivedAt" column="received_at"/>
+        <result property="eventTimestamp" column="event_timestamp"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findByEventId" resultMap="AnalyticsEventResultMap">
+        SELECT id, event_id, device_id, user_id, event_type, environment, topic, payload,
+               app_version, os, os_version, device_model, network_type, session_id, is_critical,
+               received_at, event_timestamp, created_at, updated_at
+        FROM analytics_event
+        WHERE event_id = #{eventId}
+    </select>
+
+    <select id="findByConditions" resultMap="AnalyticsEventResultMap">
+        SELECT id, event_id, device_id, user_id, event_type, environment, topic, payload,
+               app_version, os, os_version, device_model, network_type, session_id, is_critical,
+               received_at, event_timestamp, created_at, updated_at
+        FROM analytics_event
+        <where>
+            <if test="userId != null and userId != ''">
+                AND user_id = #{userId}
+            </if>
+            <if test="deviceId != null and deviceId != ''">
+                AND device_id = #{deviceId}
+            </if>
+            <if test="eventType != null and eventType != ''">
+                AND event_type = #{eventType}
+            </if>
+            <if test="environment != null and environment != ''">
+                AND environment = #{environment}
+            </if>
+            <if test="isCritical != null">
+                AND is_critical = #{isCritical}
+            </if>
+            <if test="startTime != null">
+                AND created_at &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND created_at &lt;= #{endTime}
+            </if>
+        </where>
+        ORDER BY received_at DESC
+        <if test="offset != null and limit != null">
+            LIMIT #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="countByConditions" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM analytics_event
+        <where>
+            <if test="userId != null and userId != ''">
+                AND user_id = #{userId}
+            </if>
+            <if test="deviceId != null and deviceId != ''">
+                AND device_id = #{deviceId}
+            </if>
+            <if test="eventType != null and eventType != ''">
+                AND event_type = #{eventType}
+            </if>
+            <if test="environment != null and environment != ''">
+                AND environment = #{environment}
+            </if>
+            <if test="isCritical != null">
+                AND is_critical = #{isCritical}
+            </if>
+            <if test="startTime != null">
+                AND created_at &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND created_at &lt;= #{endTime}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.AnalyticsEventEntity" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO analytics_event (
+            event_id, device_id, user_id, event_type, environment, topic, payload,
+            app_version, os, os_version, device_model, network_type, session_id, is_critical,
+            received_at, event_timestamp, created_at, updated_at
+        ) VALUES (
+            #{eventId}, #{deviceId}, #{userId}, #{eventType}, #{environment}, #{topic}, #{payload},
+            #{appVersion}, #{os}, #{osVersion}, #{deviceModel}, #{networkType}, #{sessionId}, #{isCritical},
+            #{receivedAt}, #{eventTimestamp}, #{createdAt}, #{updatedAt}
+        )
+    </insert>
+
+    <delete id="deleteOldEvents">
+        DELETE FROM analytics_event
+        WHERE created_at &lt; #{beforeTime}
+    </delete>
+
+</mapper>
