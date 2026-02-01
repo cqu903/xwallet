@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { usePathname, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { ChevronLeft, ChevronRight, FolderOpen } from 'lucide-react';
-import { useLayoutStore } from '@/lib/stores';
+import { ChevronLeft, ChevronRight, FolderOpen, ChevronDown } from 'lucide-react';
+import { useLayoutStore, useMenuCollapseStore } from '@/lib/stores';
 import { useMenus } from '@/lib/hooks/use-api';
 
 interface MenuItem {
@@ -21,33 +21,78 @@ interface SidebarItemProps {
   depth?: number;
 }
 
-function SidebarItem({ item, collapsed, locale, depth = 0 }: SidebarItemProps) {
+/**
+ * 可折叠的父菜单按钮组件
+ */
+interface CollapsibleMenuButtonProps {
+  name: string;
+  isCollapsed: boolean;
+  sidebarCollapsed: boolean;
+  onToggle: () => void;
+}
+
+function CollapsibleMenuButton({
+  name,
+  isCollapsed,
+  sidebarCollapsed,
+  onToggle,
+}: CollapsibleMenuButtonProps) {
+  return (
+    <button
+      onClick={onToggle}
+      className={`
+        flex items-center gap-2 rounded-lg px-3 py-2
+        text-muted-foreground text-sm font-medium
+        w-full text-left cursor-pointer
+        hover:bg-accent hover:text-accent-foreground transition-colors
+        ${sidebarCollapsed ? 'justify-center px-2' : ''}
+      `}
+      title={name}
+    >
+      <FolderOpen className="h-4 w-4 shrink-0" />
+      {!sidebarCollapsed && <span>{name}</span>}
+      {!sidebarCollapsed && (
+        <ChevronDown
+          data-testid="chevron-icon"
+          className={`h-4 w-4 shrink-0 ml-auto transition-transform duration-200 ${
+            isCollapsed ? 'rotate-[-90deg]' : 'rotate-0'
+          }`}
+        />
+      )}
+    </button>
+  );
+}
+
+function SidebarItem({ item, collapsed: sidebarCollapsed, locale, depth = 0 }: SidebarItemProps) {
   const pathname = usePathname();
   const hasChildren = item.children && item.children.length > 0;
   const path = item.path ?? null;
+  const { toggleMenu, collapsedMenus } = useMenuCollapseStore();
+  const isMenuCollapsed = collapsedMenus[item.id];
 
-  // 有子菜单：渲染为目录（父级标题 + 缩进的子项）
+  // 有子菜单：渲染为可折叠的目录（父级标题 + 缩进的子项）
   if (hasChildren) {
     return (
       <div className="space-y-0.5">
-        <div
-          className={`
-            flex items-center gap-2 rounded-lg px-3 py-2
-            text-muted-foreground text-sm font-medium
-            ${collapsed ? 'justify-center px-2' : ''}
-          `}
-          title={item.name}
-        >
-          <FolderOpen className="h-4 w-4 shrink-0" />
-          {!collapsed && <span>{item.name}</span>}
-        </div>
-        {!collapsed && (
-          <div className={depth === 0 ? 'pl-4 space-y-0.5 border-l border-border/60 ml-3' : 'pl-2 space-y-0.5'}>
+        <CollapsibleMenuButton
+          name={item.name}
+          isCollapsed={isMenuCollapsed}
+          sidebarCollapsed={sidebarCollapsed}
+          onToggle={() => toggleMenu(item.id)}
+        />
+        {!sidebarCollapsed && !isMenuCollapsed && (
+          <div
+            className={
+              depth === 0
+                ? 'pl-4 space-y-0.5 border-l border-border/60 ml-3'
+                : 'pl-2 space-y-0.5'
+            }
+          >
             {item.children!.map((child) => (
               <SidebarItem
                 key={child.id}
                 item={child}
-                collapsed={collapsed}
+                collapsed={sidebarCollapsed}
                 locale={locale}
                 depth={depth + 1}
               />
@@ -67,12 +112,16 @@ function SidebarItem({ item, collapsed, locale, depth = 0 }: SidebarItemProps) {
       href={href}
       className={`
         flex items-center gap-3 rounded-lg px-3 py-2 transition-colors text-sm
-        ${isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'}
-        ${collapsed ? 'justify-center px-2' : ''}
+        ${
+          isActive
+            ? 'bg-primary text-primary-foreground'
+            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+        }
+        ${sidebarCollapsed ? 'justify-center px-2' : ''}
       `}
-      title={collapsed ? item.name : undefined}
+      title={sidebarCollapsed ? item.name : undefined}
     >
-      {!collapsed && <span>{item.name}</span>}
+      {!sidebarCollapsed && <span>{item.name}</span>}
     </Link>
   );
 }
