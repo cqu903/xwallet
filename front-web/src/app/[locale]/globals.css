@@ -1,5 +1,58 @@
 @import "tailwindcss";
 
+/* ==================== Tailwind CSS v4 主题配置 ==================== */
+@theme {
+  /* 字体 */
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* 专业后台 - 紫色主题 (Primary #6B21A8 / oklch 约 42% 0.22 295) */
+  /* 亮色主题（默认） */
+  --color-background: oklch(98.5% 0.004 280);
+  --color-foreground: oklch(14% 0.02 280);
+  --color-card: oklch(100% 0 0);
+  --color-card-foreground: oklch(18% 0.01 280);
+  --color-popover: oklch(100% 0 0);
+  --color-popover-foreground: oklch(18% 0.01 280);
+  --color-primary: oklch(42% 0.22 295);
+  --color-primary-foreground: oklch(99% 0 0);
+  --color-secondary: oklch(92% 0.008 280);
+  --color-secondary-foreground: oklch(22% 0.01 280);
+  --color-muted: oklch(95% 0.006 280);
+  --color-muted-foreground: oklch(48% 0.02 280);
+  --color-accent: oklch(94% 0.02 295);
+  --color-accent-foreground: oklch(22% 0.02 280);
+  --color-destructive: oklch(52% 0.22 25);
+  --color-destructive-foreground: oklch(99% 0 0);
+  --color-border: oklch(91% 0.008 280);
+  --color-input: oklch(93% 0.006 280);
+  --color-ring: oklch(42% 0.22 295);
+  --radius: 0.5rem;
+}
+
+/* ==================== 暗色主题 (.dark class) ==================== */
+@theme dark {
+  --color-background: oklch(11% 0.02 280);
+  --color-foreground: oklch(96% 0.005 280);
+  --color-card: oklch(16% 0.022 280);
+  --color-card-foreground: oklch(96% 0.005 280);
+  --color-popover: oklch(16% 0.022 280);
+  --color-popover-foreground: oklch(96% 0.005 280);
+  --color-primary: oklch(58% 0.24 295);
+  --color-primary-foreground: oklch(99% 0 0);
+  --color-secondary: oklch(22% 0.025 280);
+  --color-secondary-foreground: oklch(96% 0.005 280);
+  --color-muted: oklch(20% 0.022 280);
+  --color-muted-foreground: oklch(68% 0.02 280);
+  --color-accent: oklch(24% 0.03 295);
+  --color-accent-foreground: oklch(96% 0.005 280);
+  --color-destructive: oklch(48% 0.20 25);
+  --color-destructive-foreground: oklch(99% 0 0);
+  --color-border: oklch(26% 0.025 280);
+  --color-input: oklch(26% 0.025 280);
+  --color-ring: oklch(58% 0.24 295);
+}
+
+/* ==================== 保留 CSS 自定义属性（用于其他场景） ==================== */
 /* ==================== 亮色主题变量 ==================== */
 :root {
   /* 专业后台 - 紫色主题 (Primary #6B21A8 / oklch 约 42% 0.22 295) */
