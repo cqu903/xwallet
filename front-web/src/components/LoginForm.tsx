@@ -74,10 +74,6 @@ export function LoginForm() {
     }
   }, [error, employeeNo, password]);
 
-  if (isAuthenticated) {
-    return null;
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);

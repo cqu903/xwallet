@@ -7,6 +7,7 @@ import 'screens/home_screen.dart';
 import 'screens/account_screen.dart';
 import 'screens/profile_screen.dart';
 import 'services/analytics_service.dart';
+import 'widgets/x_wallet_logo.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,10 +34,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
       ],
       child: MaterialApp(
-        title: 'xWallet',
+        title: 'X Wallet',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2E7D32)),
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF7424F5)),
           useMaterial3: true,
         ),
         home: const SplashScreen(),
@@ -86,24 +87,24 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color(0xFF2E7D32),
+    return Scaffold(
+      backgroundColor: const Color(0xFF7424F5),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.account_balance_wallet, size: 80, color: Colors.white),
-            SizedBox(height: 16),
-            Text(
-              'xWallet',
+            const XWalletLogo(size: 80),
+            const SizedBox(height: 16),
+            const Text(
+              'X Wallet',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 32),
-            CircularProgressIndicator(color: Colors.white),
+            const SizedBox(height: 32),
+            const CircularProgressIndicator(color: Colors.white),
           ],
         ),
       ),
@@ -157,7 +158,7 @@ class MainNavigation extends StatelessWidget {
                     child: Icon(
                       _icons[index],
                       size: 28,
-                      color: isSelected ? const Color(0xFF2E7D32) : const Color(0xFF9E9E9E),
+                      color: isSelected ? const Color(0xFF7424F5) : const Color(0xFF9E9E9E),
                     ),
                   ),
                 );

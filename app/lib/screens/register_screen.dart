@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/validators.dart';
+import '../widgets/x_wallet_logo.dart';
 
 /// 用户注册页面
 class RegisterScreen extends StatefulWidget {
@@ -142,12 +143,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Logo
-                        Icon(
-                          Icons.account_balance_wallet,
-                          size: 64,
-                          color: Colors.green.shade700,
-                        ),
+                        // X Wallet Logo（与 www.xwallet.hk 品牌一致）
+                        const XWalletLogo(size: 64),
                         const SizedBox(height: 24),
                         const Text(
                           '创建新账号',

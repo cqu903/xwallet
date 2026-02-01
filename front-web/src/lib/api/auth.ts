@@ -101,7 +101,8 @@ export async function login(credentials: LoginRequest): Promise<void> {
     })),
   };
 
-  useAuthStore.getState().setAuth(user, token, []);
+  // 将 rememberMe 参数传递给 store，控制是否持久化
+  useAuthStore.getState().setAuth(user, token, [], credentials.rememberMe || false);
 }
 
 /**

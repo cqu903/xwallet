@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
-@theme {
-  /* 专业后台 - 紫色主题 (Primary #6B21A8 / oklch 约 40% 0.22 295) */
+/* ==================== 亮色主题变量 ==================== */
+:root {
+  /* 专业后台 - 紫色主题 (Primary #6B21A8 / oklch 约 42% 0.22 295) */
   --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --color-background: oklch(98.5% 0.004 280);
   --color-foreground: oklch(14% 0.02 280);
@@ -25,8 +26,9 @@
   --radius: 0.5rem;
 }
 
+/* ==================== 系统暗色主题变量 ==================== */
 @media (prefers-color-scheme: dark) {
-  @theme {
+  :root {
     --color-background: oklch(11% 0.02 280);
     --color-foreground: oklch(96% 0.005 280);
     --color-card: oklch(16% 0.022 280);
@@ -49,7 +51,7 @@
   }
 }
 
-/* next-themes 使用 class 策略时的暗色主题变量 */
+/* ==================== 手动暗色主题变量 (.dark class) ==================== */
 .dark {
   color-scheme: dark;
   --color-background: oklch(11% 0.02 280);

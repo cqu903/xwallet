@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/x_wallet_logo.dart';
 
 /// 个人页面 - 占位（包含登出功能）
 class ProfileScreen extends StatelessWidget {
@@ -145,11 +146,11 @@ class ProfileScreen extends StatelessWidget {
   void _showAboutDialog(BuildContext context) {
     showAboutDialog(
       context: context,
-      applicationName: 'xWallet',
+      applicationName: 'X Wallet',
       applicationVersion: '1.0.0',
-      applicationIcon: const Icon(Icons.account_balance_wallet, size: 48),
+      applicationIcon: const XWalletLogo(size: 48),
       children: const [
-        Text('xWallet 是一款便捷的移动钱包应用'),
+        Text('X Wallet 是一款便捷的移动钱包应用'),
       ],
     );
   }
@@ -176,7 +177,7 @@ class _MenuItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
-        leading: Icon(icon, color: const Color(0xFF2E7D32)),
+        leading: Icon(icon, color: const Color(0xFF7424F5)),
         title: Text(title),
         trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: onTap,

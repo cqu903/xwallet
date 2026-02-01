@@ -2,12 +2,18 @@
 
 import { useTranslations } from 'next-intl';
 import { LoginForm } from '@/components/LoginForm';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 export default function LoginPage() {
   const t = useTranslations('auth');
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background bg-grid bg-pattern">
+      {/* 主题切换按钮 */}
+      <div className="absolute top-4 right-4 z-10">
+        <ThemeToggle />
+      </div>
+
       {/* 低调装饰光晕 */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 h-80 w-80 animate-pulse-glow rounded-full bg-primary/8 blur-3xl" />
