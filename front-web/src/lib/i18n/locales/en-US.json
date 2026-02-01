@@ -22,8 +22,7 @@
     "users": "User Management",
     "roles": "Role Management",
     "system": "System",
-    "logs": "Operation Logs",
-    "settings": "Settings"
+    "mqttEvents": "MQTT Events"
   },
   "auth": {
     "login": "Login",

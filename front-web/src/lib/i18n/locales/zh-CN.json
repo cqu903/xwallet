@@ -22,8 +22,7 @@
     "users": "用户管理",
     "roles": "角色管理",
     "system": "系统管理",
-    "logs": "操作日志",
-    "settings": "系统设置"
+    "mqttEvents": "MQTT事件"
   },
   "auth": {
     "login": "登录",
