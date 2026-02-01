@@ -8,9 +8,13 @@ import 'screens/account_screen.dart';
 import 'screens/profile_screen.dart';
 import 'services/analytics_service.dart';
 import 'widgets/x_wallet_logo.dart';
+import 'config/app_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 加载配置
+  await AppConfig.load();
 
   // 初始化埋点服务
   try {

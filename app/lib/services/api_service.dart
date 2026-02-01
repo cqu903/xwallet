@@ -4,13 +4,13 @@ import '../models/login_request.dart';
 import '../models/login_response.dart';
 import '../models/register_request.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../utils/platform_config.dart';
+import '../config/app_config.dart';
 
 /// API服务类
 /// 封装所有与后端API的交互
 class ApiService {
-  // 后端API地址 - 自动检测平台
-  static String get baseUrl => PlatformConfig.apiBaseUrl;
+  // 后端API地址 - 从配置文件读取
+  static String get baseUrl => AppConfig.instance.apiBaseUrl;
 
   // Token存储key
   static const String _tokenKey = 'auth_token';
