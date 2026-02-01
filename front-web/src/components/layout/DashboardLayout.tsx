@@ -3,7 +3,7 @@
 import { ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import { useAuthStore, useAuthHydration } from '@/lib/stores';
+import { useAuthStore } from '@/lib/stores';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -16,9 +16,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // 在客户端首次渲染时触发 hydration
-  useAuthHydration();
-
   useEffect(() => {
     // 标记组件已在客户端挂载
     setIsHydrated(true);
@@ -26,12 +23,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   useEffect(() => {
     // 只在客户端挂载后才执行重定向逻辑
+    // 此时 auth store 已经在初始化时从 localStorage 同步恢复了状态
     if (isHydrated && !isAuthenticated) {
       router.push('/zh-CN/login');
     }
   }, [isAuthenticated, router, isHydrated]);
 
-  // SSR 或未登录时显示加载占位符，避免 hydration 不一致
+  // SSR 或未登录时显示加载占位符
   if (!isHydrated || !isAuthenticated) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
