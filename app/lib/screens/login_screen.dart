@@ -35,9 +35,17 @@ class _LoginScreenState extends State<LoginScreen>
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
 
+  /// 测试账号（仅开发/测试环境预填，减少测试工作量）
+  static const String _testEmail = 'customer@example.com';
+  static const String _testPassword = 'customer123';
+
   @override
   void initState() {
     super.initState();
+
+    // 预填测试账号（便于开发与测试）
+    _emailController.text = _testEmail;
+    _passwordController.text = _testPassword;
 
     // 初始化动画
     _animationController = AnimationController(
@@ -46,17 +54,11 @@ class _LoginScreenState extends State<LoginScreen>
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
 
     _slideAnimation = Tween<double>(begin: 0.05, end: 0.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
 
     // 启动动画
@@ -83,10 +85,7 @@ class _LoginScreenState extends State<LoginScreen>
     final email = _emailController.text.trim();
 
     try {
-      final success = await authProvider.login(
-        email,
-        _passwordController.text,
-      );
+      final success = await authProvider.login(email, _passwordController.text);
 
       // 上报登录事件
       await AnalyticsService.instance.trackEvent(
@@ -96,7 +95,9 @@ class _LoginScreenState extends State<LoginScreen>
           'success': success,
           'hasError': !success,
         },
-        userId: success ? authProvider.currentUser?.userInfo.userId.toString() : null,
+        userId: success
+            ? authProvider.currentUser?.userInfo.userId.toString()
+            : null,
         category: success ? EventCategory.critical : EventCategory.behavior,
       );
 
@@ -108,9 +109,7 @@ class _LoginScreenState extends State<LoginScreen>
               children: [
                 const Icon(Icons.error_outline, color: Colors.white),
                 const SizedBox(width: 12),
-                Expanded(
-                  child: Text(authProvider.errorMessage ?? '登录失败'),
-                ),
+                Expanded(child: Text(authProvider.errorMessage ?? '登录失败')),
               ],
             ),
             backgroundColor: const Color(0xFFF44336),
@@ -125,13 +124,12 @@ class _LoginScreenState extends State<LoginScreen>
         // 登录成功，导航到主页
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => const MainNavigation(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(
-                opacity: animation,
-                child: child,
-              );
-            },
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const MainNavigation(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
             transitionDuration: const Duration(milliseconds: 300),
           ),
         );
@@ -172,7 +170,11 @@ class _LoginScreenState extends State<LoginScreen>
                     return FadeTransition(
                       opacity: _fadeAnimation,
                       child: Transform.translate(
-                        offset: Offset(0, MediaQuery.of(context).size.height * _slideAnimation.value),
+                        offset: Offset(
+                          0,
+                          MediaQuery.of(context).size.height *
+                              _slideAnimation.value,
+                        ),
                         child: child,
                       ),
                     );
@@ -368,7 +370,9 @@ class _LoginScreenState extends State<LoginScreen>
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF7424F5),
                                     foregroundColor: Colors.white,
-                                    disabledBackgroundColor: const Color(0xFF7424F5).withOpacity(0.5),
+                                    disabledBackgroundColor: const Color(
+                                      0xFF7424F5,
+                                    ).withOpacity(0.5),
                                     elevation: 0,
                                     shadowColor: Colors.transparent,
                                     shape: RoundedRectangleBorder(
@@ -381,9 +385,10 @@ class _LoginScreenState extends State<LoginScreen>
                                           width: 20,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
-                                            ),
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  Colors.white,
+                                                ),
                                           ),
                                         )
                                       : const Text(
@@ -401,9 +406,13 @@ class _LoginScreenState extends State<LoginScreen>
                               // 分隔线
                               Row(
                                 children: [
-                                  Expanded(child: Divider(color: Colors.grey.shade300)),
+                                  Expanded(
+                                    child: Divider(color: Colors.grey.shade300),
+                                  ),
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
                                     child: Text(
                                       '或',
                                       style: TextStyle(
@@ -412,7 +421,9 @@ class _LoginScreenState extends State<LoginScreen>
                                       ),
                                     ),
                                   ),
-                                  Expanded(child: Divider(color: Colors.grey.shade300)),
+                                  Expanded(
+                                    child: Divider(color: Colors.grey.shade300),
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: 24),
@@ -425,15 +436,28 @@ class _LoginScreenState extends State<LoginScreen>
                                       : () {
                                           Navigator.of(context).push(
                                             PageRouteBuilder(
-                                              pageBuilder: (context, animation, secondaryAnimation) =>
-                                                  const RegisterScreen(),
-                                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                                return FadeTransition(
-                                                  opacity: animation,
-                                                  child: child,
-                                                );
-                                              },
-                                              transitionDuration: const Duration(milliseconds: 300),
+                                              pageBuilder:
+                                                  (
+                                                    context,
+                                                    animation,
+                                                    secondaryAnimation,
+                                                  ) => const RegisterScreen(),
+                                              transitionsBuilder:
+                                                  (
+                                                    context,
+                                                    animation,
+                                                    secondaryAnimation,
+                                                    child,
+                                                  ) {
+                                                    return FadeTransition(
+                                                      opacity: animation,
+                                                      child: child,
+                                                    );
+                                                  },
+                                              transitionDuration:
+                                                  const Duration(
+                                                    milliseconds: 300,
+                                                  ),
                                             ),
                                           );
                                         },
@@ -466,10 +490,14 @@ class _LoginScreenState extends State<LoginScreen>
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFFFF9C4).withOpacity(0.3),
+                                  color: const Color(
+                                    0xFFFFF9C4,
+                                  ).withOpacity(0.3),
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: const Color(0xFFFFD700).withOpacity(0.3),
+                                    color: const Color(
+                                      0xFFFFD700,
+                                    ).withOpacity(0.3),
                                   ),
                                 ),
                                 child: Column(

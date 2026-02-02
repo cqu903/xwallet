@@ -202,25 +202,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             SizedBox(
                               width: 120,
                               child: ElevatedButton(
-                                onPressed:
-                                    (_countdown > 0) ? null : _handleSendCode,
+                                onPressed: (_countdown > 0)
+                                    ? null
+                                    : _handleSendCode,
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 16,
                                   ),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                   backgroundColor: Colors.green.shade700,
                                 ),
                                 child: Text(
-                                  _countdown > 0
-                                      ? '${_countdown}s'
-                                      : '发送验证码',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                  ),
+                                  _countdown > 0 ? '${_countdown}s' : '发送验证码',
+                                  style: const TextStyle(fontSize: 12),
                                 ),
                               ),
                             ),
@@ -289,9 +285,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           textInputAction: TextInputAction.next,
                           validator: (value) =>
                               Validators.validateConfirmPassword(
-                            value,
-                            _passwordController.text,
-                          ),
+                                value,
+                                _passwordController.text,
+                              ),
                         ),
                         const SizedBox(height: 16),
 
@@ -318,8 +314,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           builder: (context, authProvider, child) {
                             final isRegistering = authProvider.isLoggingIn;
                             return ElevatedButton(
-                              onPressed:
-                                  isRegistering ? null : _handleRegister,
+                              onPressed: isRegistering ? null : _handleRegister,
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 16,
@@ -338,8 +333,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         strokeWidth: 2,
                                         valueColor:
                                             AlwaysStoppedAnimation<Color>(
-                                          Colors.white,
-                                        ),
+                                              Colors.white,
+                                            ),
                                       ),
                                     )
                                   : const Text(

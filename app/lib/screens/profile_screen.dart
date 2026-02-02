@@ -52,10 +52,7 @@ class ProfileScreen extends StatelessWidget {
               // 用户类型
               Text(
                 userInfo?.userType == 'CUSTOMER' ? '顾客用户' : '系统用户',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
 
               const SizedBox(height: 48),
@@ -65,18 +62,18 @@ class ProfileScreen extends StatelessWidget {
                 icon: Icons.settings_outlined,
                 title: '设置',
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('设置功能开发中...')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('设置功能开发中...')));
                 },
               ),
               _MenuItem(
                 icon: Icons.help_outline,
                 title: '帮助中心',
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('帮助中心开发中...')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('帮助中心开发中...')));
                 },
               ),
               _MenuItem(
@@ -149,9 +146,7 @@ class ProfileScreen extends StatelessWidget {
       applicationName: 'X Wallet',
       applicationVersion: '1.0.0',
       applicationIcon: const XWalletLogo(size: 48),
-      children: const [
-        Text('X Wallet 是一款便捷的移动钱包应用'),
-      ],
+      children: const [Text('X Wallet 是一款便捷的移动钱包应用')],
     );
   }
 }
