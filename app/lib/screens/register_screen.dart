@@ -143,9 +143,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // X Wallet Logo（与 www.xwallet.hk 品牌一致）
-                        const XWalletLogo(size: 64),
-                        const SizedBox(height: 24),
+                        // X Wallet Logo（与 www.xwallet.hk 品牌一致）- 靠上以给表单更多空间
+                        const XWalletLogo(size: 56),
+                        const SizedBox(height: 16),
                         const Text(
                           '创建新账号',
                           textAlign: TextAlign.center,
@@ -154,7 +154,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 20),
 
                         // 邮箱输入框
                         TextFormField(

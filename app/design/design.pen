@@ -2432,6 +2432,415 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "XowwO",
+      "x": 502,
+      "y": 0,
+      "name": "Login Screen - iPhone 16 Pro",
+      "width": 402,
+      "height": 900,
+      "fill": "#D4CCF5",
+      "layout": "none",
+      "children": [
+        {
+          "type": "frame",
+          "id": "OcJDt",
+          "x": 0,
+          "y": 0,
+          "name": "Status Bar",
+          "width": 402,
+          "height": 59,
+          "fill": "#D4CCF5",
+          "padding": [
+            14,
+            24
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "qvNhp",
+              "name": "statusTime",
+              "fill": "#1A1A1A",
+              "content": "9:41",
+              "fontFamily": "Inter",
+              "fontSize": 15,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "SpDM4",
+              "name": "statusRight",
+              "gap": 6,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "7X1kF",
+                  "width": 16,
+                  "height": 16,
+                  "iconFontName": "signal",
+                  "iconFontFamily": "lucide",
+                  "fill": "#1A1A1A"
+                },
+                {
+                  "type": "icon_font",
+                  "id": "Phwd1",
+                  "width": 16,
+                  "height": 16,
+                  "iconFontName": "wifi",
+                  "iconFontFamily": "lucide",
+                  "fill": "#1A1A1A"
+                },
+                {
+                  "type": "frame",
+                  "id": "Svhps",
+                  "name": "batteryFrame",
+                  "width": 24,
+                  "height": 12,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "rectangle",
+                      "cornerRadius": 2,
+                      "id": "Cz6MA",
+                      "x": 0,
+                      "y": 0,
+                      "width": 24,
+                      "height": 12,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1.5,
+                        "fill": "#1A1A1A"
+                      }
+                    },
+                    {
+                      "type": "rectangle",
+                      "cornerRadius": 1,
+                      "id": "X8mLS",
+                      "x": 3,
+                      "y": 2,
+                      "fill": "#1A1A1A",
+                      "width": 18,
+                      "height": 8
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ellipse",
+          "id": "Zu7w7",
+          "x": -50,
+          "y": 150,
+          "name": "bgDeco1",
+          "fill": {
+            "type": "gradient",
+            "gradientType": "radial",
+            "enabled": true,
+            "rotation": 0,
+            "size": {
+              "width": 1,
+              "height": 1
+            },
+            "colors": [
+              {
+                "color": "rgba(116,36,245,0.08)",
+                "position": 0
+              },
+              {
+                "color": "rgba(116,36,245,0)",
+                "position": 1
+              }
+            ]
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "type": "ellipse",
+          "id": "ApdtW",
+          "x": 280,
+          "y": 600,
+          "name": "bgDeco2",
+          "fill": {
+            "type": "gradient",
+            "gradientType": "radial",
+            "enabled": true,
+            "rotation": 0,
+            "size": {
+              "width": 1,
+              "height": 1
+            },
+            "colors": [
+              {
+                "color": "rgba(156,77,255,0.06)",
+                "position": 0
+              },
+              {
+                "color": "rgba(156,77,255,0)",
+                "position": 1
+              }
+            ]
+          },
+          "width": 150,
+          "height": 150
+        },
+        {
+          "type": "frame",
+          "id": "PKL5w",
+          "x": 26,
+          "y": 165,
+          "name": "loginCard",
+          "width": 350,
+          "fill": {
+            "type": "gradient",
+            "gradientType": "linear",
+            "enabled": true,
+            "rotation": 135,
+            "size": {
+              "height": 1
+            },
+            "colors": [
+              {
+                "color": "#FFFFFF",
+                "position": 0
+              },
+              {
+                "color": "#FAF8FF",
+                "position": 1
+              }
+            ]
+          },
+          "cornerRadius": 24,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "rgba(116,36,245,0.15)",
+            "offset": {
+              "x": 0,
+              "y": 16
+            },
+            "blur": 32
+          },
+          "layout": "vertical",
+          "gap": 24,
+          "padding": [
+            32,
+            24
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "RO4HI",
+              "name": "titleText",
+              "fill": "#1A1A1A",
+              "content": "欢迎来到 X Wallet",
+              "textAlign": "center",
+              "fontFamily": "Inter",
+              "fontSize": 24,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "az6lU",
+              "name": "emailInput",
+              "width": "fill_container",
+              "height": 48,
+              "fill": "#F8F9FA",
+              "cornerRadius": 12,
+              "gap": 12,
+              "padding": [
+                12,
+                16
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "vSHwG",
+                  "name": "emailIcon",
+                  "width": 20,
+                  "height": 20,
+                  "iconFontName": "mail",
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "fill": "#7424F5"
+                },
+                {
+                  "type": "text",
+                  "id": "FMlB4",
+                  "name": "emailPlaceholder",
+                  "fill": "#999999",
+                  "content": "请输入邮箱地址",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "ffYut",
+              "name": "passwordInput",
+              "width": "fill_container",
+              "height": 48,
+              "fill": "#F8F9FA",
+              "cornerRadius": 12,
+              "gap": 12,
+              "padding": [
+                12,
+                16
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "XCxRR",
+                  "name": "passwordIcon",
+                  "width": 20,
+                  "height": 20,
+                  "iconFontName": "lock",
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "fill": "#7424F5"
+                },
+                {
+                  "type": "text",
+                  "id": "VOZVP",
+                  "name": "passwordPlaceholder",
+                  "fill": "#999999",
+                  "content": "请输入密码",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "0CvnF",
+              "name": "forgotLink",
+              "fill": "#7424F5",
+              "content": "忘记密码？",
+              "textAlign": "right",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "6GnCw",
+              "name": "loginBtn",
+              "width": "fill_container",
+              "height": 52,
+              "fill": "#7424F5",
+              "cornerRadius": 12,
+              "gap": 8,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "rwr9V",
+                  "name": "loginBtnText",
+                  "fill": "#FFFFFF",
+                  "content": "登录",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "rER1m",
+              "name": "dividerRow",
+              "width": "fill_container",
+              "gap": 16,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "rectangle",
+                  "id": "Sh3oO",
+                  "name": "dividerLeft",
+                  "fill": "#E0E0E0",
+                  "width": "fill_container",
+                  "height": 1
+                },
+                {
+                  "type": "text",
+                  "id": "aAayP",
+                  "name": "dividerText",
+                  "fill": "#999999",
+                  "content": "或",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "rectangle",
+                  "id": "5PlDM",
+                  "name": "dividerRight",
+                  "fill": "#E0E0E0",
+                  "width": "fill_container",
+                  "height": 1
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "JKV47",
+              "name": "registerLink",
+              "width": "fill_container",
+              "gap": 4,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Plk4C",
+                  "name": "registerText",
+                  "fill": "#666666",
+                  "content": "还没有账号？",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "XfU0K",
+                  "name": "registerLinkText",
+                  "fill": "#7424F5",
+                  "content": "立即注册",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "oxEXl",
+          "x": 131,
+          "y": 80,
+          "name": "logoFrame",
+          "width": 140,
+          "height": 28,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "./images/xwallet_logo.png",
+            "mode": "stretch"
+          }
+        }
+      ]
     }
   ],
   "variables": {

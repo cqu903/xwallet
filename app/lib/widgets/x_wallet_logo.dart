@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
 /// X Wallet 品牌 Logo（官网 www.xwallet.hk 正式 logo 图片）
+/// Logo 保持原始宽高比，仅通过 width 控制缩放
 class XWalletLogo extends StatelessWidget {
-  const XWalletLogo({
-    super.key,
-    this.size = 80,
-    this.cornerRadius,
-  });
+  const XWalletLogo({super.key, this.size = 80, this.cornerRadius});
 
-  /// Logo 容器边长（宽高一致）
+  /// Logo 宽度（高度按图片比例自动计算）
   final double size;
 
   /// 圆角，默认 size * 0.25（约 20 当 size=80）
   final double? cornerRadius;
 
-  static const String _assetPath = 'assets/images/logo.jpg';
+  static const String _assetPath = 'design/images/xwallet_logo.png';
+
+  /// Logo 原始宽高比 1844:364 ≈ 5.07
+  static const double _aspectRatio = 1844 / 364;
 
   @override
   Widget build(BuildContext context) {
@@ -23,11 +23,12 @@ class XWalletLogo extends StatelessWidget {
       borderRadius: BorderRadius.circular(radius),
       child: SizedBox(
         width: size,
-        height: size,
+        height: size / _aspectRatio,
         child: Image.asset(
           _assetPath,
           fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) => _FallbackLogo(size: size),
+          errorBuilder: (context, error, stackTrace) =>
+              _FallbackLogo(size: size),
         ),
       ),
     );
