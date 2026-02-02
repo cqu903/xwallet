@@ -9,6 +9,7 @@ class ActivityData {
   final String badgeText;
   final List<Color> gradientColors;
   final String? imageUrl;
+
   /// 本地图片资源路径 (design/images/ 下的资源)
   final String? imageAsset;
 
@@ -96,16 +97,6 @@ class _ActivityCarouselState extends State<ActivityCarousel> {
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16 * scale),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            const Color(0xFF7424F5).withOpacity(0.02),
-            Colors.white.withOpacity(0.9),
-          ],
-        ),
-      ),
       child: Stack(
         children: [
           // 主内容
@@ -113,8 +104,6 @@ class _ActivityCarouselState extends State<ActivityCarousel> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 顶部辉光
-
               // 标题栏（设计稿 activitiesContainer gap 8）
               _buildHeader(scale),
               SizedBox(height: 8 * scale),
