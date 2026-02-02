@@ -34,12 +34,14 @@ SELECT * FROM customer;
 **文件位置：** `backend/.env` ⚠️ **唯一需要**
 
 **创建配置文件：**
+
 ```bash
 cd backend
 vim .env
 ```
 
 **示例配置：**
+
 ```bash
 # 数据库配置
 DB_URL=jdbc:mysql://localhost:3306/xwallet?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8
@@ -62,6 +64,7 @@ MQTT_PASSWORD=your_mqtt_password
 ```
 
 **重要说明：**
+
 - spring-dotenv 会从 backend/ 目录加载 .env 文件
 - 修改配置后需要重启后端才能生效
 - 如果启动时遇到数据库连接错误，首先检查 backend/.env 文件是否存在且配置正确
@@ -81,11 +84,13 @@ java -jar target/xwallet-backend-1.0.0.jar --spring.profiles.active=dev
 ```
 
 **验证后端是否启动成功：**
+
 - 访问: http://localhost:8080/api/auth/login
 - 应该看到 401 错误或 {"code":401,"errmsg":"未登录或登录已过期"}
 - 查看启动日志，确认没有数据库连接错误
 
 **API 文档 (Swagger UI)：**
+
 - 在线文档与调试: http://localhost:8080/api/swagger-ui.html
 - OpenAPI JSON: http://localhost:8080/api/v3/api-docs
 - 在 Swagger UI 中先调用「认证 > 用户登录」获取 token，再点击右上角「Authorize」填入 token，即可调试需鉴权的接口。
@@ -105,6 +110,7 @@ npm run dev
 Web 管理系统将在浏览器中打开: http://localhost:3000
 
 **测试登录：**
+
 - 工号: `ADMIN001`
 - 密码: `admin123`
 
@@ -124,6 +130,7 @@ flutter run -d ios
 ```
 
 **测试登录：**
+
 - 邮箱: `customer@example.com`
 - 密码: `customer123`
 
@@ -142,6 +149,7 @@ curl -X POST http://localhost:8080/api/auth/login \
 ```
 
 **预期响应：**
+
 ```json
 {
   "code": 200,
@@ -171,6 +179,7 @@ curl -X POST http://localhost:8080/api/auth/login \
 ```
 
 **预期响应：**
+
 ```json
 {
   "code": 200,
@@ -196,6 +205,7 @@ curl -X GET http://localhost:8080/api/auth/validate \
 ```
 
 **预期响应：**
+
 ```json
 {
   "code": 200,
@@ -213,6 +223,7 @@ curl -X POST http://localhost:8080/api/auth/logout \
 ```
 
 **预期响应：**
+
 ```json
 {
   "code": 200,
@@ -224,7 +235,9 @@ curl -X POST http://localhost:8080/api/auth/logout \
 ## 常见问题
 
 ### Q1: 后端启动失败 - 找不到环境变量
+
 **症状：**
+
 ```
 Could not resolve placeholder 'DB_URL' in value "${DB_URL}"
 或
@@ -232,9 +245,11 @@ Could not resolve placeholder 'MAIL_HOST' in value "${MAIL_HOST}"
 ```
 
 **原因：**
+
 - backend/.env 文件不存在或配置不完整
 
 **解决方案：**
+
 1. 确认 backend/.env 文件存在：
    ```bash
    ls backend/.env
@@ -247,7 +262,9 @@ Could not resolve placeholder 'MAIL_HOST' in value "${MAIL_HOST}"
 3. 确认 backend/.env 文件包含所有必需的环境变量配置（参考文档中的示例配置）
 
 ### Q2: 后端启动失败 - 数据库连接错误
+
 **症状：**
+
 ```
 java.sql.SQLException: Access denied for user 'root'@'localhost'
 或
@@ -255,14 +272,18 @@ Communications link failure
 ```
 
 **解决方案：**
+
 1. 检查 MySQL 是否运行: `docker ps | grep mysql` 或 `sudo systemctl status mysql`
 2. 检查 backend/.env 文件中的数据库配置是否正确
 3. 确认数据库已创建: `SHOW DATABASES;`
 4. 测试数据库连接: `mysql -u root -p -h localhost`
 
 ### Q3: 修改了 .env 文件但后端没有读取新配置
+
 **解决方案：**
+
 1. 重启后端服务：
+
    ```bash
    # 停止旧进程
    pkill -f "spring-boot:run"
@@ -271,16 +292,21 @@ Communications link failure
    cd backend
    mvn spring-boot:run -Dspring-boot.run.profiles=dev
    ```
+
 2. 确认修改的是 backend/.env 文件（不是项目根目录的 .env）
 
 ### Q4: 前端无法连接后端
+
 **解决方案：**
+
 1. 确认后端已启动: `curl http://localhost:8080/api/auth/login`
 2. 检查API地址配置: `front/lib/services/api_service.dart`
 3. 确认baseUrl为: `http://localhost:8080/api`
 
 ### Q5: Flutter依赖安装失败
+
 **解决方案：**
+
 ```bash
 # 清理并重新获取依赖
 flutter clean
@@ -291,17 +317,22 @@ flutter upgrade
 ```
 
 ### Q6: Token验证失败
+
 **原因：**
+
 - Token已过期（30分钟有效期）
 - Token格式错误
 - Token在黑名单中
 
 **解决方案：**
+
 - 重新登录获取新Token
 - 检查Token格式：`Bearer {token}`
 
 ### Q7: 密码错误
+
 **注意：**
+
 - 测试账号的密码已经在数据库中预先加密
 - 密码区分大小写
 - 系统用户: admin123
@@ -333,10 +364,6 @@ xwallet/
 │       ├── screens/  # UI页面
 │       └── main.dart # 应用入口
 │
-├── packages/         # 共享包
-│   ├── shared-types/ # 共享类型定义
-│   └── shared-utils/ # 共享工具函数
-│
 ├── LOGIN_README.md           # 详细功能说明
 ├── IMPLEMENTATION_SUMMARY.md # 实现总结
 └── QUICKSTART.md             # 本文件
@@ -355,6 +382,7 @@ xwallet/
 ## 技术支持
 
 如有问题，请查看：
+
 - `/home/roy/codes/claudes/xwallet/LOGIN_README.md` - 详细功能说明
 - `/home/roy/codes/claudes/xwallet/IMPLEMENTATION_SUMMARY.md` - 实现总结
 

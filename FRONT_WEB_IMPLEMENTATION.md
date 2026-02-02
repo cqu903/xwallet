@@ -5,6 +5,9 @@
 **工作目录**: ~/.config/superpowers/worktrees/xwallet/front-web-refactor
 **状态**: ✅ 第一阶段完成
 
+> **注意**: 本文档记录的是项目初始架构设计。后续决定 front-web、app 和 backend 各自独立管理，
+> `packages/` 共享包已被移除，相关功能已内联到 `front-web/src/lib/` 中。
+
 ## 完成的工作
 
 ### 1. Git Worktree 设置
@@ -17,6 +20,7 @@
 ### 2. Monorepo 架构配置
 
 **目录结构**：
+
 ```
 xwallet/
 ├── front-web/              # Next.js 应用
@@ -29,6 +33,7 @@ xwallet/
 ```
 
 **配置文件**：
+
 - ✅ `package.json` - 根项目配置，定义统一的 scripts
 - ✅ `pnpm-workspace.yaml` - pnpm workspace 配置
 - ✅ `turbo.json` - Turborepo 构建优化配置
@@ -38,6 +43,7 @@ xwallet/
 ### 3. Next.js 项目初始化
 
 **技术栈**：
+
 - Next.js 16.1.4 (使用 Turbopack)
 - React 19.2.3
 - TypeScript 5
@@ -45,6 +51,7 @@ xwallet/
 - App Router 架构
 
 **依赖安装**：
+
 ```json
 {
   "dependencies": {
@@ -70,6 +77,7 @@ xwallet/
 **路径**: `packages/shared-types/`
 
 **内容**：
+
 - `User` - 用户信息类型
 - `Role` - 角色信息类型
 - `LoginRequest/LoginResponse` - 认证相关类型
@@ -86,6 +94,7 @@ xwallet/
 **路径**: `packages/shared-utils/`
 
 **工具函数**：
+
 - `cn()` - 类名合并工具（clsx + tailwind-merge）
 - `formatDateTime()` - 日期时间格式化
 - `formatDate()` - 日期格式化
@@ -102,14 +111,16 @@ xwallet/
 ### 5. Tailwind CSS + shadcn/ui 配置
 
 **Tailwind CSS v4 配置**：
+
 - 使用 `@theme` 语法定义颜色变量
 - 支持亮色和暗色主题自动切换
 - 配色方案基于 OKLCH 颜色空间
 
 **颜色主题**：
+
 ```css
 /* 亮色主题 */
---color-primary: oklch(55% 0.22 250);  /* 蓝色主色调 */
+--color-primary: oklch(55% 0.22 250); /* 蓝色主色调 */
 --color-background: oklch(100% 0 0);
 --color-foreground: oklch(20% 0.01 250);
 
@@ -120,6 +131,7 @@ xwallet/
 ```
 
 **shadcn/ui 组件**：
+
 - ✅ `Button` - 按钮组件（支持多种样式和尺寸）
 - ✅ `Input` - 输入框组件
 - ✅ `Label` - 标签组件
@@ -150,6 +162,7 @@ front-web/src/
 ### 7. 测试页面验证
 
 创建了基础测试页面 (`src/app/page.tsx`)，验证：
+
 - ✅ Next.js 服务器启动
 - ✅ 页面渲染正常
 - ✅ TypeScript 类型检查
@@ -159,6 +172,7 @@ front-web/src/
 - ✅ 响应式布局
 
 **测试结果**：
+
 - 服务器成功运行在 `http://localhost:3000`
 - 所有 UI 组件（按钮、输入框、标签）正确渲染
 - 浏览器显示正常，无控制台错误
@@ -235,6 +249,7 @@ front-web/src/
 Tailwind CSS v4 使用新的 `@theme` 语法，与 v3 的 `@layer` 语法不同。
 
 **解决方案**：
+
 - 使用 `@theme` 定义 CSS 变量
 - 颜色使用 OKLCH 颜色空间
 - 移除 `@apply` 指令，直接使用 CSS 变量
@@ -259,6 +274,7 @@ Tailwind CSS v4 使用新的 `@theme` 语法，与 v3 的 `@layer` 语法不同�
 ## 结论
 
 ✅ **第一阶段目标已达成**：
+
 - Monorepo 架构配置完成
 - Next.js 项目初始化成功
 - 基础 UI 组件库配置完成

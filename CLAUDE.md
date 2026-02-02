@@ -9,16 +9,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **app/** - Android 和 iOS 移动应用 (Flutter)，面向顾客，邮箱登录
 - **front-web/** - 基于 Web 浏览器的管理后台 (Next.js 16 + React 19)，面向系统员工，工号登录
 - **backend/** - Spring Boot API 服务器 (Spring Boot 3.3.0 + MyBatis)
-- **packages/** - 共享包（shared-types, shared-utils）
 
 ```
 xwallet/
 ├── app/                  # Flutter 移动应用
 ├── front-web/            # Next.js Web 管理后台
 ├── backend/              # Spring Boot 后端
-├── packages/             # 共享包
-│   ├── shared-types/     # TypeScript 类型定义
-│   └── shared-utils/     # 共享工具函数
 ├── package.json          # 根 package.json
 ├── pnpm-workspace.yaml   # pnpm workspace 配置
 └── turbo.json            # Turborepo 配置
@@ -111,6 +107,7 @@ mvn test
 ```
 
 **环境变量配置**:
+
 - Backend 使用 **spring-dotenv** 从 `backend/.env` 文件自动加载环境变量
 - 首次启动需要创建 `backend/.env` 文件并配置数据库、邮件、JWT 等参数
 - 详见 [QUICKSTART.md](QUICKSTART.md) 环境变量配置部分
@@ -165,6 +162,7 @@ backend/src/main/java/com/zerofinance/xwallet/
 ```
 
 **核心流程**:
+
 1. 认证拦截器 (`AuthInterceptor`) 验证 JWT Token，将用户信息存入 `UserContext` (ThreadLocal)
 2. 权限拦截器 (`PermissionInterceptor`) 检查 `@RequireRole` 和 `@RequirePermission` 注解
 3. 请求完成后清理 ThreadLocal 避免内存泄漏
@@ -197,6 +195,7 @@ front-web/src/
 ```
 
 **核心特性**:
+
 - Next.js 16 App Router (Server Components + Client Components)
 - shadcn/ui 组件库 (基于 Radix UI)
 - Zustand 状态管理 (auth, menu, layout)
@@ -208,11 +207,13 @@ front-web/src/
 - JWT 认证 + 中间件路由保护
 
 **权限控制三层架构**:
+
 1. **Middleware 层** (`middleware.ts`) - 路由级 JWT 验证和权限检查
 2. **服务端组件层** (`ProtectedRoute`) - 菜单权限控制
 3. **客户端组件层** (`usePermission` Hook) - 操作级权限检查
 
 **JWT 存储策略**:
+
 - Access Token: HttpOnly Cookie（防 XSS）
 - 用户信息: LocalStorage（非敏感数据）
 - 有效期: 30 分钟
@@ -220,6 +221,7 @@ front-web/src/
 ### 移动端架构 (app/)
 
 Flutter 移动应用，面向顾客：
+
 - 邮箱登录 (而非工号)
 - 绿色主题 (区别于管理系统的蓝色)
 - 支持用户注册功能
@@ -227,6 +229,7 @@ Flutter 移动应用，面向顾客：
 ## 数据库表结构
 
 核心表 (`backend/database/init_all.sql`):
+
 - `sys_user` (系统用户) - 包含 employee_no, username, email, password, status
 - `customer` (顾客) - 包含 email, password, nickname, status
 - `token_blacklist` (Token黑名单)
@@ -240,9 +243,11 @@ Flutter 移动应用，面向顾客：
 ## 测试账号
 
 ### 系统用户 (Web 管理系统)
+
 - 工号: `ADMIN001` / 密码: `admin123`
 
 ### 顾客 (移动端 App)
+
 - 邮箱: `customer@example.com` / 密码: `customer123`
 
 ## API 基础信息
@@ -255,9 +260,7 @@ Flutter 移动应用，面向顾客：
 ## 开发注意事项
 
 1. **app/ 是独立的 Flutter 应用**，与 Web 管理后台是独立的代码库
-2. **Monorepo 架构**: 项目使用 pnpm workspace + Turborepo，`packages/` 包含共享类型和工具
-   - `@xwallet/shared-types`: TypeScript 类型定义（User, Role, ApiResponse 等）
-   - `@xwallet/shared-utils`: 共享工具函数（cn, formatDate, storage 等）
+2. **Monorepo 架构**: 项目使用 pnpm workspace + Turborepo，front-web、app 和 backend 各自独立管理
 3. **Backend 开发顺序**: entity → repository/mapper → service → controller
 4. **MySQL 在 Docker 中运行**，执行 SQL 需要连接容器
 5. **RBAC 权限**: 新增 API 需要配置对应菜单权限和角色关联
