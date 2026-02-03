@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/validators.dart';
+import '../widgets/x_wallet_logo.dart';
 
 /// 用户注册页面
 class RegisterScreen extends StatefulWidget {
@@ -142,13 +143,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Logo
-                        Icon(
-                          Icons.account_balance_wallet,
-                          size: 64,
-                          color: Colors.green.shade700,
-                        ),
-                        const SizedBox(height: 24),
+                        // X Wallet Logo（与 www.xwallet.hk 品牌一致）- 靠上以给表单更多空间
+                        const XWalletLogo(size: 56),
+                        const SizedBox(height: 16),
                         const Text(
                           '创建新账号',
                           textAlign: TextAlign.center,
@@ -157,7 +154,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 20),
 
                         // 邮箱输入框
                         TextFormField(
@@ -205,25 +202,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             SizedBox(
                               width: 120,
                               child: ElevatedButton(
-                                onPressed:
-                                    (_countdown > 0) ? null : _handleSendCode,
+                                onPressed: (_countdown > 0)
+                                    ? null
+                                    : _handleSendCode,
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 16,
                                   ),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                   backgroundColor: Colors.green.shade700,
                                 ),
                                 child: Text(
-                                  _countdown > 0
-                                      ? '${_countdown}s'
-                                      : '发送验证码',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                  ),
+                                  _countdown > 0 ? '${_countdown}s' : '发送验证码',
+                                  style: const TextStyle(fontSize: 12),
                                 ),
                               ),
                             ),
@@ -292,9 +285,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           textInputAction: TextInputAction.next,
                           validator: (value) =>
                               Validators.validateConfirmPassword(
-                            value,
-                            _passwordController.text,
-                          ),
+                                value,
+                                _passwordController.text,
+                              ),
                         ),
                         const SizedBox(height: 16),
 
@@ -321,8 +314,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           builder: (context, authProvider, child) {
                             final isRegistering = authProvider.isLoggingIn;
                             return ElevatedButton(
-                              onPressed:
-                                  isRegistering ? null : _handleRegister,
+                              onPressed: isRegistering ? null : _handleRegister,
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 16,
@@ -341,8 +333,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         strokeWidth: 2,
                                         valueColor:
                                             AlwaysStoppedAnimation<Color>(
-                                          Colors.white,
-                                        ),
+                                              Colors.white,
+                                            ),
                                       ),
                                     )
                                   : const Text(

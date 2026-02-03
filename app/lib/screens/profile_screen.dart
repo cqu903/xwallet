@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/x_wallet_logo.dart';
 
 /// 个人页面 - 占位（包含登出功能）
 class ProfileScreen extends StatelessWidget {
@@ -51,10 +52,7 @@ class ProfileScreen extends StatelessWidget {
               // 用户类型
               Text(
                 userInfo?.userType == 'CUSTOMER' ? '顾客用户' : '系统用户',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
 
               const SizedBox(height: 48),
@@ -64,18 +62,18 @@ class ProfileScreen extends StatelessWidget {
                 icon: Icons.settings_outlined,
                 title: '设置',
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('设置功能开发中...')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('设置功能开发中...')));
                 },
               ),
               _MenuItem(
                 icon: Icons.help_outline,
                 title: '帮助中心',
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('帮助中心开发中...')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('帮助中心开发中...')));
                 },
               ),
               _MenuItem(
@@ -145,12 +143,10 @@ class ProfileScreen extends StatelessWidget {
   void _showAboutDialog(BuildContext context) {
     showAboutDialog(
       context: context,
-      applicationName: 'xWallet',
+      applicationName: 'X Wallet',
       applicationVersion: '1.0.0',
-      applicationIcon: const Icon(Icons.account_balance_wallet, size: 48),
-      children: const [
-        Text('xWallet 是一款便捷的移动钱包应用'),
-      ],
+      applicationIcon: const XWalletLogo(size: 48),
+      children: const [Text('X Wallet 是一款便捷的移动钱包应用')],
     );
   }
 }
@@ -176,7 +172,7 @@ class _MenuItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
-        leading: Icon(icon, color: const Color(0xFF2E7D32)),
+        leading: Icon(icon, color: const Color(0xFF7424F5)),
         title: Text(title),
         trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: onTap,

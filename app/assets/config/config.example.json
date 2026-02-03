@@ -1,0 +1,9 @@
+{
+  "apiBaseUrl": "http://10.0.2.2:8080/api",
+  "mqttBroker": "10.0.2.2",
+  "mqttPort": 1883,
+  "mqttUseSSL": false,
+  "mqttUsername": "",
+  "mqttPassword": "",
+  "environment": "dev"
+}

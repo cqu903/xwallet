@@ -5,7 +5,7 @@ import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { useAuthStore } from '@/lib/stores';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -14,16 +14,28 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    // 如果未登录，重定向到登录页
-    if (!isAuthenticated) {
+    // 标记组件已在客户端挂载
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    // 只在客户端挂载后才执行重定向逻辑
+    // 此时 auth store 已经在初始化时从 localStorage 同步恢复了状态
+    if (isHydrated && !isAuthenticated) {
       router.push('/zh-CN/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, isHydrated]);
 
-  if (!isAuthenticated) {
-    return null;
+  // SSR 或未登录时显示加载占位符
+  if (!isHydrated || !isAuthenticated) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="text-muted-foreground">加载中...</div>
+      </div>
+    );
   }
 
   return (

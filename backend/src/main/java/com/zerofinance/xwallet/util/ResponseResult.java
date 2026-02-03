@@ -37,6 +37,14 @@ public class ResponseResult<T> {
                 .build();
     }
 
+    public static <T> ResponseResult<T> success(T data, String message) {
+        return ResponseResult.<T>builder()
+                .code(200)
+                .message(message)
+                .data(data)
+                .build();
+    }
+
     public static <T> ResponseResult<T> error(Integer code, String message) {
         return ResponseResult.<T>builder()
                 .code(code)

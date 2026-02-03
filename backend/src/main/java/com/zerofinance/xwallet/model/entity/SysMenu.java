@@ -21,7 +21,19 @@ public class SysMenu {
     private Integer menuType;  // 1-目录 2-菜单 3-按钮
     private String path;
     private String component;
+
+    /**
+     * 关联权限ID (新架构)
+     */
+    private Long permissionId;
+
+    /**
+     * 权限标识 (已废弃,保留用于数据迁移兼容性)
+     * @deprecated 使用 permissionId 替代
+     */
+    @Deprecated
     private String permission;
+
     private String icon;
     private Integer sortOrder;
     private Integer visible;

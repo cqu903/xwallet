@@ -1,12 +1,12 @@
 class AnalyticsConfig {
   static const String broker = String.fromEnvironment(
     'MQTT_BROKER',
-    defaultValue: 'broker.emqxsl.com',
+    defaultValue: '10.0.2.2', // Android 模拟器使用 10.0.2.2，iOS 使用 localhost
   );
 
   static const String mqttUsername = String.fromEnvironment(
     'MQTT_USERNAME',
-    defaultValue: '',
+    defaultValue: '', // 开发环境允许匿名连接
   );
 
   static const String mqttPassword = String.fromEnvironment(

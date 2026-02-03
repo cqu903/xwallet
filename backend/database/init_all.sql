@@ -2,7 +2,12 @@
 -- xWallet 完整数据库初始化脚本
 -- 合并了 init.sql, rbac_init.sql, user_management_update.sql
 -- 日期: 2025-01-22
--- 更新: 2025-01-25 - 添加软删除支持（deleted 字段）
+-- 更新:
+--   - 2025-01-25: 添加软删除支持（deleted 字段）
+--   - 2026-02-01: 整合菜单结构调整
+--                * 删除钱包管理、交易记录菜单
+--                * MQTT事件移至系统管理下
+--                * 添加 analytics_event 表（MQTT埋点事件表）
 -- ============================================
 
 -- 创建数据库
@@ -175,6 +180,47 @@ CREATE TABLE `sys_operation_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表';
 
 -- ============================================
+-- 表10: MQTT埋点事件表
+-- ============================================
+CREATE TABLE IF NOT EXISTS `analytics_event` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
+    `event_id` VARCHAR(64) NOT NULL COMMENT '事件唯一ID（UUID）',
+    `device_id` VARCHAR(128) NOT NULL COMMENT '设备ID',
+    `user_id` VARCHAR(64) DEFAULT NULL COMMENT '用户ID（顾客ID）',
+    `event_type` VARCHAR(64) NOT NULL COMMENT '事件类型（login, payment_success等）',
+    `environment` VARCHAR(16) NOT NULL DEFAULT 'prod' COMMENT '环境：prod/dev/test',
+    `topic` VARCHAR(128) NOT NULL COMMENT 'MQTT主题',
+    `payload` JSON NOT NULL COMMENT '事件完整payload（JSON）',
+
+    -- 上下文信息
+    `app_version` VARCHAR(32) DEFAULT NULL COMMENT 'App版本',
+    `os` VARCHAR(32) DEFAULT NULL COMMENT '操作系统（iOS/Android）',
+    `os_version` VARCHAR(32) DEFAULT NULL COMMENT '系统版本',
+    `device_model` VARCHAR(64) DEFAULT NULL COMMENT '设备型号',
+    `network_type` VARCHAR(32) DEFAULT NULL COMMENT '网络类型（wifi/4g/5g）',
+
+    -- 风控相关
+    `session_id` VARCHAR(64) DEFAULT NULL COMMENT '会话ID',
+    `is_critical` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '是否为风控关键事件',
+
+    -- 元数据
+    `received_at` BIGINT NOT NULL COMMENT '接收时间戳（毫秒）',
+    `event_timestamp` BIGINT NOT NULL COMMENT '事件发生时间戳（毫秒）',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '数据库创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '数据库更新时间',
+
+    -- 索引
+    UNIQUE KEY `uk_event_id` (`event_id`),
+    INDEX `idx_user_id` (`user_id`),
+    INDEX `idx_device_id` (`device_id`),
+    INDEX `idx_event_type` (`event_type`),
+    INDEX `idx_environment` (`environment`),
+    INDEX `idx_received_at` (`received_at`),
+    INDEX `idx_is_critical` (`is_critical`),
+    INDEX `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='MQTT埋点事件表';
+
+-- ============================================
 -- 第三部分: 初始化数据
 -- ============================================
 
@@ -206,11 +252,12 @@ INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `componen
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
 (0, '系统管理', 2, NULL, 'system/index', 'system:view', 'Setting', 99);
 
--- 系统管理子菜单: 用户管理、菜单管理、角色管理
+-- 系统管理子菜单: 用户管理、菜单管理、角色管理、MQTT事件
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '用户管理', 2, '/users', 'users/index', 'user:view', 'User', 1),
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '菜单管理', 2, '/system/menus', 'system/menus/index', 'system:menu', NULL, 2),
-((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '角色管理', 2, '/system/roles', 'system/roles/index', 'system:role', NULL, 3);
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '角色管理', 2, '/system/roles', 'system/roles/index', 'system:role', NULL, 3),
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), 'MQTT事件', 2, '/system/mqtt-events', NULL, 'system:mqtt:query', 'activity', 4);
 
 -- 用户管理按钮权限
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `sort_order`) VALUES
@@ -219,20 +266,6 @@ INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `so
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'user:view') t), '删除用户', 3, 'user:delete', 3),
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'user:view') t), '重置密码', 3, 'user:resetPwd', 4),
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'user:view') t), '启用/禁用用户', 3, 'user:toggleStatus', 5);
-
--- 一级菜单: 钱包管理
-INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
-(0, '钱包管理', 2, '/wallets', 'wallets/index', 'wallet:view', 'Wallet', 3);
-
--- 钱包管理按钮权限
-INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `sort_order`) VALUES
-((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'wallet:view') t), '创建钱包', 3, 'wallet:create', 1),
-((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'wallet:view') t), '冻结钱包', 3, 'wallet:freeze', 2),
-((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'wallet:view') t), '钱包详情', 3, 'wallet:detail', 3);
-
--- 一级菜单: 交易记录
-INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
-(0, '交易记录', 2, '/transactions', 'transactions/index', 'transaction:view', 'Transaction', 4);
 
 -- ============================================
 -- 4. 初始化角色数据
@@ -261,9 +294,7 @@ SELECT
 FROM sys_menu
 WHERE permission IN (
     'dashboard:view',
-    'wallet:view',
-    'wallet:detail',
-    'transaction:view'
+    'user:view'
 );
 
 -- ============================================
@@ -275,8 +306,7 @@ SELECT
     id
 FROM sys_menu
 WHERE permission IN (
-    'dashboard:view',
-    'transaction:view'
+    'dashboard:view'
 );
 
 -- ============================================

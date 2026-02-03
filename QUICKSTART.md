@@ -354,7 +354,7 @@ xwallet/
 │   │   ├── app/      # Next.js App Router 页面
 │   │   ├── components/# React 组件
 │   │   └── lib/      # 工具库、API、状态管理
-│   └── package.json  # npm 配置
+│   └── package.json  # pnpm 配置
 │
 ├── app/              # 移动端App (Flutter)
 │   └── lib/

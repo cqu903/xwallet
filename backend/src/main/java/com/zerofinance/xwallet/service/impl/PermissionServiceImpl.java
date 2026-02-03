@@ -1,8 +1,14 @@
 package com.zerofinance.xwallet.service.impl;
 
+import com.zerofinance.xwallet.model.dto.CreatePermissionRequest;
+import com.zerofinance.xwallet.model.dto.PermissionDTO;
+import com.zerofinance.xwallet.model.dto.UpdatePermissionRequest;
+import com.zerofinance.xwallet.model.entity.SysPermission;
 import com.zerofinance.xwallet.repository.SysMenuMapper;
+import com.zerofinance.xwallet.repository.SysPermissionMapper;
 import com.zerofinance.xwallet.repository.SysRoleMapper;
 import com.zerofinance.xwallet.repository.SysRoleMenuMapper;
+import com.zerofinance.xwallet.repository.SysRolePermissionMapper;
 import com.zerofinance.xwallet.repository.SysUserRoleMapper;
 import com.zerofinance.xwallet.service.PermissionService;
 import com.zerofinance.xwallet.util.UserContext;
@@ -11,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,6 +34,8 @@ public class PermissionServiceImpl implements PermissionService {
     private final SysRoleMapper sysRoleMapper;
     private final SysRoleMenuMapper sysRoleMenuMapper;
     private final SysUserRoleMapper sysUserRoleMapper;
+    private final SysPermissionMapper sysPermissionMapper;
+    private final SysRolePermissionMapper sysRolePermissionMapper;
 
     @Override
     @Cacheable(value = "permissions", key = "'permissions:' + #userId")
@@ -95,5 +104,171 @@ public class PermissionServiceImpl implements PermissionService {
     @CacheEvict(value = "permissions", key = "'permissions:' + #userId")
     public void refreshUserCache(Long userId) {
         log.info("已刷新用户权限缓存, userId={}", userId);
+    }
+
+    // ============================================
+    // 权限管理方法实现
+    // ============================================
+
+    @Override
+    public List<PermissionDTO> getAllPermissions() {
+        List<SysPermission> permissions = sysPermissionMapper.selectAll();
+        return permissions.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public PermissionDTO getPermissionById(Long id) {
+        SysPermission permission = sysPermissionMapper.selectById(id);
+        return permission != null ? convertToDTO(permission) : null;
+    }
+
+    @Override
+    public PermissionDTO getPermissionByCode(String code) {
+        SysPermission permission = sysPermissionMapper.selectByCode(code);
+        return permission != null ? convertToDTO(permission) : null;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Long createPermission(CreatePermissionRequest request) {
+        // 检查权限编码是否已存在
+        int count = sysPermissionMapper.countByCode(request.getPermissionCode());
+        if (count > 0) {
+            throw new IllegalArgumentException("权限编码已存在: " + request.getPermissionCode());
+        }
+
+        SysPermission permission = new SysPermission();
+        permission.setPermissionCode(request.getPermissionCode());
+        permission.setPermissionName(request.getPermissionName());
+        permission.setResourceType(request.getResourceType());
+        permission.setDescription(request.getDescription());
+        permission.setStatus(1); // 默认启用
+
+        sysPermissionMapper.insert(permission);
+        log.info("创建权限成功, permissionCode={}", request.getPermissionCode());
+
+        // 刷新所有用户权限缓存
+        refreshAllUserCache();
+
+        return permission.getId();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updatePermission(Long id, UpdatePermissionRequest request) {
+        SysPermission permission = sysPermissionMapper.selectById(id);
+        if (permission == null) {
+            throw new IllegalArgumentException("权限不存在, id=" + id);
+        }
+
+        permission.setPermissionName(request.getPermissionName());
+        permission.setResourceType(request.getResourceType());
+        permission.setDescription(request.getDescription());
+        if (request.getStatus() != null) {
+            permission.setStatus(request.getStatus());
+        }
+
+        sysPermissionMapper.update(permission);
+        log.info("更新权限成功, id={}", id);
+
+        // 刷新所有用户权限缓存
+        refreshAllUserCache();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deletePermission(Long id) {
+        SysPermission permission = sysPermissionMapper.selectById(id);
+        if (permission == null) {
+            throw new IllegalArgumentException("权限不存在, id=" + id);
+        }
+
+        // 检查是否被角色引用
+        int roleRefCount = sysPermissionMapper.countRoleReferences(id);
+        if (roleRefCount > 0) {
+            throw new IllegalStateException("权限被 " + roleRefCount + " 个角色引用，无法删除");
+        }
+
+        sysPermissionMapper.deleteById(id);
+        log.info("删除权限成功, id={}", id);
+
+        // 刷新所有用户权限缓存
+        refreshAllUserCache();
+    }
+
+    @Override
+    public List<PermissionDTO> getRolePermissions(Long roleId) {
+        List<Long> roleIds = Collections.singletonList(roleId);
+        List<SysPermission> permissions = sysPermissionMapper.selectByRoleIds(roleIds);
+        return permissions.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void assignPermissionsToRole(Long roleId, List<Long> permissionIds) {
+        if (permissionIds == null || permissionIds.isEmpty()) {
+            return;
+        }
+
+        // 批量插入角色权限关联
+        sysRolePermissionMapper.batchInsert(roleId, permissionIds);
+        log.info("为角色分配权限成功, roleId={}, permissionCount={}", roleId, permissionIds.size());
+
+        // 刷新所有拥有此角色的用户权限缓存
+        refreshRoleUsersCache(roleId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void removePermissionsFromRole(Long roleId, List<Long> permissionIds) {
+        if (permissionIds == null || permissionIds.isEmpty()) {
+            return;
+        }
+
+        // 批量删除角色权限关联
+        sysRolePermissionMapper.batchDelete(roleId, permissionIds);
+        log.info("移除角色权限成功, roleId={}, permissionCount={}", roleId, permissionIds.size());
+
+        // 刷新所有拥有此角色的用户权限缓存
+        refreshRoleUsersCache(roleId);
+    }
+
+    @Override
+    @CacheEvict(value = "permissions", allEntries = true)
+    public void refreshAllUserCache() {
+        log.info("已刷新所有用户权限缓存");
+    }
+
+    /**
+     * 刷新指定角色的所有用户权限缓存
+     */
+    private void refreshRoleUsersCache(Long roleId) {
+        // 查询拥有此角色的所有用户ID
+        List<Long> userIds = sysUserRoleMapper.selectUserIdsByRoleId(roleId);
+
+        // 刷新这些用户的权限缓存
+        for (Long userId : userIds) {
+            refreshUserCache(userId);
+        }
+    }
+
+    /**
+     * 将实体转换为 DTO
+     */
+    private PermissionDTO convertToDTO(SysPermission entity) {
+        PermissionDTO dto = new PermissionDTO();
+        dto.setId(entity.getId());
+        dto.setPermissionCode(entity.getPermissionCode());
+        dto.setPermissionName(entity.getPermissionName());
+        dto.setResourceType(entity.getResourceType());
+        dto.setDescription(entity.getDescription());
+        dto.setStatus(entity.getStatus());
+        dto.setCreatedAt(entity.getCreatedAt());
+        dto.setUpdatedAt(entity.getUpdatedAt());
+        return dto;
     }
 }

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zerofinance.xwallet.repository.SysPermissionMapper">
+
+    <resultMap id="BaseResultMap" type="com.zerofinance.xwallet.model.entity.SysPermission">
+        <id column="id" property="id"/>
+        <result column="permission_code" property="permissionCode"/>
+        <result column="permission_name" property="permissionName"/>
+        <result column="resource_type" property="resourceType"/>
+        <result column="description" property="description"/>
+        <result column="status" property="status"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT * FROM sys_permission
+        ORDER BY resource_type ASC, permission_code ASC
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM sys_permission WHERE id = #{id}
+    </select>
+
+    <select id="selectByCode" resultMap="BaseResultMap">
+        SELECT * FROM sys_permission WHERE permission_code = #{code}
+    </select>
+
+    <select id="selectByRoleIds" resultMap="BaseResultMap">
+        SELECT DISTINCT p.*
+        FROM sys_permission p
+        INNER JOIN sys_role_permission rp ON p.id = rp.permission_id
+        WHERE rp.role_id IN
+        <foreach collection="roleIds" item="roleId" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+          AND p.status = 1
+        ORDER BY p.resource_type ASC, p.permission_code ASC
+    </select>
+
+    <select id="selectByIds" resultMap="BaseResultMap">
+        SELECT * FROM sys_permission
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY permission_code ASC
+    </select>
+
+    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.SysPermission" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_permission (permission_code, permission_name, resource_type, description, status)
+        VALUES (#{permissionCode}, #{permissionName}, #{resourceType}, #{description}, #{status})
+    </insert>
+
+    <update id="update" parameterType="com.zerofinance.xwallet.model.entity.SysPermission">
+        UPDATE sys_permission
+        SET permission_name = #{permissionName},
+            resource_type = #{resourceType},
+            description = #{description},
+            status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM sys_permission WHERE id = #{id}
+    </delete>
+
+    <select id="countByCode" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM sys_permission WHERE permission_code = #{code}
+    </select>
+
+    <select id="countRoleReferences" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM sys_role_permission WHERE permission_id = #{permissionId}
+    </select>
+
+</mapper>

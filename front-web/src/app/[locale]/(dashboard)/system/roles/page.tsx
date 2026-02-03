@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Shield, Users, CheckCircle, XCircle, Edit, Trash2, Power, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -22,6 +23,8 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { fetchRole, createRole, updateRole, deleteRole, toggleRoleStatus, type Role, type CreateRoleRequest, type UpdateRoleRequest } from '@/lib/api/roles';
 import { useApi } from '@/lib/hooks/use-api';
 
@@ -226,114 +229,237 @@ export default function RolesPage() {
     return status === 1 ? '启用' : '禁用';
   };
 
-  const getStatusClass = (status: number) => {
-    return status === 1 ? 'text-green-600' : 'text-red-600';
-  };
+  // 计算统计数据
+  const totalRoles = roles?.length ?? 0;
+  const activeRoles = roles?.filter(r => r.status === 1).length ?? 0;
+  const inactiveRoles = totalRoles - activeRoles;
+  const totalUsers = roles?.reduce((sum, role) => sum + (role.userCount ?? 0), 0) ?? 0;
 
   return (
-    <div className="space-y-6">
-      {/* 页面标题和操作按钮 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('role.title')}</h1>
-          <p className="text-muted-foreground">
-            管理系统角色和权限分配
-          </p>
+    <div className="space-y-8 animate-fade-in">
+      {/* 欢迎横幅 - 紫色渐变 */}
+      <div className="relative overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="absolute inset-0 gradient-bg opacity-95" />
+        <div className="relative p-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
+                  <Shield className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="font-display text-2xl font-bold text-white">{t('role.title')}</h1>
+                  <p className="text-sm text-white/90">
+                    管理系统角色和权限分配
+                  </p>
+                </div>
+              </div>
+            </div>
+            <Button
+              onClick={handleOpenCreateDialog}
+              className="h-11 bg-white text-primary hover:bg-white/90 shadow-sm font-medium"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              {t('role.addRole')}
+            </Button>
+          </div>
         </div>
-        <Button onClick={handleOpenCreateDialog}>
-          {t('role.addRole')}
-        </Button>
+      </div>
+
+      {/* 统计卡片网格 */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {/* 总角色数 */}
+        <Card className="relative card-hover overflow-hidden border border-border shadow-sm isolate">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/15 to-primary/25 opacity-50 -z-10" />
+          <CardHeader className="relative">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-muted-foreground">总角色数</CardTitle>
+              <div className="rounded-lg bg-primary p-2 text-white shadow-md">
+                <Shield className="h-4 w-4" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="relative">
+            <div className="text-3xl font-bold text-gradient">{totalRoles}</div>
+            <p className="text-xs text-muted-foreground mt-1">系统中的所有角色</p>
+          </CardContent>
+        </Card>
+
+        {/* 启用角色 */}
+        <Card className="relative card-hover overflow-hidden border border-border shadow-sm isolate">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-500/15 to-green-500/25 opacity-50 -z-10" />
+          <CardHeader className="relative">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-muted-foreground">启用角色</CardTitle>
+              <div className="rounded-lg bg-green-500 p-2 text-white shadow-md">
+                <CheckCircle className="h-4 w-4" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="relative">
+            <div className="text-3xl font-bold text-green-600">{activeRoles}</div>
+            <p className="text-xs text-muted-foreground mt-1">当前启用的角色</p>
+          </CardContent>
+        </Card>
+
+        {/* 禁用角色 */}
+        <Card className="relative card-hover overflow-hidden border border-border shadow-sm isolate">
+          <div className="absolute inset-0 bg-gradient-to-br from-red-500/15 to-red-500/25 opacity-50 -z-10" />
+          <CardHeader className="relative">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-muted-foreground">禁用角色</CardTitle>
+              <div className="rounded-lg bg-red-500 p-2 text-white shadow-md">
+                <XCircle className="h-4 w-4" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="relative">
+            <div className="text-3xl font-bold text-red-600">{inactiveRoles}</div>
+            <p className="text-xs text-muted-foreground mt-1">当前禁用的角色</p>
+          </CardContent>
+        </Card>
+
+        {/* 关联用户 */}
+        <Card className="relative card-hover overflow-hidden border border-border shadow-sm isolate">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/15 to-blue-500/25 opacity-50 -z-10" />
+          <CardHeader className="relative">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-muted-foreground">关联用户</CardTitle>
+              <div className="rounded-lg bg-blue-500 p-2 text-white shadow-md">
+                <Users className="h-4 w-4" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="relative">
+            <div className="text-3xl font-bold text-blue-600">{totalUsers}</div>
+            <p className="text-xs text-muted-foreground mt-1">所有角色关联的用户总数</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* 角色列表表格 */}
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>角色编码</TableHead>
-              <TableHead>角色名称</TableHead>
-              <TableHead>角色描述</TableHead>
-              <TableHead>关联用户</TableHead>
-              <TableHead>状态</TableHead>
-              <TableHead className="text-right">操作</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
+      <Card className="border border-border shadow-sm">
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={6} className="text-center">
-                  {t('common.loading')}
-                </TableCell>
+                <TableHead>角色编码</TableHead>
+                <TableHead>角色名称</TableHead>
+                <TableHead>角色描述</TableHead>
+                <TableHead>关联用户</TableHead>
+                <TableHead>状态</TableHead>
+                <TableHead className="text-right">操作</TableHead>
               </TableRow>
-            ) : roles && roles.length > 0 ? (
-              roles.map((role) => (
-                <TableRow key={role.id}>
-                  <TableCell className="font-medium">{role.roleCode}</TableCell>
-                  <TableCell>{role.roleName}</TableCell>
-                  <TableCell>
-                    <div className="max-w-[200px] truncate" title={role.description}>
-                      {role.description || '无'}
-                    </div>
-                  </TableCell>
-                  <TableCell>{role.userCount ?? 0}</TableCell>
-                  <TableCell className={getStatusClass(role.status)}>
-                    {getStatusText(role.status)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleOpenEditDialog(role)}
-                    >
-                      {t('common.edit')}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={role.status === 1 ? 'text-orange-600' : 'text-green-600'}
-                      onClick={() => handleToggleStatus(role)}
-                      title={role.status === 1 ? '禁用' : '启用'}
-                    >
-                      {role.status === 1 ? '禁用' : '启用'}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-destructive"
-                      onClick={() => handleDeleteClick(role)}
-                    >
-                      {t('common.delete')}
-                    </Button>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center">
+                    {t('common.loading')}
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground">
-                  {t('common.noData')}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ) : roles && roles.length > 0 ? (
+                roles.map((role) => (
+                  <TableRow key={role.id}>
+                    <TableCell className="font-medium">{role.roleCode}</TableCell>
+                    <TableCell>{role.roleName}</TableCell>
+                    <TableCell>
+                      <div className="max-w-[200px] truncate" title={role.description}>
+                        {role.description || '无'}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Users className="h-3 w-3 text-muted-foreground" />
+                        <span>{role.userCount ?? 0}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={role.status === 1 ? 'default' : 'secondary'}
+                        className={role.status === 1
+                          ? 'bg-green-500/10 text-green-600 hover:bg-green-500/20'
+                          : 'bg-red-500/10 text-red-600 hover:bg-red-500/20'
+                        }
+                      >
+                        {role.status === 1 ? (
+                          <>
+                            <CheckCircle className="mr-1 h-3 w-3" />
+                            启用
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="mr-1 h-3 w-3" />
+                            禁用
+                          </>
+                        )}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleOpenEditDialog(role)}
+                        className="hover:bg-primary/10 hover:text-primary"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleToggleStatus(role)}
+                        title={role.status === 1 ? '禁用' : '启用'}
+                        className={role.status === 1
+                          ? 'hover:bg-orange-500/10 hover:text-orange-600'
+                          : 'hover:bg-green-500/10 hover:text-green-600'
+                        }
+                      >
+                        <Power className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteClick(role)}
+                        className="hover:bg-red-500/10 hover:text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                    {t('common.noData')}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       {/* 新增/编辑对话框 */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              {editingRole ? t('role.editRole') : t('role.addRole')}
-            </DialogTitle>
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                <Shield className="h-4 w-4 text-primary" />
+              </div>
+              <DialogTitle>
+                {editingRole ? t('role.editRole') : t('role.addRole')}
+              </DialogTitle>
+            </div>
             <DialogDescription>
               {editingRole ? '编辑角色信息和权限' : '创建新角色并分配权限'}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-5 py-4">
             {/* 角色编码（仅新增时显示） */}
             {!editingRole && (
               <div className="space-y-2">
-                <Label htmlFor="roleCode">
+                <Label htmlFor="roleCode" className="text-sm font-medium">
                   角色编码 <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -342,6 +468,7 @@ export default function RolesPage() {
                   onChange={(e) => setFormData({ ...formData, roleCode: e.target.value.toUpperCase() })}
                   placeholder="例如：ADMIN（大写字母）"
                   maxLength={50}
+                  className="h-11"
                 />
                 <p className="text-xs text-muted-foreground">
                   2-50位大写字母或数字
@@ -351,7 +478,7 @@ export default function RolesPage() {
 
             {/* 角色名称 */}
             <div className="space-y-2">
-              <Label htmlFor="roleName">
+              <Label htmlFor="roleName" className="text-sm font-medium">
                 角色名称 <span className="text-destructive">*</span>
               </Label>
               <Input
@@ -359,65 +486,70 @@ export default function RolesPage() {
                 value={formData.roleName}
                 onChange={(e) => setFormData({ ...formData, roleName: e.target.value })}
                 placeholder="例如：超级管理员"
+                className="h-11"
               />
             </div>
 
             {/* 角色描述 */}
             <div className="space-y-2">
-              <Label htmlFor="description">角色描述</Label>
+              <Label htmlFor="description" className="text-sm font-medium">角色描述</Label>
               <Input
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="请输入角色描述"
+                className="h-11"
               />
             </div>
 
             {/* 状态 */}
             <div className="space-y-2">
-              <Label>状态</Label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2">
+              <Label className="text-sm font-medium">状态</Label>
+              <div className="flex gap-6">
+                <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"
                     name="status"
                     checked={formData.status === 1}
                     onChange={() => setFormData({ ...formData, status: 1 })}
-                    className="h-4 w-4"
+                    className="h-4 w-4 text-primary focus:ring-primary"
                   />
-                  <span>启用</span>
+                  <span className="text-sm">启用</span>
                 </label>
-                <label className="flex items-center gap-2">
+                <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"
                     name="status"
                     checked={formData.status === 0}
                     onChange={() => setFormData({ ...formData, status: 0 })}
-                    className="h-4 w-4"
+                    className="h-4 w-4 text-primary focus:ring-primary"
                   />
-                  <span>禁用</span>
+                  <span className="text-sm">禁用</span>
                 </label>
               </div>
             </div>
 
             {/* 菜单权限 */}
             <div className="space-y-2">
-              <Label>
+              <Label className="text-sm font-medium">
                 菜单权限 <span className="text-destructive">*</span>
               </Label>
-              <div className="border rounded-md p-4 max-h-60 overflow-y-auto">
+              <div className="border rounded-lg p-4 max-h-60 overflow-y-auto bg-muted/30">
                 {renderMenuTree(availableMenus)}
               </div>
-              <p className="text-xs text-muted-foreground">
-                已选择 {formData.menuIds.length} 个菜单权限
-              </p>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-3 w-3 text-primary" />
+                <p className="text-xs text-muted-foreground">
+                  已选择 <span className="font-medium text-foreground">{formData.menuIds.length}</span> 个菜单权限
+                </p>
+              </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={handleCloseDialog}>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={handleCloseDialog} className="h-11">
               {t('common.cancel')}
             </Button>
-            <Button onClick={handleSubmit}>
+            <Button onClick={handleSubmit} className="h-11 shadow-sm hover:shadow">
               {editingRole ? '保存' : '创建'}
             </Button>
           </DialogFooter>
@@ -428,18 +560,28 @@ export default function RolesPage() {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>确认删除</DialogTitle>
-            <DialogDescription>
-              {deletingRole && `确定要删除角色 "${deletingRole.roleName}" 吗？`}
-              <br />
-              这将同时删除该角色与所有用户和菜单的关联。
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/10">
+                <Trash2 className="h-4 w-4 text-red-600" />
+              </div>
+              <DialogTitle>确认删除</DialogTitle>
+            </div>
+            <DialogDescription className="text-sm">
+              {deletingRole && (
+                <div className="space-y-2">
+                  <p>确定要删除角色 <span className="font-semibold text-foreground">"{deletingRole.roleName}"</span> 吗？</p>
+                  <p className="text-muted-foreground">
+                    这将同时删除该角色与所有用户和菜单的关联，此操作不可恢复。
+                  </p>
+                </div>
+              )}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} className="h-11">
               {t('common.cancel')}
             </Button>
-            <Button variant="destructive" onClick={handleConfirmDelete}>
+            <Button variant="destructive" onClick={handleConfirmDelete} className="h-11 shadow-sm">
               {t('common.delete')}
             </Button>
           </DialogFooter>

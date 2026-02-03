@@ -2,9 +2,9 @@
 
 import { useTranslations } from 'next-intl';
 import { useRouter, usePathname } from 'next/navigation';
-import { useTheme } from 'next-themes';
-import { LogOut, Moon, Sun, Globe } from 'lucide-react';
+import { LogOut, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +18,6 @@ export function Header() {
   const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
   const { user } = useAuthStore();
 
   const handleLogout = () => {
@@ -35,12 +34,10 @@ export function Header() {
   const currentLocale = pathname?.split('/')[1] || 'zh-CN';
 
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-card px-6">
-      <div className="flex-1">
-        {/* 左侧可以放置面包屑或其他内容 */}
-      </div>
+    <header className="flex h-14 items-center justify-between border-b border-border bg-card px-6 shadow-sm">
+      <div className="flex-1" />
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         {/* 语言切换 */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -59,15 +56,7 @@ export function Header() {
         </DropdownMenu>
 
         {/* 主题切换 */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        >
-          <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">切换主题</span>
-        </Button>
+        <ThemeToggle />
 
         {/* 用户信息 */}
         <div className="flex items-center gap-2">

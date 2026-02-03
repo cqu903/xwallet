@@ -4,15 +4,17 @@ import '../models/login_request.dart';
 import '../models/login_response.dart';
 import '../models/register_request.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../config/app_config.dart';
 
 /// API服务类
 /// 封装所有与后端API的交互
 class ApiService {
-  // 后端API地址 (本地开发环境)
-  static const String baseUrl = 'http://localhost:8080/api';
+  // 后端API地址 - 从配置文件读取
+  static String get baseUrl => AppConfig.instance.apiBaseUrl;
 
   // Token存储key
   static const String _tokenKey = 'auth_token';
+  static const String _userInfoKey = 'user_info';
 
   // 单例模式
   static final ApiService _instance = ApiService._internal();
@@ -35,6 +37,32 @@ class ApiService {
   Future<void> clearToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
+  }
+
+  /// 保存用户信息
+  Future<void> saveUserInfo(LoginResponse userInfo) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userInfoKey, jsonEncode(userInfo.toJson()));
+  }
+
+  /// 获取用户信息
+  Future<LoginResponse?> getUserInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userInfoStr = prefs.getString(_userInfoKey);
+    if (userInfoStr == null) return null;
+
+    try {
+      final Map<String, dynamic> userData = jsonDecode(userInfoStr);
+      return LoginResponse.fromJson(userData);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// 清除用户信息
+  Future<void> clearUserInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_userInfoKey);
   }
 
   /// 获取请求头（包含Authorization）
@@ -64,8 +92,9 @@ class ApiService {
         );
 
         if (result.isSuccess && result.data != null) {
-          // 保存token
+          // 保存token和用户信息
           await saveToken(result.data!.token);
+          await saveUserInfo(result.data!);
           return (true, null);
         } else {
           return (false, result.message ?? '登录失败');
@@ -88,8 +117,9 @@ class ApiService {
         headers: headers,
       );
 
-      // 无论后端返回什么，都清除本地token
+      // 无论后端返回什么，都清除本地token和用户信息
       await clearToken();
+      await clearUserInfo();
 
       if (response.statusCode == 200) {
         return (true, null);
@@ -177,8 +207,9 @@ class ApiService {
         );
 
         if (result.isSuccess && result.data != null) {
-          // 保存token (注册成功自动登录)
+          // 保存token和用户信息 (注册成功自动登录)
           await saveToken(result.data!.token);
+          await saveUserInfo(result.data!);
           return (true, null);
         } else {
           return (false, result.message ?? '注册失败');

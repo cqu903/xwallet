@@ -49,6 +49,18 @@ public class AnalyticsEvent {
 
         @JsonProperty("networkType")
         private String networkType;
+
+        @JsonProperty("carrier")
+        private String carrier;
+
+        @JsonProperty("screenSize")
+        private String screenSize;
+
+        @JsonProperty("timezone")
+        private String timezone;
+
+        @JsonProperty("language")
+        private String language;
     }
 
     @Data

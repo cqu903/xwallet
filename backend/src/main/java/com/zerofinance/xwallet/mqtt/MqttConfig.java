@@ -35,7 +35,7 @@ public class MqttConfig {
         
         // 连接选项
         options.setAutomaticReconnect(true);
-        options.setCleanSession(false);
+        options.setCleanSession(true);  // 使用 clean session 清除旧消息
         options.setConnectionTimeout(30);
         options.setKeepAliveInterval(60);
 

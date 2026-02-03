@@ -15,6 +15,14 @@ class LoginResponse {
       userInfo: UserInfo.fromJson(json['userInfo'] ?? {}),
     );
   }
+
+  /// 转换为JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'token': token,
+      'userInfo': userInfo.toJson(),
+    };
+  }
 }
 
 /// 用户信息
@@ -39,6 +47,16 @@ class UserInfo {
       userType: json['userType'] ?? '',
       role: json['role'],
     );
+  }
+
+  /// 转换为JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'userId': userId,
+      'username': username,
+      'userType': userType,
+      'role': role,
+    };
   }
 }
 
