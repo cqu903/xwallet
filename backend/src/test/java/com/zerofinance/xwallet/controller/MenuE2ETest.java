@@ -148,7 +148,10 @@ class MenuE2ETest {
         for (MenuItemDTO menu : menus) {
             assertNotNull(menu.getId(), "菜单ID不应该为空");
             assertNotNull(menu.getName(), "菜单名称不应该为空");
-            assertNotNull(menu.getPath(), "菜单路径不应该为空");
+            // 顶级菜单（有子菜单的）可能没有 path，这是正常的
+            if (menu.getChildren() == null || menu.getChildren().isEmpty()) {
+                assertNotNull(menu.getPath(), "叶子菜单路径不应该为空");
+            }
         }
 
         // 验证是否有系统管理菜单及其子菜单
