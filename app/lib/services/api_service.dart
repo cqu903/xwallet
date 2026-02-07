@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/login_request.dart';
 import '../models/login_response.dart';
+import '../models/loan_account_summary.dart';
+import '../models/loan_transaction.dart';
 import '../models/register_request.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_config.dart';
@@ -220,5 +222,205 @@ class ApiService {
     } catch (e) {
       return (false, '网络错误: $e');
     }
+  }
+
+  /// 查询贷款账户摘要
+  /// 返回: (账户摘要, 错误消息)
+  Future<(LoanAccountSummary?, String?)> getLoanAccountSummary() async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/loan/account/summary'),
+        headers: headers,
+      );
+
+      final Map<String, dynamic>? responseData = _decodeJsonObject(
+        response.body,
+      );
+      if (response.statusCode == 200 && responseData != null) {
+        final result = ResponseResult<LoanAccountSummary>.fromJson(
+          responseData,
+          (data) => LoanAccountSummary.fromJson(data as Map<String, dynamic>),
+        );
+        if (result.isSuccess && result.data != null) {
+          return (result.data, null);
+        }
+        return (null, result.message ?? '获取账户摘要失败');
+      }
+
+      return (
+        null,
+        _buildHttpErrorMessage(
+          response.statusCode,
+          responseData,
+          fallback: '获取账户摘要失败',
+        ),
+      );
+    } catch (e) {
+      return (null, '网络错误: $e');
+    }
+  }
+
+  /// 查询最近贷款交易
+  /// 返回: (交易列表, 错误消息)
+  Future<(List<LoanTransactionItem>?, String?)> getRecentLoanTransactions({
+    int limit = 20,
+  }) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/loan/transactions/recent?limit=$limit'),
+        headers: headers,
+      );
+
+      final Map<String, dynamic>? responseData = _decodeJsonObject(
+        response.body,
+      );
+      if (response.statusCode == 200 && responseData != null) {
+        final result = ResponseResult<List<LoanTransactionItem>>.fromJson(
+          responseData,
+          (data) {
+            if (data is! List) return <LoanTransactionItem>[];
+            return data
+                .whereType<Map<String, dynamic>>()
+                .map(LoanTransactionItem.fromJson)
+                .toList();
+          },
+        );
+        if (result.isSuccess) {
+          return (result.data ?? <LoanTransactionItem>[], null);
+        }
+        return (null, result.message ?? '获取交易列表失败');
+      }
+
+      return (
+        null,
+        _buildHttpErrorMessage(
+          response.statusCode,
+          responseData,
+          fallback: '获取交易列表失败',
+        ),
+      );
+    } catch (e) {
+      return (null, '网络错误: $e');
+    }
+  }
+
+  /// 贷款还款
+  /// 返回: (还款结果, 错误消息)
+  Future<(LoanRepaymentResponse?, String?)> repayLoan({
+    required double amount,
+    String? idempotencyKey,
+  }) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$baseUrl/loan/repayments'),
+        headers: headers,
+        body: jsonEncode({
+          'amount': amount,
+          'idempotencyKey': idempotencyKey ?? _generateIdempotencyKey('repay'),
+        }),
+      );
+
+      final Map<String, dynamic>? responseData = _decodeJsonObject(
+        response.body,
+      );
+      if (response.statusCode == 200 && responseData != null) {
+        final result = ResponseResult<LoanRepaymentResponse>.fromJson(
+          responseData,
+          (data) =>
+              LoanRepaymentResponse.fromJson(data as Map<String, dynamic>),
+        );
+        if (result.isSuccess && result.data != null) {
+          return (result.data, null);
+        }
+        return (null, result.message ?? '还款失败');
+      }
+
+      return (
+        null,
+        _buildHttpErrorMessage(
+          response.statusCode,
+          responseData,
+          fallback: '还款失败',
+        ),
+      );
+    } catch (e) {
+      return (null, '网络错误: $e');
+    }
+  }
+
+  /// 再次提款
+  /// 返回: (提款结果, 错误消息)
+  Future<(LoanTransactionResponse?, String?)> redrawLoan({
+    required double amount,
+    String? idempotencyKey,
+  }) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$baseUrl/loan/redraws'),
+        headers: headers,
+        body: jsonEncode({
+          'amount': amount,
+          'idempotencyKey': idempotencyKey ?? _generateIdempotencyKey('redraw'),
+        }),
+      );
+
+      final Map<String, dynamic>? responseData = _decodeJsonObject(
+        response.body,
+      );
+      if (response.statusCode == 200 && responseData != null) {
+        final result = ResponseResult<LoanTransactionResponse>.fromJson(
+          responseData,
+          (data) =>
+              LoanTransactionResponse.fromJson(data as Map<String, dynamic>),
+        );
+        if (result.isSuccess && result.data != null) {
+          return (result.data, null);
+        }
+        return (null, result.message ?? '再次提款失败');
+      }
+
+      return (
+        null,
+        _buildHttpErrorMessage(
+          response.statusCode,
+          responseData,
+          fallback: '再次提款失败',
+        ),
+      );
+    } catch (e) {
+      return (null, '网络错误: $e');
+    }
+  }
+
+  String _generateIdempotencyKey(String prefix) {
+    return '$prefix-${DateTime.now().millisecondsSinceEpoch}';
+  }
+
+  Map<String, dynamic>? _decodeJsonObject(String responseBody) {
+    if (responseBody.isEmpty) {
+      return null;
+    }
+    try {
+      final decoded = jsonDecode(responseBody);
+      return decoded is Map<String, dynamic> ? decoded : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String _buildHttpErrorMessage(
+    int statusCode,
+    Map<String, dynamic>? responseData, {
+    required String fallback,
+  }) {
+    final apiMessage = responseData?['message']?.toString();
+    if (apiMessage != null && apiMessage.trim().isNotEmpty) {
+      return apiMessage;
+    }
+    return '$fallback (HTTP $statusCode)';
   }
 }

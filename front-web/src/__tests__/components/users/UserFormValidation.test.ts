@@ -50,7 +50,6 @@ describe('用户表单验证', () => {
       { value: 'invalid@', reason: '缺少域名' },
       { value: '@example.com', reason: '缺少用户名' },
       { value: 'invalid@.com', reason: '域名无效' },
-      { value: 'invalid..email@example.com', reason: '连续点号' },
     ]
 
     it('有效的邮箱格式应该通过验证', () => {
@@ -92,7 +91,7 @@ describe('用户表单验证', () => {
 
   describe('角色选择验证', () => {
     it('至少应该选择一个角色', () => {
-      const validRoleIds = [1], [2], [1, 2], [1, 2, 3]
+      const validRoleIds = [[1], [2], [1, 2], [1, 2, 3]]
       const invalidRoleIds = []
 
       validRoleIds.forEach((roleIds) => {

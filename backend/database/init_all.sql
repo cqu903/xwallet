@@ -63,6 +63,75 @@ CREATE TABLE `customer` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='顾客表';
 
 -- ============================================
+-- 表2-1: 贷款账户快照表
+-- ============================================
+DROP TABLE IF EXISTS `loan_account`;
+CREATE TABLE `loan_account` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    `customer_id` BIGINT NOT NULL COMMENT '顾客ID',
+    `credit_limit` DECIMAL(19,2) NOT NULL COMMENT '授信额度',
+    `available_limit` DECIMAL(19,2) NOT NULL COMMENT '可用额度',
+    `principal_outstanding` DECIMAL(19,2) NOT NULL COMMENT '在贷本金余额',
+    `interest_outstanding` DECIMAL(19,2) NOT NULL COMMENT '应还利息余额',
+    `version` INT NOT NULL DEFAULT 0 COMMENT '版本号(并发控制)',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY `uk_loan_account_customer` (`customer_id`),
+    INDEX `idx_loan_account_customer` (`customer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='贷款账户快照表';
+
+-- ============================================
+-- 表2-2: 贷款合同表
+-- ============================================
+DROP TABLE IF EXISTS `loan_contract`;
+CREATE TABLE `loan_contract` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    `contract_no` VARCHAR(64) NOT NULL COMMENT '合同号',
+    `customer_id` BIGINT NOT NULL COMMENT '顾客ID',
+    `contract_amount` DECIMAL(19,2) NOT NULL COMMENT '合同金额',
+    `status` TINYINT NOT NULL COMMENT '合同状态',
+    `signed_at` DATETIME DEFAULT NULL COMMENT '签署时间',
+    `initial_disbursement_txn_no` VARCHAR(64) DEFAULT NULL COMMENT '首放交易号',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY `uk_loan_contract_no` (`contract_no`),
+    INDEX `idx_loan_contract_customer` (`customer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='贷款合同表';
+
+-- ============================================
+-- 表2-3: 贷款交易流水表(不可变)
+-- ============================================
+DROP TABLE IF EXISTS `loan_transaction`;
+CREATE TABLE `loan_transaction` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    `txn_no` VARCHAR(64) NOT NULL COMMENT '交易号',
+    `customer_id` BIGINT NOT NULL COMMENT '顾客ID',
+    `contract_no` VARCHAR(64) NOT NULL COMMENT '合同号',
+    `txn_type` VARCHAR(32) NOT NULL COMMENT '交易类型',
+    `status` VARCHAR(20) NOT NULL DEFAULT 'POSTED' COMMENT '交易状态',
+    `source` VARCHAR(20) NOT NULL DEFAULT 'APP' COMMENT '交易来源',
+    `amount` DECIMAL(19,2) NOT NULL COMMENT '交易金额',
+    `principal_component` DECIMAL(19,2) NOT NULL DEFAULT 0 COMMENT '本金拆分金额',
+    `interest_component` DECIMAL(19,2) NOT NULL DEFAULT 0 COMMENT '利息拆分金额',
+    `available_limit_after` DECIMAL(19,2) NOT NULL COMMENT '交易后可用额度',
+    `principal_outstanding_after` DECIMAL(19,2) NOT NULL COMMENT '交易后在贷本金',
+    `idempotency_key` VARCHAR(128) NOT NULL COMMENT '幂等键',
+    `note` VARCHAR(255) DEFAULT NULL COMMENT '备注',
+    `created_by` VARCHAR(64) DEFAULT NULL COMMENT '创建人',
+    `reversal_of` VARCHAR(64) DEFAULT NULL COMMENT '冲正原交易号',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY `uk_loan_txn_no` (`txn_no`),
+    UNIQUE KEY `uk_loan_txn_idempotency` (`customer_id`, `idempotency_key`),
+    INDEX `idx_loan_txn_customer` (`customer_id`),
+    INDEX `idx_loan_txn_contract` (`contract_no`),
+    INDEX `idx_loan_txn_created_at` (`created_at`),
+    INDEX `idx_loan_txn_status` (`status`),
+    INDEX `idx_loan_txn_source` (`source`),
+    INDEX `idx_loan_txn_reversal_of` (`reversal_of`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='贷款交易流水表';
+
+-- ============================================
 -- 表3: Token黑名单表
 -- ============================================
 DROP TABLE IF EXISTS `token_blacklist`;
@@ -252,12 +321,20 @@ INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `componen
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
 (0, '系统管理', 2, NULL, 'system/index', 'system:view', 'Setting', 99);
 
+-- 一级菜单: 交易管理
+INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
+(0, '交易管理', 2, NULL, 'loan/index', 'loan:transaction:view', 'FileText', 50);
+
 -- 系统管理子菜单: 用户管理、菜单管理、角色管理、MQTT事件
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '用户管理', 2, '/users', 'users/index', 'user:view', 'User', 1),
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '菜单管理', 2, '/system/menus', 'system/menus/index', 'system:menu', NULL, 2),
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '角色管理', 2, '/system/roles', 'system/roles/index', 'system:role', NULL, 3),
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), 'MQTT事件', 2, '/system/mqtt-events', NULL, 'system:mqtt:query', 'activity', 4);
+
+-- 交易管理子菜单: 交易记录管理
+INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'loan:transaction:view') t), '交易记录', 2, '/loan/transactions', 'loan/transactions/index', 'loan:transaction:read', 'FileText', 1);
 
 -- 用户管理按钮权限
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `sort_order`) VALUES
@@ -266,6 +343,12 @@ INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `so
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'user:view') t), '删除用户', 3, 'user:delete', 3),
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'user:view') t), '重置密码', 3, 'user:resetPwd', 4),
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'user:view') t), '启用/禁用用户', 3, 'user:toggleStatus', 5);
+
+-- 交易管理按钮权限
+INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `sort_order`) VALUES
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'loan:transaction:read') t), '创建交易', 3, 'loan:transaction:create', 1),
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'loan:transaction:read') t), '更新备注', 3, 'loan:transaction:update_note', 2),
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'loan:transaction:read') t), '冲正交易', 3, 'loan:transaction:reverse', 3);
 
 -- ============================================
 -- 4. 初始化角色数据
@@ -294,7 +377,9 @@ SELECT
 FROM sys_menu
 WHERE permission IN (
     'dashboard:view',
-    'user:view'
+    'user:view',
+    'loan:transaction:view',
+    'loan:transaction:read'
 );
 
 -- ============================================

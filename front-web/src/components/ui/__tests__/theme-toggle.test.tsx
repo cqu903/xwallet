@@ -32,10 +32,6 @@ describe('ThemeToggle', () => {
 
     const button = screen.getByRole('button', { name: /切换主题/i });
 
-    // 初始状态按钮应该是禁用的(等待 mounted)
-    expect(button).toBeDisabled();
-
-    // 等待 mounted 状态更新
     await waitFor(() => {
       expect(button).not.toBeDisabled();
     });

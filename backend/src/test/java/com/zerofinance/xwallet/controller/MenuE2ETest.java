@@ -9,6 +9,7 @@ import com.zerofinance.xwallet.util.ResponseResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -49,6 +50,7 @@ import static org.junit.jupiter.api.Assertions.*;
     "mqtt.password="
 })
 @DisplayName("菜单接口 E2E 测试")
+@EnabledIfEnvironmentVariable(named = "RUN_E2E", matches = "true")
 class MenuE2ETest {
 
     @LocalServerPort

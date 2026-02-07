@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../models/loan_transaction.dart';
 import '../utils/design_scale.dart';
 
 /// 交易类型枚举
@@ -33,6 +35,23 @@ class TransactionData {
   /// 金额是否为正数（收入）
   bool get isPositive =>
       type == TransactionType.income || type == TransactionType.reward;
+
+  factory TransactionData.fromLoanTransaction(LoanTransactionItem item) {
+    final kind = item.type.toUpperCase();
+    final config = _resolveTypeConfig(kind);
+    return TransactionData(
+      id: item.transactionId.isEmpty
+          ? '${kind.toLowerCase()}-${item.occurredAt?.millisecondsSinceEpoch ?? DateTime.now().millisecondsSinceEpoch}'
+          : item.transactionId,
+      name: config.$1,
+      time: _formatOccurredAt(item.occurredAt),
+      amount: _formatAmount(item.amount, kind),
+      type: config.$2,
+      icon: config.$3,
+      iconColor: config.$4,
+      bgColor: config.$5,
+    );
+  }
 
   /// 默认交易数据
   static List<TransactionData> getDefaultTransactions() {
@@ -69,6 +88,75 @@ class TransactionData {
       ),
     ];
   }
+
+  static String _formatAmount(double amount, String type) {
+    final absolute = amount.abs();
+    final formatted = absolute.toStringAsFixed(2);
+    final sign = type == 'REPAYMENT' ? '-' : '+';
+    return '$sign¥$formatted';
+  }
+
+  static String _formatOccurredAt(DateTime? dateTime) {
+    if (dateTime == null) {
+      return '--';
+    }
+    final now = DateTime.now();
+    final local = dateTime.toLocal();
+    final today = DateTime(now.year, now.month, now.day);
+    final target = DateTime(local.year, local.month, local.day);
+    final diffDays = today.difference(target).inDays;
+    final hour = local.hour.toString().padLeft(2, '0');
+    final minute = local.minute.toString().padLeft(2, '0');
+
+    if (diffDays == 0) {
+      return '今天 $hour:$minute';
+    }
+    if (diffDays == 1) {
+      return '昨天 $hour:$minute';
+    }
+    final month = local.month.toString().padLeft(2, '0');
+    final day = local.day.toString().padLeft(2, '0');
+    return '$month/$day $hour:$minute';
+  }
+
+  static (String, TransactionType, IconData, Color, Color) _resolveTypeConfig(
+    String type,
+  ) {
+    switch (type) {
+      case 'INITIAL_DISBURSEMENT':
+        return (
+          '放款到账',
+          TransactionType.income,
+          Icons.arrow_downward,
+          const Color(0xFF7424F5),
+          const Color(0xFF7424F5).withOpacity(0.1),
+        );
+      case 'REDRAW_DISBURSEMENT':
+        return (
+          '再次提款',
+          TransactionType.income,
+          Icons.account_balance_wallet,
+          const Color(0xFF11998E),
+          const Color(0xFF11998E).withOpacity(0.1),
+        );
+      case 'REPAYMENT':
+        return (
+          '还款扣除',
+          TransactionType.expense,
+          Icons.arrow_upward,
+          const Color(0xFFFF6B6B),
+          const Color(0xFFFF6B6B).withOpacity(0.1),
+        );
+      default:
+        return (
+          '交易变动',
+          TransactionType.expense,
+          Icons.receipt_long,
+          const Color(0xFF666666),
+          const Color(0xFF666666).withOpacity(0.1),
+        );
+    }
+  }
 }
 
 /// 最近交易组件
@@ -77,12 +165,20 @@ class TransactionListSection extends StatelessWidget {
   final List<TransactionData>? transactions;
   final VoidCallback? onViewAllTap;
   final Function(TransactionData)? onTransactionTap;
+  final bool isLoading;
+  final String? errorMessage;
+  final VoidCallback? onRetryTap;
+  final String emptyMessage;
 
   const TransactionListSection({
     super.key,
     this.transactions,
     this.onViewAllTap,
     this.onTransactionTap,
+    this.isLoading = false,
+    this.errorMessage,
+    this.onRetryTap,
+    this.emptyMessage = '暂无交易记录',
   });
 
   List<TransactionData> get _transactions =>
@@ -156,6 +252,64 @@ class TransactionListSection extends StatelessWidget {
 
   /// 交易列表
   Widget _buildTransactionList(double scale) {
+    if (isLoading) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 20 * scale),
+        child: const Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2.5),
+          ),
+        ),
+      );
+    }
+
+    if (errorMessage != null && errorMessage!.isNotEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 12 * scale),
+        child: Column(
+          children: [
+            Text(
+              errorMessage!,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: const Color(0xFF666666),
+                fontSize: 13 * scale,
+              ),
+            ),
+            SizedBox(height: 10 * scale),
+            GestureDetector(
+              onTap: onRetryTap,
+              child: Text(
+                '重试',
+                style: TextStyle(
+                  color: const Color(0xFF7424F5),
+                  fontSize: 13 * scale,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_transactions.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 20 * scale),
+        child: Center(
+          child: Text(
+            emptyMessage,
+            style: TextStyle(
+              color: const Color(0xFF666666),
+              fontSize: 13 * scale,
+            ),
+          ),
+        ),
+      );
+    }
+
     return Column(
       children: List.generate(_transactions.length, (index) {
         final transaction = _transactions[index];

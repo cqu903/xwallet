@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zerofinance.xwallet.repository.LoanTransactionMapper">
+
+    <resultMap id="LoanTransactionResultMap" type="com.zerofinance.xwallet.model.entity.LoanTransaction">
+        <id property="id" column="id"/>
+        <result property="txnNo" column="txn_no"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="customerEmail" column="customer_email"/>
+        <result property="contractNo" column="contract_no"/>
+        <result property="txnType" column="txn_type"/>
+        <result property="status" column="status"/>
+        <result property="source" column="source"/>
+        <result property="amount" column="amount"/>
+        <result property="principalComponent" column="principal_component"/>
+        <result property="interestComponent" column="interest_component"/>
+        <result property="availableLimitAfter" column="available_limit_after"/>
+        <result property="principalOutstandingAfter" column="principal_outstanding_after"/>
+        <result property="idempotencyKey" column="idempotency_key"/>
+        <result property="note" column="note"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="reversalOf" column="reversal_of"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.LoanTransaction" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO loan_transaction (
+            txn_no, customer_id, contract_no, txn_type, status, source, amount,
+            principal_component, interest_component,
+            available_limit_after, principal_outstanding_after,
+            idempotency_key, note, created_by, reversal_of, created_at
+        ) VALUES (
+            #{txnNo}, #{customerId}, #{contractNo}, #{txnType}, #{status}, #{source}, #{amount},
+            #{principalComponent}, #{interestComponent},
+            #{availableLimitAfter}, #{principalOutstandingAfter},
+            #{idempotencyKey}, #{note}, #{createdBy}, #{reversalOf}, #{createdAt}
+        )
+    </insert>
+
+    <select id="findByIdempotencyKey" resultMap="LoanTransactionResultMap">
+        SELECT id, txn_no, customer_id, NULL AS customer_email, contract_no, txn_type, status, source, amount,
+               principal_component, interest_component, available_limit_after,
+               principal_outstanding_after, idempotency_key, note, created_by,
+               reversal_of, created_at, updated_at
+        FROM loan_transaction
+        WHERE customer_id = #{customerId}
+          AND idempotency_key = #{idempotencyKey}
+        LIMIT 1
+    </select>
+
+    <select id="findRecentByCustomerId" resultMap="LoanTransactionResultMap">
+        SELECT id, txn_no, customer_id, NULL AS customer_email, contract_no, txn_type, status, source, amount,
+               principal_component, interest_component, available_limit_after,
+               principal_outstanding_after, idempotency_key, note, created_by,
+               reversal_of, created_at, updated_at
+        FROM loan_transaction
+        WHERE customer_id = #{customerId}
+        ORDER BY created_at DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="findByTxnNo" resultMap="LoanTransactionResultMap">
+        SELECT t.id, t.txn_no, t.customer_id, c.email AS customer_email, t.contract_no, t.txn_type, t.status, t.source, t.amount,
+               t.principal_component, t.interest_component, t.available_limit_after,
+               t.principal_outstanding_after, t.idempotency_key, t.note, t.created_by,
+               t.reversal_of, t.created_at, t.updated_at
+        FROM loan_transaction t
+        LEFT JOIN customer c ON c.id = t.customer_id
+        WHERE t.txn_no = #{txnNo}
+        LIMIT 1
+    </select>
+
+    <select id="findAdminByPage" resultMap="LoanTransactionResultMap">
+        SELECT t.id, t.txn_no, t.customer_id, c.email AS customer_email, t.contract_no, t.txn_type, t.status, t.source, t.amount,
+               t.principal_component, t.interest_component, t.available_limit_after,
+               t.principal_outstanding_after, t.idempotency_key, t.note, t.created_by,
+               t.reversal_of, t.created_at, t.updated_at
+        FROM loan_transaction t
+        LEFT JOIN customer c ON c.id = t.customer_id
+        <where>
+            <if test="query.contractNo != null and query.contractNo != ''">
+                AND t.contract_no = #{query.contractNo}
+            </if>
+            <if test="query.type != null and query.type != ''">
+                AND t.txn_type = #{query.type}
+            </if>
+            <if test="query.status != null and query.status != ''">
+                AND t.status = #{query.status}
+            </if>
+            <if test="query.source != null and query.source != ''">
+                AND t.source = #{query.source}
+            </if>
+            <if test="query.idempotencyKey != null and query.idempotencyKey != ''">
+                AND t.idempotency_key = #{query.idempotencyKey}
+            </if>
+            <if test="query.createdBy != null and query.createdBy != ''">
+                AND t.created_by = #{query.createdBy}
+            </if>
+            <if test="query.noteKeyword != null and query.noteKeyword != ''">
+                AND t.note LIKE CONCAT('%', #{query.noteKeyword}, '%')
+            </if>
+            <if test="query.customerEmail != null and query.customerEmail != ''">
+                AND c.email = #{query.customerEmail}
+            </if>
+            <if test="query.amountMin != null">
+                AND t.amount &gt;= #{query.amountMin}
+            </if>
+            <if test="query.amountMax != null">
+                AND t.amount &lt;= #{query.amountMax}
+            </if>
+            <if test="query.startTime != null and query.startTime != ''">
+                AND t.created_at &gt;= #{query.startTime}
+            </if>
+            <if test="query.endTime != null and query.endTime != ''">
+                AND t.created_at &lt;= #{query.endTime}
+            </if>
+        </where>
+        ORDER BY t.created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countAdminByCondition" resultType="int">
+        SELECT COUNT(1)
+        FROM loan_transaction t
+        LEFT JOIN customer c ON c.id = t.customer_id
+        <where>
+            <if test="query.contractNo != null and query.contractNo != ''">
+                AND t.contract_no = #{query.contractNo}
+            </if>
+            <if test="query.type != null and query.type != ''">
+                AND t.txn_type = #{query.type}
+            </if>
+            <if test="query.status != null and query.status != ''">
+                AND t.status = #{query.status}
+            </if>
+            <if test="query.source != null and query.source != ''">
+                AND t.source = #{query.source}
+            </if>
+            <if test="query.idempotencyKey != null and query.idempotencyKey != ''">
+                AND t.idempotency_key = #{query.idempotencyKey}
+            </if>
+            <if test="query.createdBy != null and query.createdBy != ''">
+                AND t.created_by = #{query.createdBy}
+            </if>
+            <if test="query.noteKeyword != null and query.noteKeyword != ''">
+                AND t.note LIKE CONCAT('%', #{query.noteKeyword}, '%')
+            </if>
+            <if test="query.customerEmail != null and query.customerEmail != ''">
+                AND c.email = #{query.customerEmail}
+            </if>
+            <if test="query.amountMin != null">
+                AND t.amount &gt;= #{query.amountMin}
+            </if>
+            <if test="query.amountMax != null">
+                AND t.amount &lt;= #{query.amountMax}
+            </if>
+            <if test="query.startTime != null and query.startTime != ''">
+                AND t.created_at &gt;= #{query.startTime}
+            </if>
+            <if test="query.endTime != null and query.endTime != ''">
+                AND t.created_at &lt;= #{query.endTime}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateNote">
+        UPDATE loan_transaction
+        SET note = #{note}
+        WHERE txn_no = #{txnNo}
+    </update>
+
+    <update id="updateStatusByTxnNo">
+        UPDATE loan_transaction
+        SET status = #{status}
+        WHERE txn_no = #{txnNo}
+    </update>
+
+</mapper>

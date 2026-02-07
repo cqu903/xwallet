@@ -11,7 +11,9 @@ const customJestConfig = {
   testEnvironment: 'jest-environment-jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^next-intl$': '<rootDir>/test-utils/next-intl-mock.tsx',
   },
+  testPathIgnorePatterns: ['/node_modules/', '/src/e2e/'],
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',

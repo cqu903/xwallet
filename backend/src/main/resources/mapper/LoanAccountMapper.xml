@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zerofinance.xwallet.repository.LoanAccountMapper">
+
+    <resultMap id="LoanAccountResultMap" type="com.zerofinance.xwallet.model.entity.LoanAccount">
+        <id property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="creditLimit" column="credit_limit"/>
+        <result property="availableLimit" column="available_limit"/>
+        <result property="principalOutstanding" column="principal_outstanding"/>
+        <result property="interestOutstanding" column="interest_outstanding"/>
+        <result property="version" column="version"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findByCustomerId" resultMap="LoanAccountResultMap">
+        SELECT id, customer_id, credit_limit, available_limit, principal_outstanding,
+               interest_outstanding, version, created_at, updated_at
+        FROM loan_account
+        WHERE customer_id = #{customerId}
+    </select>
+
+    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.LoanAccount" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO loan_account (
+            customer_id, credit_limit, available_limit, principal_outstanding,
+            interest_outstanding, version, created_at, updated_at
+        ) VALUES (
+            #{customerId}, #{creditLimit}, #{availableLimit}, #{principalOutstanding},
+            #{interestOutstanding}, #{version}, #{createdAt}, #{updatedAt}
+        )
+    </insert>
+
+    <update id="updateSnapshotWithVersion" parameterType="com.zerofinance.xwallet.model.entity.LoanAccount">
+        UPDATE loan_account
+        SET credit_limit = #{creditLimit},
+            available_limit = #{availableLimit},
+            principal_outstanding = #{principalOutstanding},
+            interest_outstanding = #{interestOutstanding},
+            version = version + 1,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+          AND version = #{version}
+    </update>
+
+</mapper>

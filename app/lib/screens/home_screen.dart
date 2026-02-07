@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/transaction_provider.dart';
 import '../widgets/loan_card.dart';
 import '../widgets/reward_mini_card.dart';
 import '../widgets/activity_carousel.dart';
@@ -28,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
         properties: {'pageName': 'HomeScreen'},
         category: EventCategory.behavior,
       );
+      context.read<TransactionProvider>().loadIfNeeded();
     });
   }
 
@@ -77,9 +81,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     SizedBox(height: 12 * scale),
 
                     // 最近交易区域
-                    TransactionListSection(
-                      onViewAllTap: _handleViewAllTransactions,
-                      onTransactionTap: _handleTransactionTap,
+                    Consumer<TransactionProvider>(
+                      builder: (context, txProvider, child) {
+                        return TransactionListSection(
+                          transactions: txProvider.recentTransactions
+                              .map(TransactionData.fromLoanTransaction)
+                              .toList(),
+                          isLoading: txProvider.isLoading,
+                          errorMessage: txProvider.errorMessage,
+                          onRetryTap: _handleRetryTransactions,
+                          onViewAllTap: _handleViewAllTransactions,
+                          onTransactionTap: _handleTransactionTap,
+                        );
+                      },
                     ),
 
                     // 底部留白（为导航栏留出空间）
@@ -181,6 +195,16 @@ class _HomeScreenState extends State<HomeScreen> {
         duration: const Duration(seconds: 1),
       ),
     );
+  }
+
+  /// 重试最近交易加载
+  void _handleRetryTransactions() {
+    AnalyticsService.instance.trackEvent(
+      eventType: 'button_click',
+      properties: {'buttonName': 'retry_transactions', 'page': 'HomeScreen'},
+      category: EventCategory.behavior,
+    );
+    context.read<TransactionProvider>().refresh();
   }
 
   /// 查看全部交易

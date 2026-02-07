@@ -5,6 +5,10 @@
 *.iml
 *.ipr
 *.iws
+.classpath
+.project
+.factorypath
+.settings/
 
 # Logs
 logs/

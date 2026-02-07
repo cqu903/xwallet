@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zerofinance.xwallet.repository.LoanContractMapper">
+
+    <resultMap id="LoanContractResultMap" type="com.zerofinance.xwallet.model.entity.LoanContract">
+        <id property="id" column="id"/>
+        <result property="contractNo" column="contract_no"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="contractAmount" column="contract_amount"/>
+        <result property="status" column="status"/>
+        <result property="signedAt" column="signed_at"/>
+        <result property="initialDisbursementTxnNo" column="initial_disbursement_txn_no"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findByContractNo" resultMap="LoanContractResultMap">
+        SELECT id, contract_no, customer_id, contract_amount, status, signed_at,
+               initial_disbursement_txn_no, created_at, updated_at
+        FROM loan_contract
+        WHERE contract_no = #{contractNo}
+    </select>
+
+    <select id="findLatestByCustomerId" resultMap="LoanContractResultMap">
+        SELECT id, contract_no, customer_id, contract_amount, status, signed_at,
+               initial_disbursement_txn_no, created_at, updated_at
+        FROM loan_contract
+        WHERE customer_id = #{customerId}
+        ORDER BY created_at DESC
+        LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.LoanContract" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO loan_contract (
+            contract_no, customer_id, contract_amount, status, signed_at,
+            initial_disbursement_txn_no, created_at, updated_at
+        ) VALUES (
+            #{contractNo}, #{customerId}, #{contractAmount}, #{status}, #{signedAt},
+            #{initialDisbursementTxnNo}, #{createdAt}, #{updatedAt}
+        )
+    </insert>
+
+    <update id="updateOnDisbursement" parameterType="com.zerofinance.xwallet.model.entity.LoanContract">
+        UPDATE loan_contract
+        SET status = #{status},
+            signed_at = #{signedAt},
+            initial_disbursement_txn_no = #{initialDisbursementTxnNo},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE contract_no = #{contractNo}
+    </update>
+
+</mapper>

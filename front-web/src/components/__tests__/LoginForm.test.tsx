@@ -64,16 +64,17 @@ function renderWithTranslations(component: React.ReactElement) {
 
 describe('LoginForm', () => {
   describe('Hydration consistency', () => {
-    it('should return null when authenticated on server and client', () => {
+    it('should redirect when authenticated on server and client', async () => {
       // Simulate authenticated state
       (useAuthStore as jest.Mock).mockReturnValue({
         isAuthenticated: true,
       });
 
-      const { container } = renderWithTranslations(<LoginForm />);
+      renderWithTranslations(<LoginForm />);
 
-      // Component should render null (empty container)
-      expect(container.firstChild).toBe(null);
+      await waitFor(() => {
+        expect(mockReplace).toHaveBeenCalled();
+      });
     });
 
     it('should render form consistently when not authenticated', () => {
@@ -86,8 +87,8 @@ describe('LoginForm', () => {
 
       // Should render form element
       expect(container.querySelector('form')).toBeInTheDocument();
-      expect(screen.getByLabelText('工号')).toBeInTheDocument();
-      expect(screen.getByLabelText('密码')).toBeInTheDocument();
+      expect(screen.getByLabelText('employeeNo')).toBeInTheDocument();
+      expect(screen.getByLabelText('password')).toBeInTheDocument();
     });
 
     it('should not change render output during hydration', async () => {
@@ -110,8 +111,11 @@ describe('LoginForm', () => {
       // Re-render to simulate state change
       const { container: newContainer } = renderWithTranslations(<LoginForm />);
 
-      // After state change, should render null
-      expect(newContainer.firstChild).toBe(null);
+      // After state change, should still render form but trigger redirect
+      expect(newContainer.querySelector('form')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(mockReplace).toHaveBeenCalled();
+      });
     });
   });
 
@@ -123,10 +127,10 @@ describe('LoginForm', () => {
 
       renderWithTranslations(<LoginForm />);
 
-      const submitButton = screen.getByRole('button', { name: '登录' });
+      const submitButton = screen.getByRole('button', { name: 'login' });
       await userEvent.click(submitButton);
 
-      expect(screen.getByText('请输入工号')).toBeInTheDocument();
+      expect(screen.getByText('pleaseInputEmployeeNo')).toBeInTheDocument();
     });
 
     it('should show error when submitting empty password', async () => {
@@ -136,13 +140,13 @@ describe('LoginForm', () => {
 
       renderWithTranslations(<LoginForm />);
 
-      const employeeNoInput = screen.getByLabelText('工号');
+      const employeeNoInput = screen.getByLabelText('employeeNo');
       await userEvent.type(employeeNoInput, 'ADMIN001');
 
-      const submitButton = screen.getByRole('button', { name: '登录' });
+      const submitButton = screen.getByRole('button', { name: 'login' });
       await userEvent.click(submitButton);
 
-      expect(screen.getByText('请输入密码')).toBeInTheDocument();
+      expect(screen.getByText('pleaseInputPassword')).toBeInTheDocument();
     });
   });
 
@@ -155,13 +159,13 @@ describe('LoginForm', () => {
 
       renderWithTranslations(<LoginForm />);
 
-      const employeeNoInput = screen.getByLabelText('工号');
-      const passwordInput = screen.getByLabelText('密码');
+      const employeeNoInput = screen.getByLabelText('employeeNo');
+      const passwordInput = screen.getByLabelText('password');
 
       await userEvent.type(employeeNoInput, 'ADMIN001');
       await userEvent.type(passwordInput, 'admin123');
 
-      const submitButton = screen.getByRole('button', { name: '登录' });
+      const submitButton = screen.getByRole('button', { name: 'login' });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -184,17 +188,17 @@ describe('LoginForm', () => {
 
       renderWithTranslations(<LoginForm />);
 
-      const employeeNoInput = screen.getByLabelText('工号');
-      const passwordInput = screen.getByLabelText('密码');
+      const employeeNoInput = screen.getByLabelText('employeeNo');
+      const passwordInput = screen.getByLabelText('password');
 
       await userEvent.type(employeeNoInput, 'ADMIN001');
       await userEvent.type(passwordInput, 'wrongpass');
 
-      const submitButton = screen.getByRole('button', { name: '登录' });
+      const submitButton = screen.getByRole('button', { name: 'login' });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/登录失败，还有 2 次尝试机会/)).toBeInTheDocument();
+        expect(screen.getByText(/loginFailedWithRetry/)).toBeInTheDocument();
       });
     });
   });
@@ -207,7 +211,7 @@ describe('LoginForm', () => {
 
       renderWithTranslations(<LoginForm />);
 
-      const passwordInput = screen.getByLabelText('密码') as HTMLInputElement;
+      const passwordInput = screen.getByLabelText('password') as HTMLInputElement;
       const toggleButton = passwordInput.nextElementSibling?.querySelector('button');
 
       expect(passwordInput.type).toBe('password');
@@ -230,7 +234,7 @@ describe('LoginForm', () => {
 
       renderWithTranslations(<LoginForm />);
 
-      const checkbox = screen.getByRole('checkbox', { name: '记住我' });
+      const checkbox = screen.getByRole('checkbox', { name: 'rememberMe' });
       expect(checkbox).not.toBeChecked();
 
       await userEvent.click(checkbox);
