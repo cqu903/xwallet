@@ -105,6 +105,12 @@ class LoanCard extends StatelessWidget {
   Widget _buildAmountSection(BuildContext context, double scale) {
     const gold = Color(0xFFFFD700);
     const goldDark = Color(0xFFFFA500);
+    const amountGradient = LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [Colors.white, gold, goldDark],
+      stops: [0.0, 0.5, 1.0],
+    );
     // 设计稿: fontSize:72, fontWeight:900, letterSpacing:-3
     final amountStyle = TextStyle(
       color: Colors.white,
@@ -135,37 +141,59 @@ class LoanCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 设计稿: currencySymbol - "¥", 渐变 #FFD700 → #FFA500, fontSize:32, fontWeight:800
-              ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
+              _buildGradientText(
+                text: '¥',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 32 * scale,
+                  fontWeight: FontWeight.w800,
+                  fontFamily: 'Montserrat',
+                ),
+                gradient: const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [gold, goldDark],
-                ).createShader(bounds),
-                child: Text(
-                  '¥',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 32 * scale,
-                    fontWeight: FontWeight.w800,
-                    fontFamily: 'Montserrat',
-                  ),
                 ),
               ),
               SizedBox(width: 2 * scale), // 设计稿: gap: 2
               // 设计稿: loanAmount - "180,000", 渐变 #FFFFFF → #FFD700 → #FFA500
-              ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.white, gold, goldDark],
-                  stops: [0.0, 0.5, 1.0],
-                ).createShader(bounds),
-                child: SizedBox(child: Text('180,000', style: amountStyle)),
+              _buildGradientText(
+                text: '180,000',
+                style: amountStyle,
+                gradient: amountGradient,
               ),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildGradientText({
+    required String text,
+    required TextStyle style,
+    required Gradient gradient,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final textPainter = TextPainter(
+          text: TextSpan(text: text, style: style),
+          textDirection: TextDirection.ltr,
+          maxLines: 1,
+        )..layout();
+
+        final shader = gradient.createShader(
+          Rect.fromLTWH(0, 0, textPainter.width, textPainter.height),
+        );
+
+        return Text(
+          text,
+          style: style.copyWith(
+            foreground: Paint()..shader = shader,
+            color: null,
+          ),
+        );
+      },
     );
   }
 
