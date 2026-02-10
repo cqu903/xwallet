@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+
+import '../analytics/analytics_constants.dart';
+import '../analytics/event_spec.dart';
+import '../models/analytics_event.dart';
 import '../utils/design_scale.dart';
+import 'analytics/analytics_pressable.dart';
 
 /// 贷款英雄卡片 - 紫色渐变主题 + 金色按钮（严格遵循设计稿）
 /// 设计稿: 首页.pen - loanHeroCard
@@ -255,8 +260,17 @@ class LoanCard extends StatelessWidget {
 
   /// 申请按钮（设计稿: applyBtn - width:338, height:60, cornerRadius:20）
   Widget _buildApplyButton(BuildContext context, double scale) {
-    return GestureDetector(
-      onTap: onApply,
+    return AnalyticsPressable(
+      eventType: AnalyticsEventType.buttonClick,
+      properties: AnalyticsEventProperties.click(
+        page: AnalyticsPages.home,
+        flow: AnalyticsFlows.loanApply,
+        elementId: AnalyticsIds.applyLoan,
+        elementType: AnalyticsElementType.button,
+        elementText: '立即申请',
+      ),
+      category: EventCategory.behavior,
+      onPressed: onApply,
       child: Container(
         width: 338 * scale, // 设计稿: width: 338
         height: 60 * scale, // 设计稿: height: 60

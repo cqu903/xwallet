@@ -2,7 +2,7 @@ import 'package:uuid/uuid.dart';
 import '../models/analytics_event.dart';
 import '../models/event_context.dart';
 import '../utils/device_info_collector.dart';
-import '../config/analytics_config.dart';
+import '../config/app_config.dart';
 
 class EventCollector {
   static final Uuid _uuid = Uuid();
@@ -23,7 +23,7 @@ class EventCollector {
       userId: userId,
       eventType: eventType,
       timestamp: DateTime.now().millisecondsSinceEpoch,
-      environment: AnalyticsConfig.environment,
+      environment: AppConfig.instance.environment,
       context: context,
       properties: properties,
       riskContext: riskContext,

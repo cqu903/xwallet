@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../analytics/analytics_constants.dart';
+import '../analytics/event_spec.dart';
 import '../models/loan_transaction.dart';
 import '../utils/design_scale.dart';
+import 'analytics/analytics_tap.dart';
 
 /// 交易类型枚举
 enum TransactionType {
@@ -235,7 +238,15 @@ class TransactionListSection extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        GestureDetector(
+        AnalyticsTap(
+          eventType: AnalyticsEventType.linkClick,
+          properties: AnalyticsEventProperties.click(
+            page: AnalyticsPages.home,
+            flow: AnalyticsFlows.history,
+            elementId: AnalyticsIds.viewAllTransactions,
+            elementType: AnalyticsElementType.link,
+            elementText: '查看全部',
+          ),
           onTap: onViewAllTap,
           child: Text(
             '查看全部',
@@ -279,7 +290,15 @@ class TransactionListSection extends StatelessWidget {
               ),
             ),
             SizedBox(height: 10 * scale),
-            GestureDetector(
+            AnalyticsTap(
+              eventType: AnalyticsEventType.buttonClick,
+              properties: AnalyticsEventProperties.click(
+                page: AnalyticsPages.home,
+                flow: AnalyticsFlows.history,
+                elementId: AnalyticsIds.retryTransactions,
+                elementType: AnalyticsElementType.button,
+                elementText: '重试',
+              ),
               onTap: onRetryTap,
               child: Text(
                 '重试',
@@ -348,7 +367,17 @@ class _TransactionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AnalyticsTap(
+      eventType: AnalyticsEventType.transactionClick,
+      properties: AnalyticsEventProperties.itemClick(
+        page: AnalyticsPages.home,
+        flow: AnalyticsFlows.history,
+        elementId: AnalyticsIds.transactionItem,
+        elementType: AnalyticsElementType.listItem,
+        itemType: 'transaction',
+        itemId: transaction.id,
+        itemName: transaction.name,
+      ),
       onTap: onTap,
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 16 * scale),

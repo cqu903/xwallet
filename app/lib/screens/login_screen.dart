@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../analytics/analytics_constants.dart';
+import '../analytics/app_routes.dart';
+import '../analytics/event_spec.dart';
+import '../analytics/navigation_tracking.dart';
+import '../models/analytics_event.dart';
 import '../providers/auth_provider.dart';
 import '../services/analytics_service.dart';
-import '../models/analytics_event.dart';
-import '../main.dart';
-import '../widgets/x_wallet_logo.dart';
 import '../utils/design_scale.dart';
+import '../widgets/analytics/analytics_elevated_button.dart';
+import '../widgets/analytics/analytics_icon_button.dart';
+import '../widgets/analytics/analytics_text_button.dart';
+import '../widgets/x_wallet_logo.dart';
 import 'register_screen.dart';
 
 // 设计稿颜色常量
@@ -66,13 +73,18 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final success = await authProvider.login(email, _passwordController.text);
 
-      await AnalyticsService.instance.trackEvent(
-        eventType: 'login',
-        properties: {
-          'loginMethod': 'email',
-          'success': success,
-          'hasError': !success,
-        },
+      await AnalyticsService.instance.trackStandardEvent(
+        eventType: AnalyticsEventType.formSubmit,
+        properties: AnalyticsEventProperties.formSubmit(
+          page: AnalyticsPages.login,
+          flow: AnalyticsFlows.login,
+          elementId: AnalyticsIds.loginSubmit,
+          success: success,
+          extra: {
+            'loginMethod': 'email',
+            'hasError': !success,
+          },
+        ),
         userId: success
             ? authProvider.currentUser?.userInfo.userId.toString()
             : null,
@@ -98,16 +110,14 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       } else if (success && mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const MainNavigation(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-                  return FadeTransition(opacity: animation, child: child);
-                },
-            transitionDuration: const Duration(milliseconds: 300),
-          ),
+        await context.pushReplacementNamedTracked<void>(
+          AppRoutes.main,
+          page: AnalyticsPages.login,
+          flow: AnalyticsFlows.login,
+          elementId: AnalyticsIds.loginSuccessRedirect,
+          elementType: AnalyticsElementType.button,
+          eventType: AnalyticsEventType.buttonClick,
+          elementText: '登录成功跳转',
         );
       }
     } finally {
@@ -163,6 +173,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       onRegister: () {
                         Navigator.of(context).push(
                           PageRouteBuilder(
+                            settings: const RouteSettings(
+                              name: AppRoutes.register,
+                            ),
                             pageBuilder:
                                 (context, animation, secondaryAnimation) =>
                                     const RegisterScreen(),
@@ -308,7 +321,7 @@ class _LoginCard extends StatelessWidget {
                   color: _kPrimaryPurple,
                   size: 20,
                 ),
-                suffixIcon: IconButton(
+                suffixIcon: AnalyticsIconButton(
                   icon: Icon(
                     obscurePassword
                         ? Icons.visibility_outlined
@@ -316,7 +329,17 @@ class _LoginCard extends StatelessWidget {
                     color: _kTextSecondary,
                     size: 20,
                   ),
-                  onPressed: onTogglePassword,
+                  tooltip: obscurePassword ? '显示密码' : '隐藏密码',
+                  eventType: AnalyticsEventType.buttonClick,
+                  properties: AnalyticsEventProperties.click(
+                    page: AnalyticsPages.login,
+                    flow: AnalyticsFlows.login,
+                    elementId: AnalyticsIds.loginPasswordVisibility,
+                    elementType: AnalyticsElementType.icon,
+                    elementText: obscurePassword ? '显示密码' : '隐藏密码',
+                  ),
+                  category: EventCategory.behavior,
+                  onPressed: isLoading ? null : onTogglePassword,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12 * scale),
@@ -339,7 +362,7 @@ class _LoginCard extends StatelessWidget {
             // 忘记密码 - 设计稿: 右对齐, 14px, #7424F5
             Align(
               alignment: Alignment.centerRight,
-              child: TextButton(
+              child: AnalyticsTextButton(
                 onPressed: isLoading ? null : onForgotPassword,
                 style: TextButton.styleFrom(
                   foregroundColor: _kPrimaryPurple,
@@ -347,6 +370,15 @@ class _LoginCard extends StatelessWidget {
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
+                eventType: AnalyticsEventType.linkClick,
+                properties: AnalyticsEventProperties.click(
+                  page: AnalyticsPages.login,
+                  flow: AnalyticsFlows.login,
+                  elementId: AnalyticsIds.loginForgotPassword,
+                  elementType: AnalyticsElementType.link,
+                  elementText: '忘记密码？',
+                ),
+                category: EventCategory.behavior,
                 child: Text('忘记密码？', style: TextStyle(fontSize: 14 * scale)),
               ),
             ),
@@ -355,7 +387,7 @@ class _LoginCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               height: 52 * scale,
-              child: ElevatedButton(
+              child: AnalyticsElevatedButton(
                 onPressed: isLoading ? null : onLogin,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _kPrimaryPurple,
@@ -369,6 +401,15 @@ class _LoginCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12 * scale),
                   ),
                 ),
+                eventType: AnalyticsEventType.buttonClick,
+                properties: AnalyticsEventProperties.click(
+                  page: AnalyticsPages.login,
+                  flow: AnalyticsFlows.login,
+                  elementId: AnalyticsIds.loginSubmit,
+                  elementType: AnalyticsElementType.button,
+                  elementText: '登录',
+                ),
+                category: EventCategory.behavior,
                 child: isLoading
                     ? SizedBox(
                         height: 20 * scale,
@@ -409,10 +450,25 @@ class _LoginCard extends StatelessWidget {
             ),
             SizedBox(height: 24 * scale),
             // 注册链接 - 设计稿: "还没有账号？" #666666, "立即注册" #7424F5 bold
-            GestureDetector(
-              onTap: isLoading ? null : onRegister,
+            AnalyticsTextButton(
+              onPressed: isLoading ? null : onRegister,
+              style: TextButton.styleFrom(
+                foregroundColor: _kPrimaryPurple,
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              eventType: AnalyticsEventType.linkClick,
+              properties: AnalyticsEventProperties.click(
+                page: AnalyticsPages.login,
+                flow: AnalyticsFlows.login,
+                elementId: AnalyticsIds.loginGoRegister,
+                elementType: AnalyticsElementType.link,
+                elementText: '立即注册',
+              ),
+              category: EventCategory.behavior,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     '还没有账号？',

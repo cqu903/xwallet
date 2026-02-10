@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+
+import '../analytics/analytics_constants.dart';
+import '../analytics/event_spec.dart';
 import '../utils/design_scale.dart';
+import 'analytics/analytics_tap.dart';
 
 /// 活动数据模型
 class ActivityData {
@@ -135,7 +139,15 @@ class _ActivityCarouselState extends State<ActivityCarousel> {
               fontWeight: FontWeight.w600,
             ),
           ),
-          GestureDetector(
+          AnalyticsTap(
+            eventType: AnalyticsEventType.linkClick,
+            properties: AnalyticsEventProperties.click(
+              page: AnalyticsPages.home,
+              flow: AnalyticsFlows.loanApply,
+              elementId: AnalyticsIds.viewMoreActivities,
+              elementType: AnalyticsElementType.link,
+              elementText: '查看更多',
+            ),
             onTap: widget.onMoreTap,
             child: Text(
               '查看更多',
@@ -210,7 +222,17 @@ class _ActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AnalyticsTap(
+      eventType: AnalyticsEventType.activityClick,
+      properties: AnalyticsEventProperties.itemClick(
+        page: AnalyticsPages.home,
+        flow: AnalyticsFlows.loanApply,
+        elementId: AnalyticsIds.activityItem,
+        elementType: AnalyticsElementType.card,
+        itemType: 'activity',
+        itemId: activity.id,
+        itemName: activity.title,
+      ),
       onTap: onTap,
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 6 * scale),

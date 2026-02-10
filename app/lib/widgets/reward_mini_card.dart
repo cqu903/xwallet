@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+
+import '../analytics/analytics_constants.dart';
+import '../analytics/event_spec.dart';
+import '../models/analytics_event.dart';
 import '../utils/design_scale.dart';
+import 'analytics/analytics_pressable.dart';
 
 /// 推荐奖励迷你卡片组件
 /// 设计稿基准宽度: 402px
@@ -109,8 +114,17 @@ class RewardMiniCard extends StatelessWidget {
                   ),
                 ),
                 // 推荐按钮
-                GestureDetector(
-                  onTap: onShareTap,
+                AnalyticsPressable(
+                  eventType: AnalyticsEventType.buttonClick,
+                  properties: AnalyticsEventProperties.click(
+                    page: AnalyticsPages.home,
+                    flow: AnalyticsFlows.loanApply,
+                    elementId: AnalyticsIds.shareReferral,
+                    elementType: AnalyticsElementType.button,
+                    elementText: '推荐',
+                  ),
+                  category: EventCategory.behavior,
+                  onPressed: onShareTap,
                   child: Container(
                     width: 100 * scale, // 设计稿: width: 100
                     height: 40 * scale, // 设计稿: height: 40

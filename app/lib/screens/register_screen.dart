@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../analytics/analytics_constants.dart';
+import '../analytics/event_spec.dart';
+import '../models/analytics_event.dart';
 import '../providers/auth_provider.dart';
+import '../services/analytics_service.dart';
 import '../utils/validators.dart';
+import '../widgets/analytics/analytics_elevated_button.dart';
+import '../widgets/analytics/analytics_icon_button.dart';
+import '../widgets/analytics/analytics_text_button.dart';
 import '../widgets/x_wallet_logo.dart';
 
 /// 用户注册页面
@@ -98,6 +106,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
           : _nicknameController.text.trim(),
     );
 
+    await AnalyticsService.instance.trackStandardEvent(
+      eventType: AnalyticsEventType.formSubmit,
+      properties: AnalyticsEventProperties.formSubmit(
+        page: AnalyticsPages.register,
+        flow: AnalyticsFlows.register,
+        elementId: AnalyticsIds.registerSubmit,
+        success: success,
+        extra: {'registerMethod': 'email'},
+      ),
+      userId: success
+          ? authProvider.currentUser?.userInfo.userId.toString()
+          : null,
+      category: success ? EventCategory.critical : EventCategory.behavior,
+    );
+
     if (!success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -113,6 +136,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: AnalyticsIconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          tooltip: '返回登录',
+          eventType: AnalyticsEventType.linkClick,
+          properties: AnalyticsEventProperties.click(
+            page: AnalyticsPages.register,
+            flow: AnalyticsFlows.register,
+            elementId: AnalyticsIds.registerBackNav,
+            elementType: AnalyticsElementType.icon,
+            elementText: '返回登录',
+          ),
+          category: EventCategory.behavior,
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         title: const Text('注册 xWallet 账号'),
         backgroundColor: Colors.green.shade700,
         foregroundColor: Colors.white,
@@ -201,7 +240,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             const SizedBox(width: 12),
                             SizedBox(
                               width: 120,
-                              child: ElevatedButton(
+                              child: AnalyticsElevatedButton(
                                 onPressed: (_countdown > 0)
                                     ? null
                                     : _handleSendCode,
@@ -214,6 +253,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                   backgroundColor: Colors.green.shade700,
                                 ),
+                                eventType: AnalyticsEventType.buttonClick,
+                                properties: AnalyticsEventProperties.click(
+                                  page: AnalyticsPages.register,
+                                  flow: AnalyticsFlows.register,
+                                  elementId: AnalyticsIds.registerSendCode,
+                                  elementType: AnalyticsElementType.button,
+                                  elementText: '发送验证码',
+                                ),
+                                category: EventCategory.behavior,
                                 child: Text(
                                   _countdown > 0 ? '${_countdown}s' : '发送验证码',
                                   style: const TextStyle(fontSize: 12),
@@ -231,12 +279,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             labelText: '密码',
                             hintText: '至少6位',
                             prefixIcon: const Icon(Icons.lock),
-                            suffixIcon: IconButton(
+                            suffixIcon: AnalyticsIconButton(
                               icon: Icon(
                                 _obscurePassword
                                     ? Icons.visibility_off
                                     : Icons.visibility,
                               ),
+                              tooltip: _obscurePassword ? '显示密码' : '隐藏密码',
+                              eventType: AnalyticsEventType.buttonClick,
+                              properties: AnalyticsEventProperties.click(
+                                page: AnalyticsPages.register,
+                                flow: AnalyticsFlows.register,
+                                elementId: AnalyticsIds.registerPasswordVisibility,
+                                elementType: AnalyticsElementType.icon,
+                                elementText: _obscurePassword ? '显示密码' : '隐藏密码',
+                              ),
+                              category: EventCategory.behavior,
                               onPressed: () {
                                 setState(() {
                                   _obscurePassword = !_obscurePassword;
@@ -262,12 +320,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             labelText: '确认密码',
                             hintText: '再次输入密码',
                             prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
+                            suffixIcon: AnalyticsIconButton(
                               icon: Icon(
                                 _obscureConfirmPassword
                                     ? Icons.visibility_off
                                     : Icons.visibility,
                               ),
+                              tooltip: _obscureConfirmPassword
+                                  ? '显示确认密码'
+                                  : '隐藏确认密码',
+                              eventType: AnalyticsEventType.buttonClick,
+                              properties: AnalyticsEventProperties.click(
+                                page: AnalyticsPages.register,
+                                flow: AnalyticsFlows.register,
+                                elementId:
+                                    AnalyticsIds.registerConfirmPasswordVisibility,
+                                elementType: AnalyticsElementType.icon,
+                                elementText: _obscureConfirmPassword
+                                    ? '显示确认密码'
+                                    : '隐藏确认密码',
+                              ),
+                              category: EventCategory.behavior,
                               onPressed: () {
                                 setState(() {
                                   _obscureConfirmPassword =
@@ -313,7 +386,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Consumer<AuthProvider>(
                           builder: (context, authProvider, child) {
                             final isRegistering = authProvider.isLoggingIn;
-                            return ElevatedButton(
+                            return AnalyticsElevatedButton(
                               onPressed: isRegistering ? null : _handleRegister,
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
@@ -325,6 +398,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 backgroundColor: Colors.green.shade700,
                                 foregroundColor: Colors.white,
                               ),
+                              eventType: AnalyticsEventType.buttonClick,
+                              properties: AnalyticsEventProperties.click(
+                                page: AnalyticsPages.register,
+                                flow: AnalyticsFlows.register,
+                                elementId: AnalyticsIds.registerSubmit,
+                                elementType: AnalyticsElementType.button,
+                                elementText: '注册',
+                              ),
+                              category: EventCategory.behavior,
                               child: isRegistering
                                   ? const SizedBox(
                                       height: 20,
@@ -350,8 +432,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(height: 16),
 
                         // 返回登录链接
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
+                        AnalyticsTextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          eventType: AnalyticsEventType.linkClick,
+                          properties: AnalyticsEventProperties.click(
+                            page: AnalyticsPages.register,
+                            flow: AnalyticsFlows.register,
+                            elementId: AnalyticsIds.registerBackToLogin,
+                            elementType: AnalyticsElementType.link,
+                            elementText: '已有账号？返回登录',
+                          ),
+                          category: EventCategory.behavior,
                           child: Text(
                             '已有账号？返回登录',
                             style: TextStyle(

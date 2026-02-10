@@ -4,15 +4,23 @@ import 'providers/auth_provider.dart';
 import 'providers/navigation_provider.dart';
 import 'providers/transaction_provider.dart';
 import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/account_screen.dart';
 import 'screens/profile_screen.dart';
 import 'services/analytics_service.dart';
 import 'widgets/x_wallet_logo.dart';
 import 'config/app_config.dart';
+import 'analytics/analytics_route_observer.dart';
+import 'analytics/app_routes.dart';
+import 'analytics/analytics_constants.dart';
+import 'analytics/event_spec.dart';
+import 'analytics/analytics_error_handler.dart';
+import 'widgets/analytics/tracked_bottom_nav_bar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  AnalyticsErrorHandler.install();
 
   // 加载配置
   await AppConfig.load();
@@ -42,11 +50,41 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'X Wallet',
         debugShowCheckedModeBanner: false,
+        navigatorObservers: [analyticsRouteObserver],
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF7424F5)),
           useMaterial3: true,
         ),
-        home: const SplashScreen(),
+        initialRoute: AppRoutes.splash,
+        onGenerateRoute: (settings) {
+          switch (settings.name) {
+            case AppRoutes.splash:
+              return MaterialPageRoute(
+                builder: (_) => const SplashScreen(),
+                settings: settings,
+              );
+            case AppRoutes.login:
+              return MaterialPageRoute(
+                builder: (_) => const LoginScreen(),
+                settings: settings,
+              );
+            case AppRoutes.register:
+              return MaterialPageRoute(
+                builder: (_) => const RegisterScreen(),
+                settings: settings,
+              );
+            case AppRoutes.main:
+              return MaterialPageRoute(
+                builder: (_) => const MainNavigation(),
+                settings: settings,
+              );
+            default:
+              return MaterialPageRoute(
+                builder: (_) => const SplashScreen(),
+                settings: settings,
+              );
+          }
+        },
       ),
     );
   }
@@ -78,25 +116,11 @@ class _SplashScreenState extends State<SplashScreen> {
     // 根据登录状态跳转
     if (authProvider.isLoggedIn) {
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const MainNavigation(),
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
-          ),
-        );
+        Navigator.of(context).pushReplacementNamed(AppRoutes.main);
       }
     } else {
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const LoginScreen(),
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
-          ),
-        );
+        Navigator.of(context).pushReplacementNamed(AppRoutes.login);
       }
     }
   }
@@ -129,7 +153,7 @@ class _SplashScreenState extends State<SplashScreen> {
 }
 
 /// 主导航容器（含底部导航栏）- 匹配设计稿的4个Tab
-class MainNavigation extends StatelessWidget {
+class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
 
   static const List<Widget> _pages = [
@@ -139,90 +163,64 @@ class MainNavigation extends StatelessWidget {
     ProfileScreen(), // 我的
   ];
 
-  static const List<_TabItem> _tabItems = [
-    _TabItem(icon: Icons.home, label: '首页'),
-    _TabItem(icon: Icons.account_balance_wallet, label: '钱包'),
-    _TabItem(icon: Icons.history, label: '记录'),
-    _TabItem(icon: Icons.person, label: '我的'),
+  static const List<TrackedTabItem> _tabItems = [
+    TrackedTabItem(
+      icon: Icons.home,
+      label: '首页',
+      elementId: AnalyticsIds.tabHome,
+      page: AnalyticsPages.home,
+      flow: AnalyticsFlows.loanApply,
+    ),
+    TrackedTabItem(
+      icon: Icons.account_balance_wallet,
+      label: '钱包',
+      elementId: AnalyticsIds.tabAccount,
+      page: AnalyticsPages.account,
+      flow: AnalyticsFlows.account,
+    ),
+    TrackedTabItem(
+      icon: Icons.history,
+      label: '记录',
+      elementId: AnalyticsIds.tabHistory,
+      page: AnalyticsPages.history,
+      flow: AnalyticsFlows.history,
+    ),
+    TrackedTabItem(
+      icon: Icons.person,
+      label: '我的',
+      elementId: AnalyticsIds.tabProfile,
+      page: AnalyticsPages.profile,
+      flow: AnalyticsFlows.account,
+    ),
   ];
+
+  @override
+  State<MainNavigation> createState() => _MainNavigationState();
+}
+
+class _MainNavigationState extends State<MainNavigation> {
+  void _onTabTap(int index) {
+    final currentIndex = context.read<NavigationProvider>().currentIndex;
+    if (currentIndex == index) {
+      return;
+    }
+
+    context.read<NavigationProvider>().setIndex(index);
+  }
 
   @override
   Widget build(BuildContext context) {
     final navigationProvider = context.watch<NavigationProvider>();
 
     return Scaffold(
-      body: _pages[navigationProvider.currentIndex],
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.white, Color(0xFFFDFCFF)],
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF000000).withOpacity(0.08),
-              blurRadius: 20,
-              offset: const Offset(0, -4),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 12, bottom: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(_tabItems.length, (index) {
-                final isSelected = navigationProvider.currentIndex == index;
-                final item = _tabItems[index];
-                return GestureDetector(
-                  onTap: () {
-                    context.read<NavigationProvider>().setIndex(index);
-                  },
-                  child: SizedBox(
-                    width: 80,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          item.icon,
-                          size: 24,
-                          color: isSelected
-                              ? const Color(0xFF7424F5)
-                              : const Color(0xFF666666),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          item.label,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: isSelected
-                                ? FontWeight.w600
-                                : FontWeight.w500,
-                            color: isSelected
-                                ? const Color(0xFF7424F5)
-                                : const Color(0xFF666666),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-            ),
-          ),
-        ),
+      body: MainNavigation._pages[navigationProvider.currentIndex],
+      bottomNavigationBar: TrackedBottomNavBar(
+        currentIndex: navigationProvider.currentIndex,
+        items: MainNavigation._tabItems,
+        onTap: _onTabTap,
       ),
     );
   }
-}
-
-/// Tab项数据类
-class _TabItem {
-  final IconData icon;
-  final String label;
-
-  const _TabItem({required this.icon, required this.label});
 }
 
 /// 记录页面（占位）

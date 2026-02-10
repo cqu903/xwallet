@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:http/http.dart' as http;
 import '../models/login_request.dart';
 import '../models/login_response.dart';
@@ -7,6 +8,10 @@ import '../models/loan_transaction.dart';
 import '../models/register_request.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_config.dart';
+import '../analytics/event_spec.dart';
+import '../analytics/analytics_error_handler.dart';
+import 'analytics_service.dart';
+import '../models/analytics_event.dart';
 
 /// API服务类
 /// 封装所有与后端API的交互
@@ -76,12 +81,109 @@ class ApiService {
     };
   }
 
+  Future<http.Response> _get(
+    Uri uri, {
+    Map<String, String>? headers,
+  }) async {
+    return _trackedRequest(
+      method: 'GET',
+      uri: uri,
+      send: () => http.get(uri, headers: headers),
+    );
+  }
+
+  Future<http.Response> _post(
+    Uri uri, {
+    Map<String, String>? headers,
+    Object? body,
+  }) async {
+    return _trackedRequest(
+      method: 'POST',
+      uri: uri,
+      send: () => http.post(uri, headers: headers, body: body),
+    );
+  }
+
+  Future<http.Response> _trackedRequest({
+    required String method,
+    required Uri uri,
+    required Future<http.Response> Function() send,
+  }) async {
+    final stopwatch = Stopwatch()..start();
+
+    try {
+      final response = await send();
+      stopwatch.stop();
+
+      _trackApiRequest(
+        method: method,
+        uri: uri,
+        success: response.statusCode >= 200 && response.statusCode < 300,
+        durationMs: stopwatch.elapsedMilliseconds,
+        statusCode: response.statusCode,
+      );
+      return response;
+    } catch (e, stackTrace) {
+      stopwatch.stop();
+
+      _trackApiRequest(
+        method: method,
+        uri: uri,
+        success: false,
+        durationMs: stopwatch.elapsedMilliseconds,
+        errorType: e.runtimeType.toString(),
+        message: e.toString(),
+      );
+
+      AnalyticsErrorHandler.trackCaughtError(
+        e,
+        stackTrace,
+        source: 'api_${method.toLowerCase()}',
+      );
+      rethrow;
+    }
+  }
+
+  void _trackApiRequest({
+    required String method,
+    required Uri uri,
+    required bool success,
+    required int durationMs,
+    int? statusCode,
+    String? errorType,
+    String? message,
+  }) {
+    unawaited(
+      AnalyticsService.instance.trackStandardEvent(
+        eventType: AnalyticsEventType.apiRequest,
+        properties: AnalyticsEventProperties.apiRequest(
+          method: method,
+          path: _toApiPath(uri),
+          success: success,
+          durationMs: durationMs,
+          statusCode: statusCode,
+          errorType: errorType,
+          message: message,
+        ),
+        category: EventCategory.system,
+      ),
+    );
+  }
+
+  String _toApiPath(Uri uri) {
+    if (uri.hasQuery && uri.query.isNotEmpty) {
+      return '${uri.path}?${uri.query}';
+    }
+    return uri.path;
+  }
+
   /// 用户登录
   /// 返回: (是否成功, 错误消息)
   Future<(bool, String?)> login(LoginRequest request) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/auth/login'),
+      final uri = Uri.parse('$baseUrl/auth/login');
+      final response = await _post(
+        uri,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(request.toJson()),
       );
@@ -114,8 +216,9 @@ class ApiService {
   Future<(bool, String?)> logout() async {
     try {
       final headers = await _getHeaders();
-      final response = await http.post(
-        Uri.parse('$baseUrl/auth/logout'),
+      final uri = Uri.parse('$baseUrl/auth/logout');
+      final response = await _post(
+        uri,
         headers: headers,
       );
 
@@ -140,8 +243,9 @@ class ApiService {
   Future<(bool, String?)> validateToken() async {
     try {
       final headers = await _getHeaders();
-      final response = await http.get(
-        Uri.parse('$baseUrl/auth/validate'),
+      final uri = Uri.parse('$baseUrl/auth/validate');
+      final response = await _get(
+        uri,
         headers: headers,
       );
 
@@ -173,8 +277,9 @@ class ApiService {
   /// 返回: (是否成功, 错误消息)
   Future<(bool, String?)> sendVerificationCode(String email) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/auth/send-code'),
+      final uri = Uri.parse('$baseUrl/auth/send-code');
+      final response = await _post(
+        uri,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email}),
       );
@@ -195,8 +300,9 @@ class ApiService {
   /// 返回: (是否成功, 错误消息)
   Future<(bool, String?)> register(RegisterRequest request) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/auth/register'),
+      final uri = Uri.parse('$baseUrl/auth/register');
+      final response = await _post(
+        uri,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(request.toJson()),
       );
@@ -229,8 +335,9 @@ class ApiService {
   Future<(LoanAccountSummary?, String?)> getLoanAccountSummary() async {
     try {
       final headers = await _getHeaders();
-      final response = await http.get(
-        Uri.parse('$baseUrl/loan/account/summary'),
+      final uri = Uri.parse('$baseUrl/loan/account/summary');
+      final response = await _get(
+        uri,
         headers: headers,
       );
 
@@ -268,8 +375,9 @@ class ApiService {
   }) async {
     try {
       final headers = await _getHeaders();
-      final response = await http.get(
-        Uri.parse('$baseUrl/loan/transactions/recent?limit=$limit'),
+      final uri = Uri.parse('$baseUrl/loan/transactions/recent?limit=$limit');
+      final response = await _get(
+        uri,
         headers: headers,
       );
 
@@ -314,8 +422,9 @@ class ApiService {
   }) async {
     try {
       final headers = await _getHeaders();
-      final response = await http.post(
-        Uri.parse('$baseUrl/loan/repayments'),
+      final uri = Uri.parse('$baseUrl/loan/repayments');
+      final response = await _post(
+        uri,
         headers: headers,
         body: jsonEncode({
           'amount': amount,
@@ -359,8 +468,9 @@ class ApiService {
   }) async {
     try {
       final headers = await _getHeaders();
-      final response = await http.post(
-        Uri.parse('$baseUrl/loan/redraws'),
+      final uri = Uri.parse('$baseUrl/loan/redraws');
+      final response = await _post(
+        uri,
         headers: headers,
         body: jsonEncode({
           'amount': amount,

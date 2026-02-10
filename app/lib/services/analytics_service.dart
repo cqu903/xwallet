@@ -6,6 +6,7 @@ import 'mqtt_client_wrapper.dart';
 import '../database/event_database.dart';
 import '../utils/device_info_collector.dart';
 import '../config/app_config.dart';
+import '../analytics/event_spec.dart';
 
 class AnalyticsService {
   static final AnalyticsService instance = AnalyticsService._internal();
@@ -65,6 +66,28 @@ class AnalyticsService {
     );
 
     await _reporter.report(event, category);
+  }
+
+  /// 按规范上报事件（强类型）
+  Future<void> trackStandardEvent({
+    required AnalyticsEventType eventType,
+    required Map<String, dynamic> properties,
+    String? userId,
+    EventCategory category = EventCategory.behavior,
+    Map<String, dynamic>? riskContext,
+  }) async {
+    final validationError = AnalyticsEventValidator.validate(eventType, properties);
+    if (validationError != null) {
+      throw ArgumentError('Invalid analytics properties for ${eventType.value}: $validationError');
+    }
+
+    await trackEvent(
+      eventType: eventType.value,
+      properties: properties,
+      userId: userId,
+      category: category,
+      riskContext: riskContext,
+    );
   }
 
   /// 启动定时重试任务

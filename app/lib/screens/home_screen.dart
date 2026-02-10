@@ -7,8 +7,6 @@ import '../widgets/reward_mini_card.dart';
 import '../widgets/activity_carousel.dart';
 import '../widgets/quick_actions.dart';
 import '../widgets/transaction_list.dart';
-import '../services/analytics_service.dart';
-import '../models/analytics_event.dart';
 import '../utils/design_scale.dart';
 
 /// 主页 - 贷款申请落地页（基于设计稿重构）
@@ -24,13 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // 上报页面浏览事件
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      AnalyticsService.instance.trackEvent(
-        eventType: 'page_view',
-        properties: {'pageName': 'HomeScreen'},
-        category: EventCategory.behavior,
-      );
       context.read<TransactionProvider>().loadIfNeeded();
     });
   }
@@ -110,13 +102,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// 处理贷款申请
   void _handleApplyLoan() {
-    // 上报按钮点击事件
-    AnalyticsService.instance.trackEvent(
-      eventType: 'button_click',
-      properties: {'buttonName': 'apply_loan', 'page': 'HomeScreen'},
-      category: EventCategory.behavior,
-    );
-
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('跳转到贷款申请页面...'),
@@ -127,12 +112,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// 处理推荐分享
   void _handleShare() {
-    AnalyticsService.instance.trackEvent(
-      eventType: 'button_click',
-      properties: {'buttonName': 'share_referral', 'page': 'HomeScreen'},
-      category: EventCategory.behavior,
-    );
-
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('打开分享面板...'),
@@ -143,16 +122,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// 处理活动点击
   void _handleActivityTap(ActivityData activity) {
-    AnalyticsService.instance.trackEvent(
-      eventType: 'activity_click',
-      properties: {
-        'activityId': activity.id,
-        'activityTitle': activity.title,
-        'page': 'HomeScreen',
-      },
-      category: EventCategory.behavior,
-    );
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('查看活动: ${activity.title}'),
@@ -163,12 +132,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// 查看更多活动
   void _handleViewMoreActivities() {
-    AnalyticsService.instance.trackEvent(
-      eventType: 'link_click',
-      properties: {'linkName': 'view_more_activities', 'page': 'HomeScreen'},
-      category: EventCategory.behavior,
-    );
-
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('跳转到活动列表...'),
@@ -179,16 +142,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// 处理快捷操作
   void _handleQuickAction(QuickActionData action) {
-    AnalyticsService.instance.trackEvent(
-      eventType: 'quick_action_click',
-      properties: {
-        'actionId': action.id,
-        'actionLabel': action.label,
-        'page': 'HomeScreen',
-      },
-      category: EventCategory.behavior,
-    );
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('打开: ${action.label}'),
@@ -199,22 +152,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// 重试最近交易加载
   void _handleRetryTransactions() {
-    AnalyticsService.instance.trackEvent(
-      eventType: 'button_click',
-      properties: {'buttonName': 'retry_transactions', 'page': 'HomeScreen'},
-      category: EventCategory.behavior,
-    );
     context.read<TransactionProvider>().refresh();
   }
 
   /// 查看全部交易
   void _handleViewAllTransactions() {
-    AnalyticsService.instance.trackEvent(
-      eventType: 'link_click',
-      properties: {'linkName': 'view_all_transactions', 'page': 'HomeScreen'},
-      category: EventCategory.behavior,
-    );
-
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('跳转到交易记录...'),
@@ -225,16 +167,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// 处理交易点击
   void _handleTransactionTap(TransactionData transaction) {
-    AnalyticsService.instance.trackEvent(
-      eventType: 'transaction_click',
-      properties: {
-        'transactionId': transaction.id,
-        'transactionName': transaction.name,
-        'page': 'HomeScreen',
-      },
-      category: EventCategory.behavior,
-    );
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('查看交易详情: ${transaction.name}'),

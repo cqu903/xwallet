@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+
+import '../analytics/analytics_constants.dart';
+import '../analytics/event_spec.dart';
 import '../utils/design_scale.dart';
+import 'analytics/analytics_tap.dart';
 
 /// 快捷操作数据模型
 class QuickActionData {
@@ -144,7 +148,17 @@ class _QuickActionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AnalyticsTap(
+      eventType: AnalyticsEventType.quickActionClick,
+      properties: AnalyticsEventProperties.itemClick(
+        page: AnalyticsPages.home,
+        flow: AnalyticsFlows.loanApply,
+        elementId: AnalyticsIds.quickActionItem,
+        elementType: AnalyticsElementType.card,
+        itemType: 'product',
+        itemId: action.id,
+        itemName: action.label,
+      ),
       onTap: onTap,
       child: SizedBox(
         width: 70 * scale, // 设计稿: width: 70
