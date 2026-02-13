@@ -1,18 +1,17 @@
 import 'dart:convert';
 import 'package:json_annotation/json_annotation.dart';
 import 'event_context.dart';
-import 'event_properties.dart';
 
 part 'analytics_event.g.dart';
 
 @JsonSerializable()
 class AnalyticsEvent {
-  final String eventId;          // UUID
-  final String deviceId;         // 设备ID
-  final String? userId;          // 用户ID（可选）
-  final String eventType;        // 事件类型
-  final int timestamp;           // 时间戳（毫秒）
-  final String environment;      // 环境：prod/dev/test
+  final String eventId; // UUID
+  final String deviceId; // 设备ID
+  final String? userId; // 用户ID（可选）
+  final String eventType; // 事件类型
+  final int timestamp; // 时间戳（毫秒）
+  final String environment; // 环境：prod/dev/test
   final EventContext context;
   final Map<String, dynamic> properties;
   final Map<String, dynamic>? riskContext;
@@ -45,8 +44,4 @@ class AnalyticsEvent {
   }
 }
 
-enum EventCategory {
-  critical,
-  behavior,
-  system,
-}
+enum EventCategory { critical, behavior, system }

@@ -9,7 +9,6 @@ import com.zerofinance.xwallet.model.entity.SysUser;
 import com.zerofinance.xwallet.repository.SysRoleMapper;
 import com.zerofinance.xwallet.repository.SysUserRoleMapper;
 import com.zerofinance.xwallet.repository.SysUserMapper;
-import com.zerofinance.xwallet.service.PermissionService;
 import com.zerofinance.xwallet.service.impl.UserServiceImpl;
 import com.zerofinance.xwallet.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
