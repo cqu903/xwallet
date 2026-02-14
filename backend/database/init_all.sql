@@ -63,6 +63,82 @@ CREATE TABLE `customer` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='顾客表';
 
 -- ============================================
+-- 表2-1: 贷款申请表
+-- ============================================
+DROP TABLE IF EXISTS `loan_application`;
+CREATE TABLE `loan_application` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    `application_no` VARCHAR(64) NOT NULL COMMENT '申请编号',
+    `customer_id` BIGINT NOT NULL COMMENT '顾客ID',
+    `status` VARCHAR(32) NOT NULL COMMENT '申请状态',
+    `product_code` VARCHAR(64) NOT NULL COMMENT '产品编码',
+    `approved_amount` DECIMAL(19,2) NOT NULL COMMENT '核准金额',
+    `full_name` VARCHAR(100) NOT NULL COMMENT '客户姓名',
+    `hkid` VARCHAR(32) NOT NULL COMMENT '香港身份证号',
+    `home_address` VARCHAR(255) NOT NULL COMMENT '家庭住址',
+    `age` INT NOT NULL COMMENT '年龄',
+    `occupation` VARCHAR(64) NOT NULL COMMENT '职业',
+    `monthly_income` DECIMAL(19,2) NOT NULL COMMENT '月收入',
+    `monthly_debt_payment` DECIMAL(19,2) NOT NULL COMMENT '月负债',
+    `risk_decision` VARCHAR(32) DEFAULT NULL COMMENT '风控决策',
+    `risk_reference_id` VARCHAR(64) DEFAULT NULL COMMENT '风控参考ID',
+    `reject_reason` VARCHAR(255) DEFAULT NULL COMMENT '拒绝原因',
+    `cooldown_until` DATETIME DEFAULT NULL COMMENT '拒绝冷却截止',
+    `approved_at` DATETIME DEFAULT NULL COMMENT '审批通过时间',
+    `expires_at` DATETIME DEFAULT NULL COMMENT '签署过期时间',
+    `signed_at` DATETIME DEFAULT NULL COMMENT '签署完成时间',
+    `disbursed_at` DATETIME DEFAULT NULL COMMENT '放款完成时间',
+    `idempotency_key` VARCHAR(128) NOT NULL COMMENT '幂等键',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY `uk_loan_application_no` (`application_no`),
+    UNIQUE KEY `uk_loan_application_idempotency` (`customer_id`, `idempotency_key`),
+    INDEX `idx_loan_application_customer` (`customer_id`),
+    INDEX `idx_loan_application_status` (`status`),
+    INDEX `idx_loan_application_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='贷款申请表';
+
+-- ============================================
+-- 表2-2: 贷款合同文档表
+-- ============================================
+DROP TABLE IF EXISTS `loan_contract_document`;
+CREATE TABLE `loan_contract_document` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    `application_id` BIGINT NOT NULL COMMENT '申请ID',
+    `contract_no` VARCHAR(64) NOT NULL COMMENT '合同号',
+    `template_version` VARCHAR(32) NOT NULL COMMENT '模板版本',
+    `contract_content` TEXT NOT NULL COMMENT '合同内容',
+    `digest` VARCHAR(128) NOT NULL COMMENT '合同摘要',
+    `status` VARCHAR(32) NOT NULL COMMENT '文档状态',
+    `signed_at` DATETIME DEFAULT NULL COMMENT '签署时间',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY `uk_loan_contract_document_no` (`contract_no`),
+    UNIQUE KEY `uk_loan_contract_document_application` (`application_id`),
+    INDEX `idx_loan_contract_document_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='贷款合同文档表';
+
+-- ============================================
+-- 表2-3: 贷款申请OTP表
+-- ============================================
+DROP TABLE IF EXISTS `loan_application_otp`;
+CREATE TABLE `loan_application_otp` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    `application_id` BIGINT NOT NULL COMMENT '申请ID',
+    `otp_token` VARCHAR(128) NOT NULL COMMENT 'OTP令牌',
+    `otp_code_hash` VARCHAR(255) NOT NULL COMMENT '验证码哈希',
+    `expires_at` DATETIME NOT NULL COMMENT '过期时间',
+    `verify_attempts` INT NOT NULL DEFAULT 0 COMMENT '尝试次数',
+    `verified` TINYINT NOT NULL DEFAULT 0 COMMENT '是否已验证',
+    `verified_at` DATETIME DEFAULT NULL COMMENT '验证成功时间',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY `uk_loan_application_otp_token` (`otp_token`),
+    INDEX `idx_loan_application_otp_application` (`application_id`),
+    INDEX `idx_loan_application_otp_expires_at` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='贷款申请OTP表';
+
+-- ============================================
 -- 表2-1: 贷款账户快照表
 -- ============================================
 DROP TABLE IF EXISTS `loan_account`;

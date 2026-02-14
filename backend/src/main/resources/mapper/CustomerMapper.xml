@@ -13,6 +13,13 @@
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
+    <select id="findById" resultMap="CustomerResultMap">
+        SELECT id, email, password, nickname, status, created_at, updated_at
+        FROM customer
+        WHERE id = #{id}
+        LIMIT 1
+    </select>
+
     <select id="findByEmail" resultMap="CustomerResultMap">
         SELECT id, email, password, nickname, status, created_at, updated_at
         FROM customer

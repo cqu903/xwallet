@@ -11,6 +11,13 @@ import org.apache.ibatis.annotations.Param;
 public interface CustomerMapper {
 
     /**
+     * 根据ID查询顾客
+     * @param id 顾客ID
+     * @return 顾客信息
+     */
+    Customer findById(@Param("id") Long id);
+
+    /**
      * 根据邮箱查询顾客
      * @param email 邮箱
      * @return 顾客信息

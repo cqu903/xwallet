@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zerofinance.xwallet.repository.LoanApplicationOtpMapper">
+
+    <resultMap id="LoanApplicationOtpResultMap" type="com.zerofinance.xwallet.model.entity.LoanApplicationOtp">
+        <id property="id" column="id"/>
+        <result property="applicationId" column="application_id"/>
+        <result property="otpToken" column="otp_token"/>
+        <result property="otpCodeHash" column="otp_code_hash"/>
+        <result property="expiresAt" column="expires_at"/>
+        <result property="verifyAttempts" column="verify_attempts"/>
+        <result property="verified" column="verified"/>
+        <result property="verifiedAt" column="verified_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.LoanApplicationOtp" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO loan_application_otp (
+            application_id, otp_token, otp_code_hash, expires_at,
+            verify_attempts, verified, verified_at, created_at
+        ) VALUES (
+            #{applicationId}, #{otpToken}, #{otpCodeHash}, #{expiresAt},
+            #{verifyAttempts}, #{verified}, #{verifiedAt}, #{createdAt}
+        )
+    </insert>
+
+    <select id="findByToken" resultMap="LoanApplicationOtpResultMap">
+        SELECT id, application_id, otp_token, otp_code_hash, expires_at,
+               verify_attempts, verified, verified_at, created_at, updated_at
+        FROM loan_application_otp
+        WHERE otp_token = #{otpToken}
+        LIMIT 1
+    </select>
+
+    <update id="increaseVerifyAttempts">
+        UPDATE loan_application_otp
+        SET verify_attempts = verify_attempts + 1,
+            updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <update id="markVerified">
+        UPDATE loan_application_otp
+        SET verified = 1,
+            verified_at = #{verifiedAt},
+            updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+</mapper>
