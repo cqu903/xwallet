@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import '../models/login_request.dart';
 import '../models/login_response.dart';
+import '../models/loan_application.dart';
 import '../models/loan_account_summary.dart';
 import '../models/loan_transaction.dart';
 import '../models/register_request.dart';
@@ -10,12 +11,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_config.dart';
 import '../analytics/event_spec.dart';
 import '../analytics/analytics_error_handler.dart';
+import 'loan_application_api_client.dart';
 import 'analytics_service.dart';
 import '../models/analytics_event.dart';
 
 /// API服务类
 /// 封装所有与后端API的交互
-class ApiService {
+class ApiService implements LoanApplicationApiClient {
   // 后端API地址 - 从配置文件读取
   static String get baseUrl => AppConfig.instance.apiBaseUrl;
 
@@ -407,6 +409,245 @@ class ApiService {
           response.statusCode,
           responseData,
           fallback: '获取交易列表失败',
+        ),
+      );
+    } catch (e) {
+      return (null, '网络错误: $e');
+    }
+  }
+
+  /// 查询当前贷款申请
+  /// 返回: (申请信息, 错误消息)
+  @override
+  Future<(LoanApplicationData?, String?)> getCurrentLoanApplication() async {
+    try {
+      final headers = await _getHeaders();
+      final uri = Uri.parse('$baseUrl/loan/applications/current');
+      final response = await _get(uri, headers: headers);
+
+      final Map<String, dynamic>? responseData = _decodeJsonObject(
+        response.body,
+      );
+      if (response.statusCode == 200 && responseData != null) {
+        final result = ResponseResult<LoanApplicationData>.fromJson(
+          responseData,
+          (data) =>
+              LoanApplicationData.fromJson(data as Map<String, dynamic>),
+        );
+        if (result.isSuccess && result.data != null) {
+          return (result.data, null);
+        }
+        return (null, result.message ?? '获取申请状态失败');
+      }
+
+      return (
+        null,
+        _buildHttpErrorMessage(
+          response.statusCode,
+          responseData,
+          fallback: '获取申请状态失败',
+        ),
+      );
+    } catch (e) {
+      return (null, '网络错误: $e');
+    }
+  }
+
+  /// 获取职业字典
+  /// 返回: (职业列表, 错误消息)
+  @override
+  Future<(List<OccupationOption>?, String?)> getLoanOccupations() async {
+    try {
+      final headers = await _getHeaders();
+      final uri = Uri.parse('$baseUrl/loan/dictionaries/occupations');
+      final response = await _get(uri, headers: headers);
+
+      final Map<String, dynamic>? responseData = _decodeJsonObject(
+        response.body,
+      );
+      if (response.statusCode == 200 && responseData != null) {
+        final result = ResponseResult<List<OccupationOption>>.fromJson(
+          responseData,
+          (data) {
+            if (data is! List) return <OccupationOption>[];
+            return data
+                .whereType<Map<String, dynamic>>()
+                .map(OccupationOption.fromJson)
+                .toList();
+          },
+        );
+        if (result.isSuccess) {
+          return (result.data ?? <OccupationOption>[], null);
+        }
+        return (null, result.message ?? '获取职业选项失败');
+      }
+
+      return (
+        null,
+        _buildHttpErrorMessage(
+          response.statusCode,
+          responseData,
+          fallback: '获取职业选项失败',
+        ),
+      );
+    } catch (e) {
+      return (null, '网络错误: $e');
+    }
+  }
+
+  /// 提交贷款申请
+  /// 返回: (申请结果, 错误消息)
+  @override
+  Future<(LoanApplicationData?, String?)> submitLoanApplication({
+    required String fullName,
+    required String hkid,
+    required String homeAddress,
+    required int age,
+    required String occupation,
+    required double monthlyIncome,
+    required double monthlyDebtPayment,
+    String? idempotencyKey,
+  }) async {
+    try {
+      final headers = await _getHeaders();
+      final uri = Uri.parse('$baseUrl/loan/applications');
+      final response = await _post(
+        uri,
+        headers: headers,
+        body: jsonEncode({
+          'basicInfo': {
+            'fullName': fullName,
+            'hkid': hkid,
+            'homeAddress': homeAddress,
+            'age': age,
+          },
+          'financialInfo': {
+            'occupation': occupation,
+            'monthlyIncome': monthlyIncome,
+            'monthlyDebtPayment': monthlyDebtPayment,
+          },
+          'idempotencyKey':
+              idempotencyKey ?? _generateIdempotencyKey('loan-apply'),
+        }),
+      );
+
+      final Map<String, dynamic>? responseData = _decodeJsonObject(
+        response.body,
+      );
+      if (response.statusCode == 200 && responseData != null) {
+        final result = ResponseResult<LoanApplicationData>.fromJson(
+          responseData,
+          (data) =>
+              LoanApplicationData.fromJson(data as Map<String, dynamic>),
+        );
+        if (result.isSuccess && result.data != null) {
+          return (result.data, null);
+        }
+        return (null, result.message ?? '提交申请失败');
+      }
+
+      return (
+        null,
+        _buildHttpErrorMessage(
+          response.statusCode,
+          responseData,
+          fallback: '提交申请失败',
+        ),
+      );
+    } catch (e) {
+      return (null, '网络错误: $e');
+    }
+  }
+
+  /// 发送合同签署验证码
+  /// 返回: (发送结果, 错误消息)
+  @override
+  Future<(LoanContractOtpSendResult?, String?)> sendLoanContractOtp({
+    required int applicationId,
+  }) async {
+    try {
+      final headers = await _getHeaders();
+      final uri = Uri.parse(
+        '$baseUrl/loan/applications/$applicationId/contracts/send-otp',
+      );
+      final response = await _post(uri, headers: headers);
+
+      final Map<String, dynamic>? responseData = _decodeJsonObject(
+        response.body,
+      );
+      if (response.statusCode == 200 && responseData != null) {
+        final result = ResponseResult<LoanContractOtpSendResult>.fromJson(
+          responseData,
+          (data) =>
+              LoanContractOtpSendResult.fromJson(data as Map<String, dynamic>),
+        );
+        if (result.isSuccess && result.data != null) {
+          return (result.data, null);
+        }
+        return (null, result.message ?? '发送验证码失败');
+      }
+
+      return (
+        null,
+        _buildHttpErrorMessage(
+          response.statusCode,
+          responseData,
+          fallback: '发送验证码失败',
+        ),
+      );
+    } catch (e) {
+      return (null, '网络错误: $e');
+    }
+  }
+
+  /// 签署合同并放款
+  /// 返回: (签署结果, 错误消息)
+  @override
+  Future<(LoanContractSignResult?, String?)> signLoanContract({
+    required int applicationId,
+    required String otpToken,
+    required String otpCode,
+    required bool agreeTerms,
+    String? idempotencyKey,
+  }) async {
+    try {
+      final headers = await _getHeaders();
+      final uri = Uri.parse(
+        '$baseUrl/loan/applications/$applicationId/contracts/sign',
+      );
+      final response = await _post(
+        uri,
+        headers: headers,
+        body: jsonEncode({
+          'otpToken': otpToken,
+          'otpCode': otpCode,
+          'agreeTerms': agreeTerms,
+          'idempotencyKey':
+              idempotencyKey ?? _generateIdempotencyKey('loan-sign'),
+        }),
+      );
+
+      final Map<String, dynamic>? responseData = _decodeJsonObject(
+        response.body,
+      );
+      if (response.statusCode == 200 && responseData != null) {
+        final result = ResponseResult<LoanContractSignResult>.fromJson(
+          responseData,
+          (data) =>
+              LoanContractSignResult.fromJson(data as Map<String, dynamic>),
+        );
+        if (result.isSuccess && result.data != null) {
+          return (result.data, null);
+        }
+        return (null, result.message ?? '签署失败');
+      }
+
+      return (
+        null,
+        _buildHttpErrorMessage(
+          response.statusCode,
+          responseData,
+          fallback: '签署失败',
         ),
       );
     } catch (e) {

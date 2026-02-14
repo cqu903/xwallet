@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../analytics/app_routes.dart';
 import '../providers/transaction_provider.dart';
 import '../widgets/loan_card.dart';
 import '../widgets/reward_mini_card.dart';
@@ -102,12 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// 处理贷款申请
   void _handleApplyLoan() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('跳转到贷款申请页面...'),
-        duration: Duration(seconds: 1),
-      ),
-    );
+    Navigator.of(context).pushNamed(AppRoutes.loanApply);
   }
 
   /// 处理推荐分享

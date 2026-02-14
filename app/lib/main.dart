@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/loan_application_provider.dart';
 import 'providers/navigation_provider.dart';
 import 'providers/transaction_provider.dart';
 import 'screens/login_screen.dart';
+import 'screens/loan/loan_apply_flow_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/account_screen.dart';
@@ -29,7 +31,7 @@ void main() async {
   try {
     await AnalyticsService.instance.initialize();
   } catch (e) {
-    print('Analytics initialization failed: $e');
+    debugPrint('Analytics initialization failed: $e');
     // 即使初始化失败也继续启动应用
   }
 
@@ -46,6 +48,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
+        ChangeNotifierProvider(create: (_) => LoanApplicationProvider()),
       ],
       child: MaterialApp(
         title: 'X Wallet',
@@ -76,6 +79,11 @@ class MyApp extends StatelessWidget {
             case AppRoutes.main:
               return MaterialPageRoute(
                 builder: (_) => const MainNavigation(),
+                settings: settings,
+              );
+            case AppRoutes.loanApply:
+              return MaterialPageRoute(
+                builder: (_) => const LoanApplyFlowScreen(),
                 settings: settings,
               );
             default:
@@ -244,14 +252,14 @@ class HistoryScreen extends StatelessWidget {
             Icon(
               Icons.history,
               size: 80,
-              color: const Color(0xFF7424F5).withOpacity(0.3),
+              color: const Color(0xFF7424F5).withValues(alpha: 0.3),
             ),
             const SizedBox(height: 16),
             Text(
               '交易记录',
               style: TextStyle(
                 fontSize: 18,
-                color: const Color(0xFF666666).withOpacity(0.8),
+                color: const Color(0xFF666666).withValues(alpha: 0.8),
               ),
             ),
             const SizedBox(height: 8),
@@ -259,7 +267,7 @@ class HistoryScreen extends StatelessWidget {
               '暂无交易记录',
               style: TextStyle(
                 fontSize: 14,
-                color: const Color(0xFF999999).withOpacity(0.8),
+                color: const Color(0xFF999999).withValues(alpha: 0.8),
               ),
             ),
           ],
