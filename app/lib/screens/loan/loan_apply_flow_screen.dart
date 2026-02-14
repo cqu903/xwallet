@@ -1,8 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../analytics/analytics_constants.dart';
+import '../../analytics/event_spec.dart';
+import '../../models/analytics_event.dart';
 import '../../providers/loan_application_provider.dart';
 import '../../providers/transaction_provider.dart';
+import '../../services/analytics_service.dart';
 import '../../utils/design_scale.dart';
 
 const Color _kPageBg = Color(0xFFF1EEFF);
@@ -50,6 +56,53 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
     _debtController.dispose();
     _otpController.dispose();
     super.dispose();
+  }
+
+  void _trackLoanClick({
+    required AnalyticsEventType eventType,
+    required String elementId,
+    required AnalyticsElementType elementType,
+    String? elementText,
+    Map<String, dynamic>? extra,
+  }) {
+    unawaited(
+      AnalyticsService.instance
+          .trackStandardEvent(
+            eventType: eventType,
+            properties: AnalyticsEventProperties.click(
+              page: AnalyticsPages.loanApply,
+              flow: AnalyticsFlows.loanApply,
+              elementId: elementId,
+              elementType: elementType,
+              elementText: elementText,
+              extra: extra,
+            ),
+            category: EventCategory.behavior,
+          )
+          .catchError((_) {}),
+    );
+  }
+
+  void _trackLoanFormSubmit({
+    required String elementId,
+    required bool success,
+    Map<String, dynamic>? extra,
+  }) {
+    unawaited(
+      AnalyticsService.instance
+          .trackStandardEvent(
+            eventType: AnalyticsEventType.formSubmit,
+            properties: AnalyticsEventProperties.formSubmit(
+              page: AnalyticsPages.loanApply,
+              flow: AnalyticsFlows.loanApply,
+              elementId: elementId,
+              success: success,
+              extra: extra,
+            ),
+            category: success ? EventCategory.critical : EventCategory.behavior,
+          )
+          .catchError((_) {}),
+    );
   }
 
   @override
@@ -174,10 +227,30 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
             children: List.generate(labels.length, (index) {
               final isActive = index == currentStep;
               final isDone = index < currentStep;
+              final hasLeftLine = index > 0;
+              final hasRightLine = index < labels.length - 1;
+
+              final leftLineColor = index - 1 < currentStep
+                  ? _kPrimary
+                  : const Color(0xFFD8D8D8);
+              final rightLineColor = index < currentStep
+                  ? _kPrimary
+                  : const Color(0xFFD8D8D8);
 
               return Expanded(
                 child: Row(
                   children: [
+                    Expanded(
+                      child: hasLeftLine
+                          ? Container(
+                              height: 2 * scale,
+                              margin: EdgeInsets.symmetric(
+                                horizontal: 4 * scale,
+                              ),
+                              color: leftLineColor,
+                            )
+                          : const SizedBox.shrink(),
+                    ),
                     Container(
                       width: 30 * scale,
                       height: 30 * scale,
@@ -202,22 +275,25 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
                             : Text(
                                 '${index + 1}',
                                 style: TextStyle(
-                                  color: isActive ? Colors.white : _kTextSecondary,
+                                  color: isActive
+                                      ? Colors.white
+                                      : _kTextSecondary,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                       ),
                     ),
-                    if (index < labels.length - 1)
-                      Expanded(
-                        child: Container(
-                          height: 2 * scale,
-                          margin: EdgeInsets.symmetric(horizontal: 8 * scale),
-                          color: index < currentStep
-                              ? _kPrimary
-                              : const Color(0xFFD8D8D8),
-                        ),
-                      ),
+                    Expanded(
+                      child: hasRightLine
+                          ? Container(
+                              height: 2 * scale,
+                              margin: EdgeInsets.symmetric(
+                                horizontal: 4 * scale,
+                              ),
+                              color: rightLineColor,
+                            )
+                          : const SizedBox.shrink(),
+                    ),
                   ],
                 ),
               );
@@ -393,7 +469,15 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
                   ),
                   SizedBox(width: 12 * scale),
                   TextButton(
-                    onPressed: provider.loadOccupations,
+                    onPressed: () {
+                      _trackLoanClick(
+                        eventType: AnalyticsEventType.linkClick,
+                        elementId: AnalyticsIds.loanApplyRetryOccupations,
+                        elementType: AnalyticsElementType.link,
+                        elementText: '职业字典加载中，点此重试',
+                      );
+                      provider.loadOccupations();
+                    },
                     child: const Text('职业字典加载中，点此重试'),
                   ),
                 ],
@@ -424,7 +508,9 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
               controller: _incomeController,
               label: '月收入',
               hintText: '请输入月收入',
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               onChanged: provider.setMonthlyIncome,
               validator: (value) {
                 final income = LoanApplicationProvider.parseNumber(value ?? '');
@@ -440,7 +526,9 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
               controller: _debtController,
               label: '每月应还负债',
               hintText: '请输入每月应还负债',
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               onChanged: provider.setMonthlyDebtPayment,
               validator: (value) {
                 final debt = LoanApplicationProvider.parseNumber(value ?? '');
@@ -487,9 +575,17 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
           _buildSummaryItem('HKID', provider.hkid, scale),
           _buildSummaryItem('家庭住址', provider.homeAddress, scale),
           _buildSummaryItem('年龄', provider.age, scale),
-          _buildSummaryItem('职业', occupationLabel ?? provider.occupationCode, scale),
+          _buildSummaryItem(
+            '职业',
+            occupationLabel ?? provider.occupationCode,
+            scale,
+          ),
           _buildSummaryItem('月收入', 'HKD ${provider.monthlyIncome}', scale),
-          _buildSummaryItem('每月应还负债', 'HKD ${provider.monthlyDebtPayment}', scale),
+          _buildSummaryItem(
+            '每月应还负债',
+            'HKD ${provider.monthlyDebtPayment}',
+            scale,
+          ),
           SizedBox(height: 16 * scale),
           Container(
             padding: EdgeInsets.all(12 * scale),
@@ -540,16 +636,20 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
               style: TextStyle(color: _kTextSecondary, fontSize: 14 * scale),
             ),
             SizedBox(height: 16 * scale),
-            _buildSummaryItem(
-              '冷却剩余',
-              _formatDuration(remaining),
-              scale,
-            ),
+            _buildSummaryItem('冷却剩余', _formatDuration(remaining), scale),
             SizedBox(height: 24 * scale),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  _trackLoanClick(
+                    eventType: AnalyticsEventType.buttonClick,
+                    elementId: AnalyticsIds.loanApplyRejectAcknowledge,
+                    elementType: AnalyticsElementType.button,
+                    elementText: '我知道了',
+                  );
+                  Navigator.of(context).pop();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _kPrimary,
                   foregroundColor: Colors.white,
@@ -566,6 +666,12 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: () {
+                  _trackLoanClick(
+                    eventType: AnalyticsEventType.buttonClick,
+                    elementId: AnalyticsIds.loanApplyContactSupport,
+                    elementType: AnalyticsElementType.button,
+                    elementText: '联系客服',
+                  );
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('请联系在线客服：xwallet-support')),
                   );
@@ -614,16 +720,20 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
               _formatCurrency(app?.approvedAmount),
               scale,
             ),
-            _buildSummaryItem(
-              '签署截止',
-              _formatDateTime(app?.expiresAt),
-              scale,
-            ),
+            _buildSummaryItem('签署截止', _formatDateTime(app?.expiresAt), scale),
             SizedBox(height: 24 * scale),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: provider.startSigning,
+                onPressed: () {
+                  _trackLoanClick(
+                    eventType: AnalyticsEventType.buttonClick,
+                    elementId: AnalyticsIds.loanApplyStartSigning,
+                    elementType: AnalyticsElementType.button,
+                    elementText: '查看合同并签署',
+                  );
+                  provider.startSigning();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _kPrimary,
                   foregroundColor: Colors.white,
@@ -687,11 +797,7 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
                   ),
                 ),
                 SizedBox(height: 12 * scale),
-                _buildSummaryItem(
-                  '合同号',
-                  contract?.contractNo ?? '-',
-                  scale,
-                ),
+                _buildSummaryItem('合同号', contract?.contractNo ?? '-', scale),
                 _buildSummaryItem(
                   '可借金额',
                   'HKD ${app?.approvedAmount.toStringAsFixed(2) ?? '0.00'}',
@@ -705,6 +811,12 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
                 SizedBox(height: 10 * scale),
                 TextButton(
                   onPressed: () {
+                    _trackLoanClick(
+                      eventType: AnalyticsEventType.linkClick,
+                      elementId: AnalyticsIds.loanApplyViewContract,
+                      elementType: AnalyticsElementType.link,
+                      elementText: '查看完整合同',
+                    );
                     showModalBottomSheet<void>(
                       context: context,
                       isScrollControlled: true,
@@ -759,6 +871,17 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
                       onPressed: (provider.canSendOtp && !provider.isLoading)
                           ? () async {
                               final success = await provider.sendOtp();
+                              _trackLoanClick(
+                                eventType: AnalyticsEventType.buttonClick,
+                                elementId: AnalyticsIds.loanApplySendOtp,
+                                elementType: AnalyticsElementType.button,
+                                elementText: '发送验证码',
+                                extra: {
+                                  'success': success,
+                                  'hasError': !success,
+                                },
+                              );
+
                               if (!context.mounted || success) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -789,7 +912,15 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
                 CheckboxListTile(
                   value: provider.agreeTerms,
                   onChanged: (value) {
-                    provider.setAgreeTerms(value ?? false);
+                    final agreeTerms = value ?? false;
+                    provider.setAgreeTerms(agreeTerms);
+                    _trackLoanClick(
+                      eventType: AnalyticsEventType.buttonClick,
+                      elementId: AnalyticsIds.loanApplyAgreeTerms,
+                      elementType: AnalyticsElementType.button,
+                      elementText: '我已阅读并同意贷款协议',
+                      extra: {'agreeTerms': agreeTerms},
+                    );
                   },
                   contentPadding: EdgeInsets.zero,
                   title: Text(
@@ -802,12 +933,22 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: (!provider.isLoading &&
+                    onPressed:
+                        (!provider.isLoading &&
                             provider.agreeTerms &&
                             provider.otpCode.length == 6 &&
                             provider.otpState != null)
                         ? () async {
                             final success = await provider.signContract();
+                            _trackLoanFormSubmit(
+                              elementId: AnalyticsIds.loanApplySignContract,
+                              success: success,
+                              extra: {
+                                'agreeTerms': provider.agreeTerms,
+                                'hasError': !success,
+                              },
+                            );
+
                             if (!context.mounted || success) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -894,6 +1035,12 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
+                  _trackLoanClick(
+                    eventType: AnalyticsEventType.buttonClick,
+                    elementId: AnalyticsIds.loanApplyBackHome,
+                    elementType: AnalyticsElementType.button,
+                    elementText: '返回首页',
+                  );
                   await context.read<TransactionProvider>().refresh();
                   if (!context.mounted) return;
                   Navigator.of(context).pop();
@@ -942,7 +1089,16 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
             if (provider.stepIndex > 0)
               Expanded(
                 child: OutlinedButton(
-                  onPressed: provider.prevStep,
+                  onPressed: () {
+                    _trackLoanClick(
+                      eventType: AnalyticsEventType.buttonClick,
+                      elementId: AnalyticsIds.loanApplyPrevStep,
+                      elementType: AnalyticsElementType.button,
+                      elementText: '上一步',
+                      extra: {'step': provider.stepIndex + 1},
+                    );
+                    provider.prevStep();
+                  },
                   style: OutlinedButton.styleFrom(
                     minimumSize: Size.fromHeight(48 * scale),
                     side: const BorderSide(color: _kPrimary),
@@ -956,7 +1112,15 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
             else
               Expanded(
                 child: OutlinedButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () {
+                    _trackLoanClick(
+                      eventType: AnalyticsEventType.buttonClick,
+                      elementId: AnalyticsIds.loanApplyDefer,
+                      elementType: AnalyticsElementType.button,
+                      elementText: '稍后再说',
+                    );
+                    Navigator.of(context).pop();
+                  },
                   style: OutlinedButton.styleFrom(
                     minimumSize: Size.fromHeight(48 * scale),
                     side: const BorderSide(color: _kPrimary),
@@ -974,13 +1138,41 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
                 onPressed: provider.isLoading
                     ? null
                     : () async {
+                        final currentStep = provider.stepIndex + 1;
                         final canProceed = _validateCurrentStep(provider);
                         if (!canProceed) {
+                          if (isLast) {
+                            _trackLoanFormSubmit(
+                              elementId: AnalyticsIds.loanApplySubmit,
+                              success: false,
+                              extra: {
+                                'step': currentStep,
+                                'validationFailed': true,
+                              },
+                            );
+                          } else {
+                            _trackLoanClick(
+                              eventType: AnalyticsEventType.buttonClick,
+                              elementId: AnalyticsIds.loanApplyNextStep,
+                              elementType: AnalyticsElementType.button,
+                              elementText: '下一步',
+                              extra: {
+                                'step': currentStep,
+                                'validationFailed': true,
+                              },
+                            );
+                          }
                           return;
                         }
 
                         if (isLast) {
                           final success = await provider.submitApplication();
+                          _trackLoanFormSubmit(
+                            elementId: AnalyticsIds.loanApplySubmit,
+                            success: success,
+                            extra: {'step': currentStep, 'hasError': !success},
+                          );
+
                           if (!context.mounted || success) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -989,6 +1181,14 @@ class _LoanApplyFlowScreenState extends State<LoanApplyFlowScreen> {
                           );
                           return;
                         }
+
+                        _trackLoanClick(
+                          eventType: AnalyticsEventType.buttonClick,
+                          elementId: AnalyticsIds.loanApplyNextStep,
+                          elementType: AnalyticsElementType.button,
+                          elementText: '下一步',
+                          extra: {'step': currentStep},
+                        );
 
                         provider.nextStep();
                       },

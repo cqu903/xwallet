@@ -35,6 +35,21 @@ class AnalyticsIds {
   static const viewAllTransactions = 'view_all_transactions';
   static const transactionItem = 'transaction_item';
 
+  static const loanApplyRetryOccupations = 'loan_apply_retry_occupations';
+  static const loanApplyPrevStep = 'loan_apply_prev_step';
+  static const loanApplyNextStep = 'loan_apply_next_step';
+  static const loanApplyDefer = 'loan_apply_defer';
+  static const loanApplySubmit = 'loan_apply_submit';
+  static const loanApplyRejectAcknowledge = 'loan_apply_reject_acknowledge';
+  static const loanApplyContactSupport = 'loan_apply_contact_support';
+  static const loanApplyStartSigning = 'loan_apply_start_signing';
+  static const loanApplyDeferSigning = 'loan_apply_defer_signing';
+  static const loanApplyViewContract = 'loan_apply_view_contract';
+  static const loanApplySendOtp = 'loan_apply_send_otp';
+  static const loanApplyAgreeTerms = 'loan_apply_agree_terms';
+  static const loanApplySignContract = 'loan_apply_sign_contract';
+  static const loanApplyBackHome = 'loan_apply_back_home';
+
   static const profileAboutIcon = 'profile_about_icon';
   static const profileSettings = 'profile_settings';
   static const profileHelpCenter = 'profile_help_center';

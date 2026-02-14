@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 
+import 'analytics_constants.dart';
+import 'app_routes.dart';
 import '../models/analytics_event.dart';
 import '../services/analytics_service.dart';
 import 'event_spec.dart';
@@ -25,11 +27,18 @@ class AnalyticsRouteObserver extends NavigatorObserver {
       return;
     }
 
+    final flow = routeName == AppRoutes.loanApply
+        ? AnalyticsFlows.loanApply
+        : null;
+
     AnalyticsService.instance.trackStandardEvent(
       eventType: AnalyticsEventType.pageView,
-      properties: AnalyticsEventProperties.pageView(page: page, entry: entry),
+      properties: AnalyticsEventProperties.pageView(
+        page: page,
+        flow: flow,
+        entry: entry,
+      ),
       category: EventCategory.behavior,
     );
   }
 }
-

@@ -119,6 +119,7 @@ properties: {
 | LoginScreen |  | login |  | 登录页 |
 | RegisterScreen |  | register |  | 注册页 |
 | HomeScreen |  | loan_apply | tab | 首页/贷款落地 |
+| LoanApplyFlowScreen | /loan/apply | loan_apply | push | 贷款申请向导流程 |
 | AccountScreen |  |  | tab | 钱包页 |
 | HistoryScreen |  | history | tab | 记录页 |
 | ProfileScreen |  |  | tab | 我的页 |
@@ -142,6 +143,20 @@ properties: {
 | HomeScreen | retry_transactions | button | button_click | 已埋点 | 交易加载失败重试 |
 | HomeScreen | view_all_transactions | link | link_click | 已埋点 | 查看全部交易 |
 | HomeScreen | transaction_item | list_item | transaction_click | 已埋点 | 交易记录条目 |
+| LoanApplyFlowScreen | loan_apply_retry_occupations | link | link_click | 已埋点 | 职业字典重试 |
+| LoanApplyFlowScreen | loan_apply_prev_step | button | button_click | 已埋点 | 向导上一步 |
+| LoanApplyFlowScreen | loan_apply_next_step | button | button_click | 已埋点 | 向导下一步 |
+| LoanApplyFlowScreen | loan_apply_defer | button | button_click | 已埋点 | 向导稍后再说 |
+| LoanApplyFlowScreen | loan_apply_submit | button | form_submit | 已埋点 | 申请提交（含 success） |
+| LoanApplyFlowScreen | loan_apply_reject_acknowledge | button | button_click | 已埋点 | 拒绝页我知道了 |
+| LoanApplyFlowScreen | loan_apply_contact_support | button | button_click | 已埋点 | 拒绝页联系客服 |
+| LoanApplyFlowScreen | loan_apply_start_signing | button | button_click | 已埋点 | 审批通过后进入签署 |
+| LoanApplyFlowScreen | loan_apply_defer_signing | button | button_click | 已埋点 | 审批通过后稍后处理 |
+| LoanApplyFlowScreen | loan_apply_view_contract | link | link_click | 已埋点 | 查看完整合同 |
+| LoanApplyFlowScreen | loan_apply_send_otp | button | button_click | 已埋点 | 发送短信验证码 |
+| LoanApplyFlowScreen | loan_apply_agree_terms | button | button_click | 已埋点 | 勾选同意协议 |
+| LoanApplyFlowScreen | loan_apply_sign_contract | button | form_submit | 已埋点 | 合同签署并放款（含 success） |
+| LoanApplyFlowScreen | loan_apply_back_home | button | button_click | 已埋点 | 放款成功后返回首页 |
 | MainNavigation | tab_home | tab | tab_click | 未埋点 | 底部导航-首页 |
 | MainNavigation | tab_account | tab | tab_click | 未埋点 | 底部导航-钱包 |
 | MainNavigation | tab_history | tab | tab_click | 未埋点 | 底部导航-记录 |

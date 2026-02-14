@@ -40,18 +40,49 @@ class AnalyticsPage {
 }
 
 class AnalyticsPages {
-  static const splash = AnalyticsPage(page: 'SplashScreen', route: AppRoutes.splash);
-  static const login = AnalyticsPage(page: 'LoginScreen', route: AppRoutes.login);
-  static const register = AnalyticsPage(page: 'RegisterScreen', route: AppRoutes.register);
-  static const mainNavigation = AnalyticsPage(page: 'MainNavigation', route: AppRoutes.main);
+  static const splash = AnalyticsPage(
+    page: 'SplashScreen',
+    route: AppRoutes.splash,
+  );
+  static const login = AnalyticsPage(
+    page: 'LoginScreen',
+    route: AppRoutes.login,
+  );
+  static const register = AnalyticsPage(
+    page: 'RegisterScreen',
+    route: AppRoutes.register,
+  );
+  static const mainNavigation = AnalyticsPage(
+    page: 'MainNavigation',
+    route: AppRoutes.main,
+  );
 
   static const home = AnalyticsPage(page: 'HomeScreen', route: AppRoutes.home);
-  static const account = AnalyticsPage(page: 'AccountScreen', route: AppRoutes.account);
-  static const history = AnalyticsPage(page: 'HistoryScreen', route: AppRoutes.history);
-  static const profile = AnalyticsPage(page: 'ProfileScreen', route: AppRoutes.profile);
+  static const account = AnalyticsPage(
+    page: 'AccountScreen',
+    route: AppRoutes.account,
+  );
+  static const history = AnalyticsPage(
+    page: 'HistoryScreen',
+    route: AppRoutes.history,
+  );
+  static const profile = AnalyticsPage(
+    page: 'ProfileScreen',
+    route: AppRoutes.profile,
+  );
+  static const loanApply = AnalyticsPage(
+    page: 'LoanApplyFlowScreen',
+    route: AppRoutes.loanApply,
+  );
 
-  static const apiService = AnalyticsPage(page: 'ApiService', route: '/system/api');
-  static const appRuntime = AnalyticsPage(page: 'AppRuntime', route: '/system/runtime');
+  static const apiService = AnalyticsPage(
+    page: 'ApiService',
+    route: '/system/api',
+  );
+  static const appRuntime = AnalyticsPage(
+    page: 'AppRuntime',
+    route: '/system/runtime',
+  );
 
   static AnalyticsPage? fromRoute(String? route) {
     switch (route) {
@@ -71,6 +102,8 @@ class AnalyticsPages {
         return history;
       case AppRoutes.profile:
         return profile;
+      case AppRoutes.loanApply:
+        return loanApply;
       default:
         return null;
     }
@@ -196,7 +229,10 @@ class AnalyticsEventProperties {
     String? errorType,
     String? message,
   }) {
-    final properties = pageView(page: AnalyticsPages.apiService, entry: 'interceptor');
+    final properties = pageView(
+      page: AnalyticsPages.apiService,
+      entry: 'interceptor',
+    );
     properties['method'] = method;
     properties['path'] = path;
     properties['success'] = success;
@@ -241,7 +277,8 @@ class AnalyticsEventValidator {
       return 'missing required property: route';
     }
 
-    final isClickEvent = eventType == AnalyticsEventType.buttonClick ||
+    final isClickEvent =
+        eventType == AnalyticsEventType.buttonClick ||
         eventType == AnalyticsEventType.linkClick ||
         eventType == AnalyticsEventType.tabClick ||
         eventType == AnalyticsEventType.activityClick ||
