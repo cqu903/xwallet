@@ -409,8 +409,12 @@ INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `componen
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), 'MQTT事件', 2, '/system/mqtt-events', NULL, 'system:mqtt:query', 'activity', 4);
 
 -- 交易管理子菜单: 交易记录管理
-INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
+nINSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_ty\pe`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'loan:transaction:view') t), '交易记录', 2, '/loan/transactions', 'loan/transactions/index', 'loan:transaction:read', 'FileText', 1);
+
+-- 交易管理子菜单: 贷款申请单据管理
+INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'loan:transaction:view') t), '申请单据', 2, '/loan/applications', 'loan/applications/index', 'loan:application:read', 'FileText', 2);
 
 -- 用户管理按钮权限
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `sort_order`) VALUES
@@ -455,7 +459,8 @@ WHERE permission IN (
     'dashboard:view',
     'user:view',
     'loan:transaction:view',
-    'loan:transaction:read'
+    'loan:transaction:read',
+    'loan:application:read'
 );
 
 -- ============================================

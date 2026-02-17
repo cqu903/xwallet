@@ -78,7 +78,10 @@ void main() {
 
     setUp(() {
       fakeApi = _FakeLoanApplicationApiClient();
-      provider = LoanApplicationProvider(apiService: fakeApi, enableTicker: false);
+      provider = LoanApplicationProvider(
+        apiService: fakeApi,
+        enableTicker: false,
+      );
     });
 
     tearDown(() {
@@ -86,25 +89,79 @@ void main() {
     });
 
     test('HKID format and validate', () {
+      expect(LoanApplicationProvider.formatHkid('a1234567'), 'A123456(7)');
       expect(LoanApplicationProvider.formatHkid('a12345678'), 'A1234567(8)');
       expect(provider.validateHkid('A123456(7)'), isNull);
       expect(provider.validateHkid('123'), 'HKID格式不正确');
     });
 
-    test('initialize loads current application and occupations for wizard', () async {
-      fakeApi.enqueueCurrent(_buildApplication(status: 'NONE'));
-      fakeApi.occupationsResult = const <OccupationOption>[
-        OccupationOption(code: 'ENGINEER', label: '工程师'),
-        OccupationOption(code: 'TEACHER', label: '教师'),
-      ];
+    test(
+      'initialize loads current application and occupations for wizard',
+      () async {
+        fakeApi.enqueueCurrent(_buildApplication(status: 'NONE'));
+        fakeApi.occupationsResult = const <OccupationOption>[
+          OccupationOption(code: 'ENGINEER', label: '工程师'),
+          OccupationOption(code: 'TEACHER', label: '教师'),
+        ];
 
-      await provider.initialize();
+        await provider.initialize();
 
-      expect(provider.initialized, isTrue);
-      expect(provider.showWizard, isTrue);
-      expect(provider.occupations.length, 2);
-      expect(provider.occupationCode, 'ENGINEER');
-    });
+        expect(provider.initialized, isTrue);
+        expect(provider.showWizard, isTrue);
+        expect(provider.occupations.length, 2);
+        expect(provider.occupationCode, 'ENGINEER');
+      },
+    );
+
+    test(
+      'initialize refreshes current application on repeated entry',
+      () async {
+        fakeApi.enqueueCurrent(
+          _buildApplication(
+            status: 'DISBURSED',
+            applicationId: 8,
+            approvedAmount: 50000,
+          ),
+        );
+        fakeApi.enqueueCurrent(_buildApplication(status: 'NONE'));
+        fakeApi.occupationsResult = const <OccupationOption>[
+          OccupationOption(code: 'ENGINEER', label: '工程师'),
+        ];
+
+        await provider.initialize();
+        expect(provider.showSuccess, isTrue);
+
+        await provider.initialize();
+        expect(provider.showSuccess, isFalse);
+        expect(provider.showWizard, isTrue);
+      },
+    );
+
+    test(
+      'initialize clears stale application when current request fails',
+      () async {
+        fakeApi.enqueueCurrent(
+          _buildApplication(
+            status: 'DISBURSED',
+            applicationId: 9,
+            approvedAmount: 50000,
+          ),
+        );
+        fakeApi.occupationsResult = const <OccupationOption>[
+          OccupationOption(code: 'ENGINEER', label: '工程师'),
+        ];
+
+        await provider.initialize();
+        expect(provider.showSuccess, isTrue);
+
+        fakeApi.currentError = 'network error';
+        await provider.initialize();
+
+        expect(provider.currentApplication, isNull);
+        expect(provider.showSuccess, isFalse);
+        expect(provider.showWizard, isTrue);
+      },
+    );
 
     test('submit application success enters approved decision state', () async {
       fakeApi.enqueueCurrent(_buildApplication(status: 'NONE'));
@@ -149,10 +206,7 @@ void main() {
 
     test('sendOtp success creates resend countdown', () async {
       fakeApi.enqueueCurrent(
-        _buildApplication(
-          status: 'SIGNED',
-          applicationId: 12,
-        ),
+        _buildApplication(status: 'SIGNED', applicationId: 12),
       );
       fakeApi.occupationsResult = const <OccupationOption>[];
       fakeApi.otpResult = LoanContractOtpSendResult(
@@ -226,10 +280,7 @@ void main() {
 
     test('signContract failure surfaces error message', () async {
       fakeApi.enqueueCurrent(
-        _buildApplication(
-          status: 'APPROVED_PENDING_SIGN',
-          applicationId: 100,
-        ),
+        _buildApplication(status: 'APPROVED_PENDING_SIGN', applicationId: 100),
       );
       fakeApi.occupationsResult = const <OccupationOption>[];
       fakeApi.otpResult = LoanContractOtpSendResult(

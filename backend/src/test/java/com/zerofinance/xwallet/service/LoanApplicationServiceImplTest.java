@@ -10,9 +10,11 @@ import com.zerofinance.xwallet.model.dto.LoanContractSignRequest;
 import com.zerofinance.xwallet.model.dto.LoanTransactionItemResponse;
 import com.zerofinance.xwallet.model.dto.LoanTransactionResponse;
 import com.zerofinance.xwallet.model.entity.Customer;
+import com.zerofinance.xwallet.model.entity.LoanAccount;
 import com.zerofinance.xwallet.model.entity.LoanApplication;
 import com.zerofinance.xwallet.model.entity.LoanApplicationOtp;
 import com.zerofinance.xwallet.model.entity.LoanContractDocument;
+import com.zerofinance.xwallet.repository.LoanAccountMapper;
 import com.zerofinance.xwallet.repository.CustomerMapper;
 import com.zerofinance.xwallet.repository.LoanApplicationMapper;
 import com.zerofinance.xwallet.repository.LoanApplicationOtpMapper;
@@ -56,6 +58,8 @@ class LoanApplicationServiceImplTest {
     private LoanContractDocumentMapper loanContractDocumentMapper;
     @Mock
     private LoanApplicationOtpMapper loanApplicationOtpMapper;
+    @Mock
+    private LoanAccountMapper loanAccountMapper;
     @Mock
     private LoanTransactionService loanTransactionService;
     @Mock
@@ -109,6 +113,33 @@ class LoanApplicationServiceImplTest {
     }
 
     @Test
+    @DisplayName("提交申请-插入后未回填ID时按幂等键回查并继续")
+    void submitApplicationShouldReloadPersistedApplicationWhenInsertIdMissing() {
+        LoanApplicationSubmitRequest request = buildSubmitRequest("idem-submit-reload-id");
+
+        LoanApplication persisted = buildApplication("APPROVED_PENDING_SIGN");
+        persisted.setId(88L);
+        persisted.setApplicationNo("APP-RELOAD-ID");
+        persisted.setIdempotencyKey("idem-submit-reload-id");
+        persisted.setExpiresAt(LocalDateTime.now().plusDays(14));
+
+        when(customerMapper.findById(100L)).thenReturn(activeCustomer());
+        when(loanApplicationMapper.findByIdempotencyKey(100L, "idem-submit-reload-id"))
+                .thenReturn(null, persisted);
+        when(loanApplicationMapper.findLatestByCustomerId(100L)).thenReturn(null);
+        when(riskGateway.evaluate(eq(100L), any())).thenReturn(approvedDecision());
+
+        LoanApplicationResponse response = loanApplicationService.submitApplication(100L, request);
+
+        assertEquals("APPROVED_PENDING_SIGN", response.getStatus());
+        assertNotNull(response.getContractPreview());
+
+        ArgumentCaptor<LoanContractDocument> contractCaptor = ArgumentCaptor.forClass(LoanContractDocument.class);
+        verify(loanContractDocumentMapper).insert(contractCaptor.capture());
+        assertEquals(88L, contractCaptor.getValue().getApplicationId());
+    }
+
+    @Test
     @DisplayName("提交申请-审批拒绝时进入24小时冷却")
     void submitApplicationRejectedShouldSetCooldown() {
         LoanApplicationSubmitRequest request = buildSubmitRequest("idem-submit-rejected");
@@ -117,6 +148,11 @@ class LoanApplicationServiceImplTest {
         when(loanApplicationMapper.findByIdempotencyKey(100L, "idem-submit-rejected")).thenReturn(null);
         when(loanApplicationMapper.findLatestByCustomerId(100L)).thenReturn(null);
         when(riskGateway.evaluate(eq(100L), any())).thenReturn(rejectedDecision());
+        doAnswer(invocation -> {
+            LoanApplication application = invocation.getArgument(0);
+            application.setId(12L);
+            return null;
+        }).when(loanApplicationMapper).insert(any(LoanApplication.class));
 
         LoanApplicationResponse response = loanApplicationService.submitApplication(100L, request);
 
@@ -174,6 +210,30 @@ class LoanApplicationServiceImplTest {
 
         assertEquals("申请冷却中，请稍后再试", ex.getMessage());
         verify(riskGateway, never()).evaluate(any(), any());
+    }
+
+    @Test
+    @DisplayName("提交申请-已有贷款账户时禁止再次申请")
+    void submitApplicationShouldThrowWhenLoanAccountExists() {
+        LoanApplicationSubmitRequest request = buildSubmitRequest("idem-submit-has-loan-account");
+        LoanAccount account = new LoanAccount();
+        account.setId(1L);
+        account.setCustomerId(100L);
+        account.setPrincipalOutstanding(new BigDecimal("100.00"));
+
+        when(customerMapper.findById(100L)).thenReturn(activeCustomer());
+        when(loanApplicationMapper.findByIdempotencyKey(100L, "idem-submit-has-loan-account")).thenReturn(null);
+        when(loanApplicationMapper.findLatestByCustomerId(100L)).thenReturn(null);
+        when(loanAccountMapper.findByCustomerId(100L)).thenReturn(account);
+
+        IllegalStateException ex = assertThrows(
+                IllegalStateException.class,
+                () -> loanApplicationService.submitApplication(100L, request)
+        );
+
+        assertEquals("存在贷款账户，请先结清当前贷款", ex.getMessage());
+        verify(riskGateway, never()).evaluate(any(), any());
+        verify(loanApplicationMapper, never()).insert(any());
     }
 
     @Test

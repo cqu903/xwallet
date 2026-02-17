@@ -94,22 +94,21 @@ class LoanApplicationProvider with ChangeNotifier {
   }
 
   bool get showRejected =>
-      _currentApplication?.status == 'REJECTED' && cooldownRemaining > Duration.zero;
+      _currentApplication?.status == 'REJECTED' &&
+      cooldownRemaining > Duration.zero;
 
-  bool get showApprovedDecision => _currentApplication?.status == 'APPROVED_PENDING_SIGN';
+  bool get showApprovedDecision =>
+      _currentApplication?.status == 'APPROVED_PENDING_SIGN';
 
   bool get showSigning => _currentApplication?.status == 'SIGNED';
 
   bool get showSuccess => _currentApplication?.status == 'DISBURSED';
 
   Future<void> initialize() async {
-    if (_initialized) {
-      return;
-    }
-
     if (_enableTicker) {
       _ticker ??= Timer.periodic(const Duration(seconds: 1), (_) {
-        if (cooldownRemaining > Duration.zero || otpResendRemainingSeconds > 0) {
+        if (cooldownRemaining > Duration.zero ||
+            otpResendRemainingSeconds > 0) {
           notifyListeners();
         }
       });
@@ -120,7 +119,7 @@ class LoanApplicationProvider with ChangeNotifier {
     notifyListeners();
 
     await loadCurrentApplication();
-    if (showWizard) {
+    if (showWizard && _occupations.isEmpty) {
       await loadOccupations();
     }
 
@@ -148,6 +147,7 @@ class LoanApplicationProvider with ChangeNotifier {
     _errorMessage = error;
 
     if (result == null) {
+      _currentApplication = null;
       return;
     }
 
@@ -388,14 +388,12 @@ class LoanApplicationProvider with ChangeNotifier {
   }
 
   static String formatHkid(String raw) {
-    var normalized = raw
-        .toUpperCase()
-        .replaceAll(RegExp(r'[^A-Z0-9]'), '');
+    var normalized = raw.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
     if (normalized.length > 9) {
       normalized = normalized.substring(0, 9);
     }
 
-    if (normalized.length <= 8) {
+    if (normalized.length < 8) {
       return normalized;
     }
 

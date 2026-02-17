@@ -30,6 +30,38 @@
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
+    <resultMap id="LoanApplicationAdminDetailResultMap" type="com.zerofinance.xwallet.model.dto.LoanApplicationAdminDetailResponse">
+        <id property="applicationId" column="application_id"/>
+        <result property="applicationNo" column="application_no"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="status" column="status"/>
+        <result property="productCode" column="product_code"/>
+        <result property="approvedAmount" column="approved_amount"/>
+        <result property="fullName" column="full_name"/>
+        <result property="hkid" column="hkid"/>
+        <result property="homeAddress" column="home_address"/>
+        <result property="age" column="age"/>
+        <result property="occupation" column="occupation"/>
+        <result property="monthlyIncome" column="monthly_income"/>
+        <result property="monthlyDebtPayment" column="monthly_debt_payment"/>
+        <result property="riskDecision" column="risk_decision"/>
+        <result property="riskReferenceId" column="risk_reference_id"/>
+        <result property="rejectReason" column="reject_reason"/>
+        <result property="cooldownUntil" column="cooldown_until"/>
+        <result property="approvedAt" column="approved_at"/>
+        <result property="expiresAt" column="expires_at"/>
+        <result property="signedAt" column="signed_at"/>
+        <result property="disbursedAt" column="disbursed_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="contractNo" column="contract_no"/>
+        <result property="templateVersion" column="template_version"/>
+        <result property="contractStatus" column="contract_status"/>
+        <result property="digest" column="digest"/>
+        <result property="contractContent" column="contract_content"/>
+        <result property="contractSignedAt" column="contract_signed_at"/>
+    </resultMap>
+
     <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.LoanApplication" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO loan_application (
             application_no, customer_id, status, product_code, approved_amount,
@@ -96,6 +128,118 @@
         FROM loan_application
         WHERE customer_id = #{customerId}
           AND idempotency_key = #{idempotencyKey}
+        LIMIT 1
+    </select>
+
+    <select id="findAdminByPage" resultType="com.zerofinance.xwallet.model.dto.LoanApplicationAdminItemResponse">
+        SELECT la.id AS applicationId,
+               la.application_no AS applicationNo,
+               la.customer_id AS customerId,
+               la.full_name AS fullName,
+               la.status AS status,
+               la.risk_decision AS riskDecision,
+               la.approved_amount AS approvedAmount,
+               lcd.contract_no AS contractNo,
+               lcd.status AS contractStatus,
+               la.created_at AS createdAt,
+               la.updated_at AS updatedAt
+        FROM loan_application la
+        LEFT JOIN loan_contract_document lcd ON lcd.application_id = la.id
+        <where>
+            <if test="query.applicationNo != null and query.applicationNo != ''">
+                AND la.application_no = #{query.applicationNo}
+            </if>
+            <if test="query.customerId != null">
+                AND la.customer_id = #{query.customerId}
+            </if>
+            <if test="query.status != null and query.status != ''">
+                AND la.status = #{query.status}
+            </if>
+            <if test="query.riskDecision != null and query.riskDecision != ''">
+                AND la.risk_decision = #{query.riskDecision}
+            </if>
+            <if test="query.contractNo != null and query.contractNo != ''">
+                AND lcd.contract_no = #{query.contractNo}
+            </if>
+            <if test="query.contractStatus != null and query.contractStatus != ''">
+                AND lcd.status = #{query.contractStatus}
+            </if>
+            <if test="query.startTime != null and query.startTime != ''">
+                AND la.created_at &gt;= #{query.startTime}
+            </if>
+            <if test="query.endTime != null and query.endTime != ''">
+                AND la.created_at &lt;= #{query.endTime}
+            </if>
+        </where>
+        ORDER BY la.created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countAdminByCondition" resultType="int">
+        SELECT COUNT(1)
+        FROM loan_application la
+        LEFT JOIN loan_contract_document lcd ON lcd.application_id = la.id
+        <where>
+            <if test="query.applicationNo != null and query.applicationNo != ''">
+                AND la.application_no = #{query.applicationNo}
+            </if>
+            <if test="query.customerId != null">
+                AND la.customer_id = #{query.customerId}
+            </if>
+            <if test="query.status != null and query.status != ''">
+                AND la.status = #{query.status}
+            </if>
+            <if test="query.riskDecision != null and query.riskDecision != ''">
+                AND la.risk_decision = #{query.riskDecision}
+            </if>
+            <if test="query.contractNo != null and query.contractNo != ''">
+                AND lcd.contract_no = #{query.contractNo}
+            </if>
+            <if test="query.contractStatus != null and query.contractStatus != ''">
+                AND lcd.status = #{query.contractStatus}
+            </if>
+            <if test="query.startTime != null and query.startTime != ''">
+                AND la.created_at &gt;= #{query.startTime}
+            </if>
+            <if test="query.endTime != null and query.endTime != ''">
+                AND la.created_at &lt;= #{query.endTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="findAdminDetailById" resultMap="LoanApplicationAdminDetailResultMap">
+        SELECT la.id AS application_id,
+               la.application_no AS application_no,
+               la.customer_id AS customer_id,
+               la.status AS status,
+               la.product_code AS product_code,
+               la.approved_amount AS approved_amount,
+               la.full_name AS full_name,
+               la.hkid AS hkid,
+               la.home_address AS home_address,
+               la.age AS age,
+               la.occupation AS occupation,
+               la.monthly_income AS monthly_income,
+               la.monthly_debt_payment AS monthly_debt_payment,
+               la.risk_decision AS risk_decision,
+               la.risk_reference_id AS risk_reference_id,
+               la.reject_reason AS reject_reason,
+               la.cooldown_until AS cooldown_until,
+               la.approved_at AS approved_at,
+               la.expires_at AS expires_at,
+               la.signed_at AS signed_at,
+               la.disbursed_at AS disbursed_at,
+               la.created_at AS created_at,
+               la.updated_at AS updated_at,
+               lcd.contract_no AS contract_no,
+               lcd.template_version AS template_version,
+               lcd.status AS contract_status,
+               lcd.digest AS digest,
+               lcd.contract_content AS contract_content,
+               lcd.signed_at AS contract_signed_at
+        FROM loan_application la
+        LEFT JOIN loan_contract_document lcd ON lcd.application_id = la.id
+        WHERE la.id = #{applicationId}
         LIMIT 1
     </select>
 

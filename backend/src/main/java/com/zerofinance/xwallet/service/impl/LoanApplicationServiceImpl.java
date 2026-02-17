@@ -2,10 +2,12 @@ package com.zerofinance.xwallet.service.impl;
 
 import com.zerofinance.xwallet.model.dto.*;
 import com.zerofinance.xwallet.model.entity.Customer;
+import com.zerofinance.xwallet.model.entity.LoanAccount;
 import com.zerofinance.xwallet.model.entity.LoanApplication;
 import com.zerofinance.xwallet.model.entity.LoanApplicationOtp;
 import com.zerofinance.xwallet.model.entity.LoanContractDocument;
 import com.zerofinance.xwallet.repository.CustomerMapper;
+import com.zerofinance.xwallet.repository.LoanAccountMapper;
 import com.zerofinance.xwallet.repository.LoanApplicationMapper;
 import com.zerofinance.xwallet.repository.LoanApplicationOtpMapper;
 import com.zerofinance.xwallet.repository.LoanContractDocumentMapper;
@@ -25,8 +27,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -59,6 +63,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
     private final LoanApplicationMapper loanApplicationMapper;
     private final LoanContractDocumentMapper loanContractDocumentMapper;
     private final LoanApplicationOtpMapper loanApplicationOtpMapper;
+    private final LoanAccountMapper loanAccountMapper;
     private final LoanTransactionService loanTransactionService;
     private final CustomerMapper customerMapper;
     private final RiskGateway riskGateway;
@@ -78,7 +83,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
         }
 
         LoanApplication latest = loanApplicationMapper.findLatestByCustomerId(customerId);
-        checkAndGuardLatestApplication(latest);
+        checkAndGuardLatestApplication(customerId, latest);
 
         LocalDateTime now = LocalDateTime.now();
         RiskDecisionResult riskDecision = riskGateway.evaluate(customerId, request);
@@ -121,6 +126,13 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
         }
 
         loanApplicationMapper.insert(application);
+        if (application.getId() == null) {
+            LoanApplication persisted = loanApplicationMapper.findByIdempotencyKey(customerId, request.getIdempotencyKey());
+            if (persisted == null || persisted.getId() == null) {
+                throw new IllegalStateException("申请创建失败，请稍后再试");
+            }
+            application = persisted;
+        }
 
         if (riskDecision.isApproved()) {
             LoanContractDocument contractDocument = createContractDraft(application, now);
@@ -264,6 +276,39 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
         );
     }
 
+    @Override
+    public Map<String, Object> getAdminApplications(LoanApplicationAdminQueryRequest request) {
+        int page = request.getPage() == null || request.getPage() < 1 ? 1 : request.getPage();
+        int size = request.getSize() == null || request.getSize() <= 0 ? 10 : request.getSize();
+        int offset = (page - 1) * size;
+
+        List<LoanApplicationAdminItemResponse> applications = loanApplicationMapper.findAdminByPage(request, offset, size);
+        if (applications == null) {
+            applications = Collections.emptyList();
+        }
+        int total = loanApplicationMapper.countAdminByCondition(request);
+
+        return Map.of(
+                "list", applications,
+                "total", (long) total,
+                "page", page,
+                "size", size,
+                "totalPages", (total + size - 1) / size
+        );
+    }
+
+    @Override
+    public LoanApplicationAdminDetailResponse getAdminApplicationDetail(Long applicationId) {
+        if (applicationId == null || applicationId <= 0) {
+            throw new IllegalArgumentException("申请ID无效");
+        }
+        LoanApplicationAdminDetailResponse detail = loanApplicationMapper.findAdminDetailById(applicationId);
+        if (detail == null) {
+            throw new IllegalArgumentException("申请单不存在");
+        }
+        return detail;
+    }
+
     private LoanContractDocument createContractDraft(LoanApplication application, LocalDateTime now) {
         String contractNo = generateContractNo();
         String content = buildContractContent(application, contractNo);
@@ -315,7 +360,12 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
         return application;
     }
 
-    private void checkAndGuardLatestApplication(LoanApplication latest) {
+    private void checkAndGuardLatestApplication(Long customerId, LoanApplication latest) {
+        LoanAccount account = loanAccountMapper.findByCustomerId(customerId);
+        if (account != null) {
+            throw new IllegalStateException("存在贷款账户，请先结清当前贷款");
+        }
+
         if (latest == null) {
             return;
         }

@@ -234,6 +234,12 @@ class _LoginCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final inputFontSize = DesignScale.fontSize(context, 16);
+    final inputIconSize =
+        DesignScale.iconSize(context, 20).clamp(16.0, 20.0).toDouble();
+    final suffixIconButtonSize =
+        DesignScale.iconSize(context, 36).clamp(32.0, 40.0).toDouble();
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24 * scale),
@@ -277,13 +283,13 @@ class _LoginCard extends StatelessWidget {
               enabled: !isLoading,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
-              style: TextStyle(fontSize: 16 * scale, color: _kTextPrimary),
+              style: TextStyle(fontSize: inputFontSize, color: _kTextPrimary),
               decoration: InputDecoration(
                 hintText: '请输入邮箱地址',
-                prefixIcon: const Icon(
+                prefixIcon: Icon(
                   Icons.mail_outlined,
                   color: _kPrimaryPurple,
-                  size: 20,
+                  size: inputIconSize,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12 * scale),
@@ -311,35 +317,51 @@ class _LoginCard extends StatelessWidget {
               controller: passwordController,
               enabled: !isLoading,
               obscureText: obscurePassword,
+              obscuringCharacter: '*',
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => onLogin(),
-              style: TextStyle(fontSize: 16 * scale, color: _kTextPrimary),
+              style: TextStyle(fontSize: inputFontSize, color: _kTextPrimary),
               decoration: InputDecoration(
                 hintText: '请输入密码',
-                prefixIcon: const Icon(
+                prefixIcon: Icon(
                   Icons.lock_outlined,
                   color: _kPrimaryPurple,
-                  size: 20,
+                  size: inputIconSize,
                 ),
-                suffixIcon: AnalyticsIconButton(
-                  icon: Icon(
-                    obscurePassword
-                        ? Icons.visibility_outlined
-                        : Icons.visibility,
-                    color: _kTextSecondary,
-                    size: 20,
+                suffixIconConstraints: BoxConstraints(
+                  minWidth: suffixIconButtonSize,
+                  maxWidth: suffixIconButtonSize,
+                  minHeight: suffixIconButtonSize,
+                  maxHeight: suffixIconButtonSize,
+                ),
+                suffixIcon: Align(
+                  widthFactor: 1,
+                  heightFactor: 1,
+                  child: AnalyticsIconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints.tightFor(
+                      width: suffixIconButtonSize,
+                      height: suffixIconButtonSize,
+                    ),
+                    icon: Icon(
+                      obscurePassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility,
+                      color: _kTextSecondary,
+                      size: inputIconSize,
+                    ),
+                    tooltip: obscurePassword ? '显示密码' : '隐藏密码',
+                    eventType: AnalyticsEventType.buttonClick,
+                    properties: AnalyticsEventProperties.click(
+                      page: AnalyticsPages.login,
+                      flow: AnalyticsFlows.login,
+                      elementId: AnalyticsIds.loginPasswordVisibility,
+                      elementType: AnalyticsElementType.icon,
+                      elementText: obscurePassword ? '显示密码' : '隐藏密码',
+                    ),
+                    category: EventCategory.behavior,
+                    onPressed: isLoading ? null : onTogglePassword,
                   ),
-                  tooltip: obscurePassword ? '显示密码' : '隐藏密码',
-                  eventType: AnalyticsEventType.buttonClick,
-                  properties: AnalyticsEventProperties.click(
-                    page: AnalyticsPages.login,
-                    flow: AnalyticsFlows.login,
-                    elementId: AnalyticsIds.loginPasswordVisibility,
-                    elementType: AnalyticsElementType.icon,
-                    elementText: obscurePassword ? '显示密码' : '隐藏密码',
-                  ),
-                  category: EventCategory.behavior,
-                  onPressed: isLoading ? null : onTogglePassword,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12 * scale),
