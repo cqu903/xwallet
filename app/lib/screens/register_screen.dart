@@ -184,21 +184,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final inputIconSize = DesignScale.iconSize(context, 20).clamp(16.0, 20.0).toDouble();
     final suffixIconButtonSize = DesignScale.iconSize(context, 36).clamp(32.0, 40.0).toDouble();
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          '注册 X Wallet 账号',
-          style: TextStyle(
-            color: Color(0xFF1A1A1A),
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: Color(0xFF1A1A1A),
-        elevation: 0,
-        automaticallyImplyLeading: false,
-      ),
-      body: Container(
+      body: SafeArea(
+        child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -584,6 +571,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ),
         ),
+      ),
       ),
     );
   }
