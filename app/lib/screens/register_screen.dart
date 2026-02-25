@@ -273,6 +273,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   filled: true,
                                   fillColor: _kInputBg,
                                   contentPadding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 14 * scale),
+                                  counterText: '',
                                 ),
                                 keyboardType: TextInputType.number,
                                 maxLength: 6,
