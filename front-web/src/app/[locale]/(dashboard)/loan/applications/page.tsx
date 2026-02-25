@@ -1,7 +1,7 @@
 'use client';
 
 import { Fragment, useMemo, useState } from 'react';
-import { Check, FileText, Search, ChevronDown, ChevronUp } from 'lucide-react';
+import { Check, FileText, Search, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import useSWR from 'swr';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -451,18 +451,34 @@ export default function LoanApplicationsPage() {
           </Collapsible>
 
           <div className="flex gap-2 mb-4">
-            <Button onClick={handleSearch} className="gap-2">
+            <Button
+              onClick={handleSearch}
+              className="gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90
+                         hover:to-primary shadow-md btn-shine"
+            >
               <Search className="w-4 h-4" />
               搜索
             </Button>
-            <Button onClick={handleReset} variant="outline">
+            <Button
+              onClick={handleReset}
+              variant="outline"
+              className="hover:bg-primary/10 hover:border-primary/30 transition-all duration-200"
+            >
               重置
+            </Button>
+            <Button
+              className="ml-auto gap-2 hover:bg-primary/10 transition-all duration-200"
+              variant="outline"
+              onClick={() => mutate()}
+            >
+              <RefreshCw className="w-4 h-4" />
+              刷新
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsAdvancedFilterOpen(!isAdvancedFilterOpen)}
-              className="gap-2 ml-auto"
+              className="gap-2"
             >
               {isAdvancedFilterOpen ? (
                 <>
@@ -475,9 +491,6 @@ export default function LoanApplicationsPage() {
                   高级筛选
                 </>
               )}
-            </Button>
-            <Button variant="outline" onClick={() => mutate()}>
-              刷新
             </Button>
           </div>
 
