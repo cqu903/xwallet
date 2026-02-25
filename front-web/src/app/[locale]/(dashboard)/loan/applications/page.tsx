@@ -567,12 +567,23 @@ export default function LoanApplicationsPage() {
       </div>
 
       <Dialog open={isDetailOpen} onOpenChange={handleDetailOpenChange}>
-        <DialogContent className="left-auto right-0 top-0 h-full max-h-none w-full max-w-2xl translate-x-0 translate-y-0 overflow-y-auto rounded-none sm:rounded-none">
-          <DialogHeader>
-            <DialogTitle>申请详情</DialogTitle>
-            <DialogDescription>
-              {selectedApplication ? `申请编号：${selectedApplication.applicationNo}` : '查看申请全量字段与合同信息'}
-            </DialogDescription>
+        <DialogContent className="left-auto right-0 top-0 h-full max-h-none w-full max-w-2xl
+                    translate-x-0 translate-y-0 overflow-y-auto rounded-none sm:rounded-none
+                    bg-gradient-to-b from-background to-muted/20">
+          <DialogHeader className="border-b border-border/50 pb-4 bg-gradient-to-r from-primary/10
+                                  to-primary/5 -mx-6 px-6 pt-6">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-primary/20 flex items-center justify-center
+                              transition-transform hover:scale-105">
+                <FileText className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <DialogTitle className="text-lg">申请详情</DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground">
+                  {selectedApplication ? `申请编号：${selectedApplication.applicationNo}` : '查看申请全量字段与合同信息'}
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
 
           {detailLoading ? (
