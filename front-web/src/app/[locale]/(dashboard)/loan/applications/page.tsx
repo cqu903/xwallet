@@ -1,7 +1,7 @@
 'use client';
 
 import { Fragment, useMemo, useState } from 'react';
-import { Check, FileText, Search, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
+import { Check, FileText, Search, RefreshCw, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import useSWR from 'swr';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -511,8 +511,13 @@ export default function LoanApplicationsPage() {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8">
-                      加载中...
+                    <TableCell colSpan={8} className="text-center py-12">
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center animate-pulse">
+                          <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                        </div>
+                        <p className="text-muted-foreground">加载中...</p>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ) : error ? (
@@ -523,8 +528,14 @@ export default function LoanApplicationsPage() {
                   </TableRow>
                 ) : applicationsData?.list?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8">
-                      暂无申请记录
+                    <TableCell colSpan={8} className="text-center py-12">
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                          <FileText className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                        <p className="text-muted-foreground">暂无申请记录</p>
+                        <p className="text-xs text-muted-foreground/60">请调整筛选条件后重试</p>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ) : (
