@@ -414,11 +414,19 @@ export default function LoanApplicationsPage() {
                   applicationsData?.list?.map((item, index) => (
                     <TableRow
                       key={item.applicationId}
+                      role="button"
+                      tabIndex={0}
                       className={cn(
                         "transition-colors hover:bg-primary/5 cursor-pointer",
                         index % 2 === 0 ? "bg-transparent" : "bg-muted/20"
                       )}
                       onClick={() => handleOpenDetail(item)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleOpenDetail(item);
+                        }
+                      }}
                     >
                       <TableCell className="font-mono text-xs">{item.applicationNo}</TableCell>
                       <TableCell>{item.customerId} / {item.fullName}</TableCell>
