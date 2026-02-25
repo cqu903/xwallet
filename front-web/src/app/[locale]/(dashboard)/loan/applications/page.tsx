@@ -561,9 +561,15 @@ export default function LoanApplicationsPage() {
           </div>
 
           {applicationsData && applicationsData.total > 0 && (
-            <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center justify-between mt-4 p-3 rounded-lg
+                    bg-muted/30 border border-border/50">
               <div className="text-sm text-muted-foreground">
-                共 {applicationsData.total} 条记录，第 {page} / {Math.ceil(applicationsData.total / applicationsData.size)} 页
+                共 <span className="font-semibold text-foreground">
+                  {applicationsData.total}
+                </span> 条记录，
+                第 <span className="font-semibold text-foreground">
+                  {page}
+                </span> / {Math.ceil(applicationsData.total / applicationsData.size)} 页
               </div>
               <div className="flex gap-2">
                 <Button
@@ -571,6 +577,8 @@ export default function LoanApplicationsPage() {
                   size="sm"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
+                  className="disabled:opacity-50 transition-all duration-200 hover:bg-primary/10
+                             hover:border-primary/30 disabled:hover:bg-transparent"
                 >
                   上一页
                 </Button>
@@ -579,6 +587,8 @@ export default function LoanApplicationsPage() {
                   size="sm"
                   onClick={() => setPage((p) => p + 1)}
                   disabled={page * applicationsData.size >= applicationsData.total}
+                  className="disabled:opacity-50 transition-all duration-200 hover:bg-primary/10
+                             hover:border-primary/30 disabled:hover:bg-transparent"
                 >
                   下一页
                 </Button>
