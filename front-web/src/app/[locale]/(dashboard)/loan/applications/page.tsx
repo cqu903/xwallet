@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { FileText, Search, ChevronDown, ChevronUp } from 'lucide-react';
+import { Fragment, useMemo, useState } from 'react';
+import { Check, FileText, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import useSWR from 'swr';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -310,6 +310,16 @@ export default function LoanApplicationsPage() {
   };
 
   const detail: LoanApplicationAdminDetail | undefined = detailData;
+
+  const timelineItems = useMemo(() => {
+    if (!detail) return [];
+    return [
+      { label: '提交', completed: !!detail.createdAt },
+      { label: '审批', completed: !!detail.approvedAt },
+      { label: '签署', completed: !!detail.signedAt },
+      { label: '放款', completed: !!detail.disbursedAt },
+    ];
+  }, [detail]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -647,14 +657,33 @@ export default function LoanApplicationsPage() {
                   <div className="h-1.5 w-1.5 rounded-full bg-primary" />
                   时间轴
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <DetailField label="创建时间" value={formatDateTime(detail.createdAt)} />
-                  <DetailField label="更新时间" value={formatDateTime(detail.updatedAt)} />
-                  <DetailField label="审批通过时间" value={formatDateTime(detail.approvedAt)} />
-                  <DetailField label="签署过期时间" value={formatDateTime(detail.expiresAt)} />
-                  <DetailField label="签署完成时间" value={formatDateTime(detail.signedAt)} />
-                  <DetailField label="放款完成时间" value={formatDateTime(detail.disbursedAt)} />
-                  <DetailField label="冷却结束时间" value={formatDateTime(detail.cooldownUntil)} />
+                <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                  {timelineItems.map((item, index) => (
+                    <Fragment key={index}>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className={cn(
+                          "h-8 w-8 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-300",
+                          item.completed
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground"
+                        )}>
+                          {item.completed ? <Check className="h-4 w-4" /> : (index + 1)}
+                        </div>
+                        <span className={cn(
+                          "text-xs font-medium whitespace-nowrap",
+                          item.completed ? "text-foreground" : "text-muted-foreground"
+                        )}>
+                          {item.label}
+                        </span>
+                      </div>
+                      {index < timelineItems.length - 1 && (
+                        <div className={cn(
+                          "w-8 h-0.5 transition-all duration-300",
+                          item.completed ? "bg-primary" : "bg-border"
+                        )} />
+                      )}
+                    </Fragment>
+                  ))}
                 </div>
               </section>
 
