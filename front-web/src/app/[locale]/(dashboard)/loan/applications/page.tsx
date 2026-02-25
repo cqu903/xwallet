@@ -1,11 +1,16 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { FileText, Search } from 'lucide-react';
+import { FileText, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import useSWR from 'swr';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
   Dialog,
   DialogContent,
@@ -146,6 +151,7 @@ export default function LoanApplicationsPage() {
   const [searchInput, setSearchInput] = useState<FilterState>(EMPTY_FILTERS);
   const [selectedApplication, setSelectedApplication] = useState<LoanApplicationAdminItem | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isAdvancedFilterOpen, setIsAdvancedFilterOpen] = useState(false);
 
   const queryParams = useMemo(() => {
     const customerId = filters.customerId.trim() ? Number(filters.customerId.trim()) : undefined;
@@ -283,55 +289,61 @@ export default function LoanApplicationsPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="contractNo">合同号</Label>
-              <Input
-                id="contractNo"
-                placeholder="输入合同号"
-                value={searchInput.contractNo}
-                onChange={(e) => setSearchInput({ ...searchInput, contractNo: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="contractStatus">合同状态</Label>
-              <Select
-                value={searchInput.contractStatus || 'all'}
-                onValueChange={(value) =>
-                  setSearchInput({ ...searchInput, contractStatus: value === 'all' ? '' : value })
-                }
-              >
-                <SelectTrigger id="contractStatus">
-                  <SelectValue placeholder="选择合同状态" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全部</SelectItem>
-                  {CONTRACT_STATUS_OPTIONS.map((item) => (
-                    <SelectItem key={item.value} value={item.value}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="startTime">开始日期</Label>
-              <Input
-                id="startTime"
-                type="date"
-                value={searchInput.startTime}
-                onChange={(e) => setSearchInput({ ...searchInput, startTime: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="endTime">结束日期</Label>
-              <Input
-                id="endTime"
-                type="date"
-                value={searchInput.endTime}
-                onChange={(e) => setSearchInput({ ...searchInput, endTime: e.target.value })}
-              />
-            </div>
           </div>
+
+          {/* 高级筛选 */}
+          <Collapsible open={isAdvancedFilterOpen} onOpenChange={setIsAdvancedFilterOpen}>
+            <CollapsibleContent className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 space-y-0">
+              <div className="space-y-2">
+                <Label htmlFor="contractNo">合同号</Label>
+                <Input
+                  id="contractNo"
+                  placeholder="输入合同号"
+                  value={searchInput.contractNo}
+                  onChange={(e) => setSearchInput({ ...searchInput, contractNo: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="contractStatus">合同状态</Label>
+                <Select
+                  value={searchInput.contractStatus || 'all'}
+                  onValueChange={(value) =>
+                    setSearchInput({ ...searchInput, contractStatus: value === 'all' ? '' : value })
+                  }
+                >
+                  <SelectTrigger id="contractStatus">
+                    <SelectValue placeholder="选择合同状态" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">全部</SelectItem>
+                    {CONTRACT_STATUS_OPTIONS.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="startTime">开始日期</Label>
+                <Input
+                  id="startTime"
+                  type="date"
+                  value={searchInput.startTime}
+                  onChange={(e) => setSearchInput({ ...searchInput, startTime: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="endTime">结束日期</Label>
+                <Input
+                  id="endTime"
+                  type="date"
+                  value={searchInput.endTime}
+                  onChange={(e) => setSearchInput({ ...searchInput, endTime: e.target.value })}
+                />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
 
           <div className="flex gap-2 mb-4">
             <Button onClick={handleSearch} className="gap-2">
@@ -341,7 +353,25 @@ export default function LoanApplicationsPage() {
             <Button onClick={handleReset} variant="outline">
               重置
             </Button>
-            <Button className="ml-auto" variant="outline" onClick={() => mutate()}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsAdvancedFilterOpen(!isAdvancedFilterOpen)}
+              className="gap-2 ml-auto"
+            >
+              {isAdvancedFilterOpen ? (
+                <>
+                  <ChevronUp className="w-4 h-4" />
+                  收起筛选
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="w-4 h-4" />
+                  高级筛选
+                </>
+              )}
+            </Button>
+            <Button variant="outline" onClick={() => mutate()}>
               刷新
             </Button>
           </div>
