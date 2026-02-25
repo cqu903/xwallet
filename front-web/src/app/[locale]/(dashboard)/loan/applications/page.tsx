@@ -599,8 +599,12 @@ export default function LoanApplicationsPage() {
             <div className="py-8 text-center">暂无详情</div>
           ) : (
             <div className="space-y-6">
-              <section className="space-y-3">
-                <h3 className="text-sm font-semibold">基本信息</h3>
+              <section className="rounded-xl border border-border/50 bg-card/50 p-4 shadow-sm
+                      transition-all duration-200 hover:shadow-md hover:border-primary/20">
+                <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  基本信息
+                </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <DetailField label="申请ID" value={detail.applicationId} />
                   <DetailField label="申请编号" value={detail.applicationNo} />
@@ -617,8 +621,12 @@ export default function LoanApplicationsPage() {
                 </div>
               </section>
 
-              <section className="space-y-3">
-                <h3 className="text-sm font-semibold">风险与财务</h3>
+              <section className="rounded-xl border border-border/50 bg-card/50 p-4 shadow-sm
+                      transition-all duration-200 hover:shadow-md hover:border-primary/20">
+                <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  风险与财务
+                </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <Label className="text-muted-foreground">风控决策</Label>
@@ -633,8 +641,12 @@ export default function LoanApplicationsPage() {
                 </div>
               </section>
 
-              <section className="space-y-3">
-                <h3 className="text-sm font-semibold">时间轴</h3>
+              <section className="rounded-xl border border-border/50 bg-card/50 p-4 shadow-sm
+                      transition-all duration-200 hover:shadow-md hover:border-primary/20">
+                <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  时间轴
+                </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <DetailField label="创建时间" value={formatDateTime(detail.createdAt)} />
                   <DetailField label="更新时间" value={formatDateTime(detail.updatedAt)} />
@@ -646,8 +658,12 @@ export default function LoanApplicationsPage() {
                 </div>
               </section>
 
-              <section className="space-y-3">
-                <h3 className="text-sm font-semibold">合同信息</h3>
+              <section className="rounded-xl border border-border/50 bg-card/50 p-4 shadow-sm
+                      transition-all duration-200 hover:shadow-md hover:border-primary/20">
+                <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  合同信息
+                </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <DetailField label="合同号" value={detail.contractNo} />
                   <div className="space-y-1">
