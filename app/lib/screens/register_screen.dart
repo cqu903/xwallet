@@ -12,6 +12,15 @@ import '../widgets/analytics/analytics_icon_button.dart';
 import '../widgets/analytics/analytics_text_button.dart';
 import '../widgets/x_wallet_logo.dart';
 
+// 设计稿颜色常量（与 login_screen.dart 一致）
+const Color _kBgColor = Color(0xFFD4CCF5);
+const Color _kPrimaryPurple = Color(0xFF7424F5);
+const Color _kTextPrimary = Color(0xFF1A1A1A);
+const Color _kTextSecondary = Color(0xFF666666);
+const Color _kInputBg = Color(0xFFF8F9FA);
+const Color _kDividerColor = Color(0xFFE0E0E0);
+const Color _kCardGradientEnd = Color(0xFFFAF8FF);
+
 /// 用户注册页面
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -137,7 +146,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: AnalyticsIconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A1A1A)),
           tooltip: '返回登录',
           eventType: AnalyticsEventType.linkClick,
           properties: AnalyticsEventProperties.click(
@@ -152,16 +161,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Navigator.of(context).pop();
           },
         ),
-        title: const Text('注册 xWallet 账号'),
-        backgroundColor: Colors.green.shade700,
-        foregroundColor: Colors.white,
+        title: const Text(
+          '注册 X Wallet 账号',
+          style: TextStyle(
+            color: Color(0xFF1A1A1A),
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: Color(0xFF1A1A1A),
+        elevation: 0,
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.green.shade50, Colors.white],
+            colors: [_kBgColor, Colors.white],
           ),
         ),
         child: Center(
