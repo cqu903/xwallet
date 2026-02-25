@@ -38,4 +38,40 @@
         VALUES (#{email}, #{password}, #{nickname}, #{status}, #{createdAt}, #{updatedAt})
     </insert>
 
+    <select id="findByPage" resultMap="CustomerResultMap">
+        SELECT id, email, nickname, status, created_at, updated_at
+        FROM customer
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (email LIKE CONCAT('%', #{keyword}, '%')
+                     OR nickname LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY id DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countByCondition" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM customer
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (email LIKE CONCAT('%', #{keyword}, '%')
+                     OR nickname LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateStatus">
+        UPDATE customer
+        SET status = #{status}, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
 </mapper>

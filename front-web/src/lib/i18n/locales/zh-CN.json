@@ -20,6 +20,7 @@
   "menu": {
     "dashboard": "仪表盘",
     "users": "用户管理",
+    "customers": "顾客管理",
     "roles": "角色管理",
     "system": "系统管理",
     "mqttEvents": "MQTT事件"
@@ -81,5 +82,22 @@
     "totalRoles": "角色总数",
     "todayLogs": "今日操作日志",
     "recentActivities": "最近活动"
+  },
+  "customer": {
+    "title": "顾客管理",
+    "totalCustomers": "总顾客数",
+    "enabledCustomers": "启用顾客",
+    "disabledCustomers": "禁用顾客",
+    "id": "ID",
+    "email": "邮箱",
+    "nickname": "昵称",
+    "status": "状态",
+    "createdAt": "注册时间",
+    "updatedAt": "更新时间",
+    "enabled": "启用",
+    "disabled": "禁用",
+    "viewDetail": "查看详情",
+    "confirmEnable": "确定要启用该顾客吗？",
+    "confirmDisable": "确定要禁用该顾客吗？禁用后该顾客将无法登录。"
   }
 }

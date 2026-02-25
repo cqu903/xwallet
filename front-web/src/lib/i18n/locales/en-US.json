@@ -20,6 +20,7 @@
   "menu": {
     "dashboard": "Dashboard",
     "users": "User Management",
+    "customers": "Customer Management",
     "roles": "Role Management",
     "system": "System",
     "mqttEvents": "MQTT Events"
@@ -81,5 +82,22 @@
     "totalRoles": "Total Roles",
     "todayLogs": "Today's Logs",
     "recentActivities": "Recent Activities"
+  },
+  "customer": {
+    "title": "Customer Management",
+    "totalCustomers": "Total Customers",
+    "enabledCustomers": "Enabled Customers",
+    "disabledCustomers": "Disabled Customers",
+    "id": "ID",
+    "email": "Email",
+    "nickname": "Nickname",
+    "status": "Status",
+    "createdAt": "Registration Time",
+    "updatedAt": "Updated At",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "viewDetail": "View Details",
+    "confirmEnable": "Are you sure you want to enable this customer?",
+    "confirmDisable": "Are you sure you want to disable this customer? The customer will not be able to login."
   }
 }
