@@ -163,7 +163,7 @@ class TransactionDetailSheet extends StatelessWidget {
       properties: AnalyticsEventProperties.click(
         page: AnalyticsPages.history,
         flow: AnalyticsFlows.history,
-        elementId: 'close_detail',
+        elementId: AnalyticsIds.closeDetail,
         elementType: AnalyticsElementType.button,
         elementText: '关闭',
       ),

@@ -55,4 +55,6 @@ class AnalyticsIds {
   static const profileHelpCenter = 'profile_help_center';
   static const profileAbout = 'profile_about';
   static const logout = 'logout';
+
+  static const closeDetail = 'close_detail';
 }
