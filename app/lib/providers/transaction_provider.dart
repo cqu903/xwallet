@@ -12,12 +12,18 @@ class TransactionProvider with ChangeNotifier {
   bool _isLoading = false;
   bool _hasLoaded = false;
   String? _errorMessage;
+  List<LoanTransactionItem> _allTransactions = <LoanTransactionItem>[];
+  bool _isLoadingAll = false;
+  bool _hasLoadedAll = false;
 
   LoanAccountSummary? get accountSummary => _accountSummary;
   List<LoanTransactionItem> get recentTransactions => _recentTransactions;
   bool get isLoading => _isLoading;
   bool get hasLoaded => _hasLoaded;
   String? get errorMessage => _errorMessage;
+  List<LoanTransactionItem> get allTransactions => _allTransactions;
+  bool get isLoadingAll => _isLoadingAll;
+  bool get hasLoadedAll => _hasLoadedAll;
 
   Future<void> loadIfNeeded() async {
     if (_hasLoaded || _isLoading) {
@@ -108,9 +114,36 @@ class TransactionProvider with ChangeNotifier {
       if (_recentTransactions.length > 3) {
         _recentTransactions = _recentTransactions.take(3).toList();
       }
+      _allTransactions = [
+        transaction,
+        ..._allTransactions.where(
+          (item) => item.transactionId != transaction.transactionId,
+        ),
+      ];
     }
     _hasLoaded = true;
     _errorMessage = null;
+    notifyListeners();
+  }
+
+  Future<void> loadAllTransactionsIfNeeded() async {
+    if (_hasLoadedAll || _isLoadingAll) {
+      return;
+    }
+    await refreshAllTransactions();
+  }
+
+  Future<void> refreshAllTransactions() async {
+    _isLoadingAll = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    final (transactions, error) =
+        await _apiService.getRecentLoanTransactions(limit: 1000);
+    _allTransactions = transactions ?? <LoanTransactionItem>[];
+    _errorMessage = error;
+    _hasLoadedAll = true;
+    _isLoadingAll = false;
     notifyListeners();
   }
 }
