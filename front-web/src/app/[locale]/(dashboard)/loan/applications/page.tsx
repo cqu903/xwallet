@@ -45,23 +45,104 @@ import { cn } from '@/lib/utils';
 
 const PAGE_SIZE = 10;
 
-const APPLICATION_STATUS_MAP: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-  SUBMITTED: { label: '已提交', variant: 'secondary' },
-  REJECTED: { label: '已拒绝', variant: 'destructive' },
-  APPROVED_PENDING_SIGN: { label: '待签署', variant: 'outline' },
-  SIGNED: { label: '已签署', variant: 'secondary' },
-  DISBURSED: { label: '已放款', variant: 'default' },
-  EXPIRED: { label: '已过期', variant: 'destructive' },
+const APPLICATION_STATUS_MAP: Record<string, {
+  label: string;
+  variant: 'default' | 'secondary' | 'destructive' | 'outline';
+  className?: string;
+  style?: React.CSSProperties;
+}> = {
+  SUBMITTED: {
+    label: '已提交',
+    variant: 'outline',
+    style: {
+      backgroundColor: 'oklch(55% 0.22 260 / 0.1)',
+      color: 'oklch(55% 0.22 260)',
+      borderColor: 'oklch(55% 0.22 260 / 0.2)',
+    },
+  },
+  REJECTED: {
+    label: '已拒绝',
+    variant: 'destructive',
+  },
+  APPROVED_PENDING_SIGN: {
+    label: '待签署',
+    variant: 'outline',
+    className: 'animate-pulse',
+    style: {
+      backgroundColor: 'oklch(70% 0.15 60 / 0.1)',
+      color: 'oklch(70% 0.15 60)',
+      borderColor: 'oklch(70% 0.15 60 / 0.2)',
+    },
+  },
+  SIGNED: {
+    label: '已签署',
+    variant: 'secondary',
+  },
+  DISBURSED: {
+    label: '已放款',
+    variant: 'outline',
+    style: {
+      background: 'linear-gradient(to right, oklch(55% 0.18 145 / 0.2), oklch(55% 0.18 165 / 0.2))',
+      color: 'oklch(45% 0.18 155)',
+      borderColor: 'oklch(55% 0.18 155 / 0.3)',
+    },
+  },
+  EXPIRED: {
+    label: '已过期',
+    variant: 'secondary',
+    style: {
+      backgroundColor: 'oklch(50% 0 0 / 0.1)',
+      color: 'oklch(50% 0 0)',
+      borderColor: 'oklch(50% 0 0 / 0.2)',
+    },
+  },
 };
 
-const CONTRACT_STATUS_MAP: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-  DRAFT: { label: '草稿', variant: 'outline' },
-  SIGNED: { label: '已签署', variant: 'default' },
+const CONTRACT_STATUS_MAP: Record<string, {
+  label: string;
+  variant: 'default' | 'secondary' | 'destructive' | 'outline';
+  className?: string;
+  style?: React.CSSProperties;
+}> = {
+  DRAFT: {
+    label: '草稿',
+    variant: 'outline',
+    style: {
+      backgroundColor: 'oklch(50% 0.02 265 / 0.1)',
+      color: 'oklch(45% 0.02 265)',
+      borderColor: 'oklch(50% 0.02 265 / 0.2)',
+    },
+  },
+  SIGNED: {
+    label: '已签署',
+    variant: 'default',
+    style: {
+      backgroundColor: 'oklch(55% 0.18 145 / 0.1)',
+      color: 'oklch(45% 0.18 145)',
+      borderColor: 'oklch(55% 0.18 145 / 0.3)',
+    },
+  },
 };
 
-const RISK_DECISION_MAP: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-  APPROVED: { label: '通过', variant: 'default' },
-  REJECTED: { label: '拒绝', variant: 'destructive' },
+const RISK_DECISION_MAP: Record<string, {
+  label: string;
+  variant: 'default' | 'secondary' | 'destructive' | 'outline';
+  className?: string;
+  style?: React.CSSProperties;
+}> = {
+  APPROVED: {
+    label: '通过',
+    variant: 'default',
+    style: {
+      backgroundColor: 'oklch(55% 0.18 165 / 0.1)',
+      color: 'oklch(45% 0.18 165)',
+      borderColor: 'oklch(55% 0.18 165 / 0.3)',
+    },
+  },
+  REJECTED: {
+    label: '拒绝',
+    variant: 'destructive',
+  },
 };
 
 const APPLICATION_STATUS_OPTIONS = [
@@ -128,13 +209,26 @@ function formatAmount(value: unknown): string {
 
 function renderEnumBadge(
   value: unknown,
-  map: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }>
+  map: Record<string, {
+    label: string;
+    variant: 'default' | 'secondary' | 'destructive' | 'outline';
+    className?: string;
+    style?: React.CSSProperties;
+  }>
 ) {
   const raw = textOrDash(value);
   if (raw === '-') return raw;
   const mapped = map[raw];
   if (!mapped) return <Badge variant="outline">{raw}</Badge>;
-  return <Badge variant={mapped.variant}>{mapped.label}</Badge>;
+  return (
+    <Badge
+      variant={mapped.variant}
+      className={cn("font-medium", mapped.className)}
+      style={mapped.style}
+    >
+      {mapped.label}
+    </Badge>
+  );
 }
 
 function DetailField({ label, value }: { label: string; value: unknown }) {
