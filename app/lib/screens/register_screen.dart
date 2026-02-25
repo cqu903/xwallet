@@ -173,6 +173,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );
+    } else if (success && mounted) {
+      // 注册成功，手动跳转到主页
+      Navigator.of(context).pushReplacementNamed('/main');
     }
     // 如果成功，AuthProvider 会自动更新状态，Main.dart 会路由到 HomeScreen
   }
