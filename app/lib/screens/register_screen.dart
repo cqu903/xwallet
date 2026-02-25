@@ -59,7 +59,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (emailError != null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(emailError), backgroundColor: Colors.red),
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text(emailError)),
+              ],
+            ),
+            backgroundColor: const Color(0xFFF44336),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
         );
       }
       return;
@@ -73,8 +84,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(authProvider.errorMessage ?? '发送失败'),
-          backgroundColor: Colors.red,
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text(authProvider.errorMessage ?? '发送失败')),
+            ],
+          ),
+          backgroundColor: const Color(0xFFF44336),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );
     } else if (mounted) {
@@ -83,8 +102,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _startCountdown();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('验证码已发送到 ${_emailController.text}'),
-          backgroundColor: Colors.green,
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text('验证码已发送到 ${_emailController.text}')),
+            ],
+          ),
+          backgroundColor: const Color(0xFF22C55E),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );
     }
@@ -134,8 +161,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(authProvider.errorMessage ?? '注册失败'),
-          backgroundColor: Colors.red,
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text(authProvider.errorMessage ?? '注册失败')),
+            ],
+          ),
+          backgroundColor: const Color(0xFFF44336),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );
     }
