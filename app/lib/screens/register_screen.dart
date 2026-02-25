@@ -7,6 +7,7 @@ import '../models/analytics_event.dart';
 import '../providers/auth_provider.dart';
 import '../services/analytics_service.dart';
 import '../utils/validators.dart';
+import '../utils/design_scale.dart';
 import '../widgets/analytics/analytics_elevated_button.dart';
 import '../widgets/analytics/analytics_icon_button.dart';
 import '../widgets/analytics/analytics_text_button.dart';
@@ -143,6 +144,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scale = DesignScale.getScale(context);
     return Scaffold(
       appBar: AppBar(
         leading: AnalyticsIconButton(
@@ -188,7 +190,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               constraints: const BoxConstraints(maxWidth: 400),
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(24 * scale),
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -197,15 +199,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   boxShadow: [
                     BoxShadow(
                       color: _kPrimaryPurple.withValues(alpha: 0.15),
-                      blurRadius: 32,
-                      offset: const Offset(0, 16),
+                      blurRadius: 32 * scale,
+                      offset: Offset(0, 16 * scale),
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
+                padding: EdgeInsets.symmetric(horizontal: 32 * scale, vertical: 24 * scale),
                 child: Form(
-                    key: _formKey,
-                    child: Column(
+                  key: _formKey,
+                  child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // X Wallet Logo（与 www.xwallet.hk 品牌一致）- 靠上以给表单更多空间
