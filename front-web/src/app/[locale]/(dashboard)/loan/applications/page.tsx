@@ -55,9 +55,9 @@ const APPLICATION_STATUS_MAP: Record<string, {
     label: '已提交',
     variant: 'outline',
     style: {
-      backgroundColor: 'oklch(55% 0.22 260 / 0.1)',
-      color: 'oklch(55% 0.22 260)',
-      borderColor: 'oklch(55% 0.22 260 / 0.2)',
+      backgroundColor: 'var(--badge-submitted-bg)',
+      color: 'var(--badge-submitted-text)',
+      borderColor: 'var(--badge-submitted-border)',
     },
   },
   REJECTED: {
@@ -69,9 +69,9 @@ const APPLICATION_STATUS_MAP: Record<string, {
     variant: 'outline',
     className: 'animate-pulse',
     style: {
-      backgroundColor: 'oklch(70% 0.15 60 / 0.1)',
-      color: 'oklch(70% 0.15 60)',
-      borderColor: 'oklch(70% 0.15 60 / 0.2)',
+      backgroundColor: 'var(--badge-pending-bg)',
+      color: 'var(--badge-pending-text)',
+      borderColor: 'var(--badge-pending-border)',
     },
   },
   SIGNED: {
@@ -82,18 +82,18 @@ const APPLICATION_STATUS_MAP: Record<string, {
     label: '已放款',
     variant: 'outline',
     style: {
-      background: 'linear-gradient(to right, oklch(55% 0.18 145 / 0.2), oklch(55% 0.18 165 / 0.2))',
-      color: 'oklch(45% 0.18 155)',
-      borderColor: 'oklch(55% 0.18 155 / 0.3)',
+      background: 'var(--badge-disbursed-bg)',
+      color: 'var(--badge-disbursed-text)',
+      borderColor: 'var(--badge-disbursed-border)',
     },
   },
   EXPIRED: {
     label: '已过期',
     variant: 'secondary',
     style: {
-      backgroundColor: 'oklch(50% 0 0 / 0.1)',
-      color: 'oklch(50% 0 0)',
-      borderColor: 'oklch(50% 0 0 / 0.2)',
+      backgroundColor: 'var(--badge-expired-bg)',
+      color: 'var(--badge-expired-text)',
+      borderColor: 'var(--badge-expired-border)',
     },
   },
 };
@@ -108,18 +108,18 @@ const CONTRACT_STATUS_MAP: Record<string, {
     label: '草稿',
     variant: 'outline',
     style: {
-      backgroundColor: 'oklch(50% 0.02 265 / 0.1)',
-      color: 'oklch(45% 0.02 265)',
-      borderColor: 'oklch(50% 0.02 265 / 0.2)',
+      backgroundColor: 'var(--badge-draft-bg)',
+      color: 'var(--badge-draft-text)',
+      borderColor: 'var(--badge-draft-border)',
     },
   },
   SIGNED: {
     label: '已签署',
     variant: 'default',
     style: {
-      backgroundColor: 'oklch(55% 0.18 145 / 0.1)',
-      color: 'oklch(45% 0.18 145)',
-      borderColor: 'oklch(55% 0.18 145 / 0.3)',
+      backgroundColor: 'var(--badge-signed-bg)',
+      color: 'var(--badge-signed-text)',
+      borderColor: 'var(--badge-signed-border)',
     },
   },
 };
@@ -134,9 +134,9 @@ const RISK_DECISION_MAP: Record<string, {
     label: '通过',
     variant: 'default',
     style: {
-      backgroundColor: 'oklch(55% 0.18 165 / 0.1)',
-      color: 'oklch(45% 0.18 165)',
-      borderColor: 'oklch(55% 0.18 165 / 0.3)',
+      backgroundColor: 'var(--badge-approved-bg)',
+      color: 'var(--badge-approved-text)',
+      borderColor: 'var(--badge-approved-border)',
     },
   },
   REJECTED: {

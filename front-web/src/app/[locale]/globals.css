@@ -390,3 +390,151 @@ body {
   font-variant-numeric: tabular-nums;
   transition: all 0.3s ease-out;
 }
+
+/* ==================== 状态徽章颜色 - 支持暗色模式 ==================== */
+/* 已提交 - 紫色 */
+:root {
+  --badge-submitted-bg: oklch(55% 0.22 260 / 0.1);
+  --badge-submitted-text: oklch(55% 0.22 260);
+  --badge-submitted-border: oklch(55% 0.22 260 / 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --badge-submitted-bg: oklch(65% 0.22 260 / 0.15);
+    --badge-submitted-text: oklch(70% 0.22 260);
+    --badge-submitted-border: oklch(70% 0.22 260 / 0.3);
+  }
+}
+
+.dark {
+  --badge-submitted-bg: oklch(65% 0.22 260 / 0.15);
+  --badge-submitted-text: oklch(70% 0.22 260);
+  --badge-submitted-border: oklch(70% 0.22 260 / 0.3);
+}
+
+/* 待签署 - 黄色 */
+:root {
+  --badge-pending-bg: oklch(70% 0.15 60 / 0.1);
+  --badge-pending-text: oklch(70% 0.15 60);
+  --badge-pending-border: oklch(70% 0.15 60 / 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --badge-pending-bg: oklch(75% 0.15 60 / 0.15);
+    --badge-pending-text: oklch(80% 0.15 60);
+    --badge-pending-border: oklch(80% 0.15 60 / 0.3);
+  }
+}
+
+.dark {
+  --badge-pending-bg: oklch(75% 0.15 60 / 0.15);
+  --badge-pending-text: oklch(80% 0.15 60);
+  --badge-pending-border: oklch(80% 0.15 60 / 0.3);
+}
+
+/* 已放款 - 绿色渐变 */
+:root {
+  --badge-disbursed-bg: linear-gradient(to right, oklch(55% 0.18 145 / 0.2), oklch(55% 0.18 165 / 0.2));
+  --badge-disbursed-text: oklch(45% 0.18 155);
+  --badge-disbursed-border: oklch(55% 0.18 155 / 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --badge-disbursed-bg: linear-gradient(to right, oklch(65% 0.18 145 / 0.25), oklch(65% 0.18 165 / 0.25));
+    --badge-disbursed-text: oklch(70% 0.18 155);
+    --badge-disbursed-border: oklch(70% 0.18 155 / 0.4);
+  }
+}
+
+.dark {
+  --badge-disbursed-bg: linear-gradient(to right, oklch(65% 0.18 145 / 0.25), oklch(65% 0.18 165 / 0.25));
+  --badge-disbursed-text: oklch(70% 0.18 155);
+  --badge-disbursed-border: oklch(70% 0.18 155 / 0.4);
+}
+
+/* 已过期 - 灰色 */
+:root {
+  --badge-expired-bg: oklch(50% 0 0 / 0.1);
+  --badge-expired-text: oklch(50% 0 0);
+  --badge-expired-border: oklch(50% 0 0 / 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --badge-expired-bg: oklch(60% 0 0 / 0.15);
+    --badge-expired-text: oklch(70% 0 0);
+    --badge-expired-border: oklch(70% 0 0 / 0.3);
+  }
+}
+
+.dark {
+  --badge-expired-bg: oklch(60% 0 0 / 0.15);
+  --badge-expired-text: oklch(70% 0 0);
+  --badge-expired-border: oklch(70% 0 0 / 0.3);
+}
+
+/* 草稿 - 深灰 */
+:root {
+  --badge-draft-bg: oklch(50% 0.02 265 / 0.1);
+  --badge-draft-text: oklch(45% 0.02 265);
+  --badge-draft-border: oklch(50% 0.02 265 / 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --badge-draft-bg: oklch(60% 0.02 265 / 0.15);
+    --badge-draft-text: oklch(70% 0.02 265);
+    --badge-draft-border: oklch(70% 0.02 265 / 0.3);
+  }
+}
+
+.dark {
+  --badge-draft-bg: oklch(60% 0.02 265 / 0.15);
+  --badge-draft-text: oklch(70% 0.02 265);
+  --badge-draft-border: oklch(70% 0.02 265 / 0.3);
+}
+
+/* 已签署 - 绿色 */
+:root {
+  --badge-signed-bg: oklch(55% 0.18 145 / 0.1);
+  --badge-signed-text: oklch(45% 0.18 145);
+  --badge-signed-border: oklch(55% 0.18 145 / 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --badge-signed-bg: oklch(65% 0.18 145 / 0.15);
+    --badge-signed-text: oklch(70% 0.18 145);
+    --badge-signed-border: oklch(70% 0.18 145 / 0.4);
+  }
+}
+
+.dark {
+  --badge-signed-bg: oklch(65% 0.18 145 / 0.15);
+  --badge-signed-text: oklch(70% 0.18 145);
+  --badge-signed-border: oklch(70% 0.18 145 / 0.4);
+}
+
+/* 通过 - 绿色 */
+:root {
+  --badge-approved-bg: oklch(55% 0.18 165 / 0.1);
+  --badge-approved-text: oklch(45% 0.18 165);
+  --badge-approved-border: oklch(55% 0.18 165 / 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --badge-approved-bg: oklch(65% 0.18 165 / 0.15);
+    --badge-approved-text: oklch(70% 0.18 165);
+    --badge-approved-border: oklch(70% 0.18 165 / 0.4);
+  }
+}
+
+.dark {
+  --badge-approved-bg: oklch(65% 0.18 165 / 0.15);
+  --badge-approved-text: oklch(70% 0.18 165);
+  --badge-approved-border: oklch(70% 0.18 165 / 0.4);
+}
