@@ -145,6 +145,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final scale = DesignScale.getScale(context);
+    final inputFontSize = DesignScale.fontSize(context, 16);
+    final inputIconSize = DesignScale.iconSize(context, 20).clamp(16.0, 20.0).toDouble();
+    final suffixIconButtonSize = DesignScale.iconSize(context, 36).clamp(32.0, 40.0).toDouble();
     return Scaffold(
       appBar: AppBar(
         leading: AnalyticsIconButton(
@@ -228,16 +231,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           controller: _emailController,
                           decoration: InputDecoration(
                             labelText: '邮箱',
-                            hintText: '请输入邮箱',
-                            prefixIcon: const Icon(Icons.email),
+                            hintText: '请输入邮箱地址',
+                            prefixIcon: Icon(Icons.mail_outlined, color: _kPrimaryPurple, size: inputIconSize),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12 * scale),
+                              borderSide: BorderSide.none,
                             ),
                             filled: true,
-                            fillColor: Colors.grey.shade50,
+                            fillColor: _kInputBg,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 14 * scale),
                           ),
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
+                          style: TextStyle(fontSize: inputFontSize, color: _kTextPrimary),
                           validator: Validators.validateEmail,
                         ),
                         const SizedBox(height: 16),
@@ -252,34 +258,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 decoration: InputDecoration(
                                   labelText: '验证码',
                                   hintText: '6位数字',
-                                  prefixIcon: const Icon(Icons.verified),
+                                  prefixIcon: Icon(Icons.verified_outlined, color: _kPrimaryPurple, size: inputIconSize),
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(12 * scale),
+                                    borderSide: BorderSide.none,
                                   ),
                                   filled: true,
-                                  fillColor: Colors.grey.shade50,
+                                  fillColor: _kInputBg,
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 14 * scale),
                                 ),
                                 keyboardType: TextInputType.number,
                                 maxLength: 6,
                                 textInputAction: TextInputAction.next,
+                                style: TextStyle(fontSize: inputFontSize, color: _kTextPrimary),
                                 validator: Validators.validateVerificationCode,
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12 * scale),
                             SizedBox(
-                              width: 120,
+                              width: 120 * scale,
+                              height: 52 * scale,
                               child: AnalyticsElevatedButton(
                                 onPressed: (_countdown > 0)
                                     ? null
                                     : _handleSendCode,
                                 style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                  ),
+                                  backgroundColor: _kPrimaryPurple,
+                                  foregroundColor: Colors.white,
+                                  disabledBackgroundColor: _kPrimaryPurple.withValues(alpha: 0.5),
+                                  elevation: 0,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(12 * scale),
                                   ),
-                                  backgroundColor: Colors.green.shade700,
                                 ),
                                 eventType: AnalyticsEventType.buttonClick,
                                 properties: AnalyticsEventProperties.click(
@@ -306,12 +316,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           decoration: InputDecoration(
                             labelText: '密码',
                             hintText: '至少6位',
-                            prefixIcon: const Icon(Icons.lock),
+                            prefixIcon: Icon(Icons.lock_outlined, color: _kPrimaryPurple, size: inputIconSize),
                             suffixIcon: AnalyticsIconButton(
                               icon: Icon(
                                 _obscurePassword
-                                    ? Icons.visibility_off
+                                    ? Icons.visibility_outlined
                                     : Icons.visibility,
+                                color: _kTextSecondary,
+                                size: inputIconSize,
                               ),
                               tooltip: _obscurePassword ? '显示密码' : '隐藏密码',
                               eventType: AnalyticsEventType.buttonClick,
@@ -330,13 +342,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               },
                             ),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12 * scale),
+                              borderSide: BorderSide.none,
                             ),
                             filled: true,
-                            fillColor: Colors.grey.shade50,
+                            fillColor: _kInputBg,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 14 * scale),
                           ),
                           obscureText: _obscurePassword,
                           textInputAction: TextInputAction.next,
+                          style: TextStyle(fontSize: inputFontSize, color: _kTextPrimary),
                           validator: Validators.validatePassword,
                         ),
                         const SizedBox(height: 16),
@@ -347,12 +362,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           decoration: InputDecoration(
                             labelText: '确认密码',
                             hintText: '再次输入密码',
-                            prefixIcon: const Icon(Icons.lock_outline),
+                            prefixIcon: Icon(Icons.lock_outline, color: _kPrimaryPurple, size: inputIconSize),
                             suffixIcon: AnalyticsIconButton(
                               icon: Icon(
                                 _obscureConfirmPassword
-                                    ? Icons.visibility_off
+                                    ? Icons.visibility_outlined
                                     : Icons.visibility,
+                                color: _kTextSecondary,
+                                size: inputIconSize,
                               ),
                               tooltip: _obscureConfirmPassword
                                   ? '显示确认密码'
@@ -377,13 +394,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               },
                             ),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12 * scale),
+                              borderSide: BorderSide.none,
                             ),
                             filled: true,
-                            fillColor: Colors.grey.shade50,
+                            fillColor: _kInputBg,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 14 * scale),
                           ),
                           obscureText: _obscureConfirmPassword,
                           textInputAction: TextInputAction.next,
+                          style: TextStyle(fontSize: inputFontSize, color: _kTextPrimary),
                           validator: (value) =>
                               Validators.validateConfirmPassword(
                                 value,
@@ -398,14 +418,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           decoration: InputDecoration(
                             labelText: '昵称 (可选)',
                             hintText: '请输入昵称',
-                            prefixIcon: const Icon(Icons.person),
+                            prefixIcon: Icon(Icons.person_outline, color: _kPrimaryPurple, size: inputIconSize),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12 * scale),
+                              borderSide: BorderSide.none,
                             ),
                             filled: true,
-                            fillColor: Colors.grey.shade50,
+                            fillColor: _kInputBg,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 14 * scale),
                           ),
                           textInputAction: TextInputAction.done,
+                          style: TextStyle(fontSize: inputFontSize, color: _kTextPrimary),
                           onFieldSubmitted: (_) => _handleRegister(),
                         ),
                         const SizedBox(height: 24),
