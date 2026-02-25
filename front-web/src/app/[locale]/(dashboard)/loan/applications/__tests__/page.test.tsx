@@ -20,6 +20,11 @@ jest.mock('swr', () => ({
 jest.mock('lucide-react', () => ({
   Search: () => <span data-testid="search-icon">Search</span>,
   FileText: () => <span data-testid="file-icon">FileText</span>,
+  RefreshCw: () => <span data-testid="refresh-icon">RefreshCw</span>,
+  ChevronDown: () => <span data-testid="chevron-down">ChevronDown</span>,
+  ChevronUp: () => <span data-testid="chevron-up">ChevronUp</span>,
+  Loader2: () => <span data-testid="loader2">Loader2</span>,
+  Check: () => <span data-testid="check">Check</span>,
 }));
 
 jest.mock('@/components/ui/select', () => ({
@@ -28,6 +33,21 @@ jest.mock('@/components/ui/select', () => ({
   SelectContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   SelectItem: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   SelectValue: ({ placeholder }: { placeholder?: string }) => <span>{placeholder}</span>,
+}));
+
+jest.mock('@/components/ui/collapsible', () => ({
+  Collapsible: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  CollapsibleTrigger: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  CollapsibleContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
+
+jest.mock('@/components/ui/dialog', () => ({
+  Dialog: ({ children, open }: { children: React.ReactNode; open?: boolean }) =>
+    open !== false ? <div>{children}</div> : null,
+  DialogContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  DialogDescription: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  DialogHeader: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  DialogTitle: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 import useSWR from 'swr';
