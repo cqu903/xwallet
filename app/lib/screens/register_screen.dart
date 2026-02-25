@@ -437,71 +437,94 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Consumer<AuthProvider>(
                           builder: (context, authProvider, child) {
                             final isRegistering = authProvider.isLoggingIn;
-                            return AnalyticsElevatedButton(
-                              onPressed: isRegistering ? null : _handleRegister,
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
+                            return SizedBox(
+                              width: double.infinity,
+                              height: 52 * scale,
+                              child: AnalyticsElevatedButton(
+                                onPressed: isRegistering ? null : _handleRegister,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _kPrimaryPurple,
+                                  foregroundColor: Colors.white,
+                                  disabledBackgroundColor: _kPrimaryPurple.withValues(alpha: 0.5),
+                                  elevation: 0,
+                                  shadowColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12 * scale),
+                                  ),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                eventType: AnalyticsEventType.buttonClick,
+                                properties: AnalyticsEventProperties.click(
+                                  page: AnalyticsPages.register,
+                                  flow: AnalyticsFlows.register,
+                                  elementId: AnalyticsIds.registerSubmit,
+                                  elementType: AnalyticsElementType.button,
+                                  elementText: '注册',
                                 ),
-                                backgroundColor: Colors.green.shade700,
-                                foregroundColor: Colors.white,
-                              ),
-                              eventType: AnalyticsEventType.buttonClick,
-                              properties: AnalyticsEventProperties.click(
-                                page: AnalyticsPages.register,
-                                flow: AnalyticsFlows.register,
-                                elementId: AnalyticsIds.registerSubmit,
-                                elementType: AnalyticsElementType.button,
-                                elementText: '注册',
-                              ),
-                              category: EventCategory.behavior,
-                              child: isRegistering
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
-                                            ),
+                                category: EventCategory.behavior,
+                                child: isRegistering
+                                    ? SizedBox(
+                                        height: 20 * scale,
+                                        width: 20 * scale,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: const AlwaysStoppedAnimation<Color>(
+                                            Colors.white,
+                                          ),
+                                        ),
+                                      )
+                                    : Text(
+                                        '注册',
+                                        style: TextStyle(
+                                          fontSize: 16 * scale,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
-                                    )
-                                  : const Text(
-                                      '注册',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                              ),
                             );
                           },
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 24 * scale),
 
                         // 返回登录链接
                         AnalyticsTextButton(
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
+                          style: TextButton.styleFrom(
+                            foregroundColor: _kPrimaryPurple,
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
                           eventType: AnalyticsEventType.linkClick,
                           properties: AnalyticsEventProperties.click(
                             page: AnalyticsPages.register,
                             flow: AnalyticsFlows.register,
                             elementId: AnalyticsIds.registerBackToLogin,
                             elementType: AnalyticsElementType.link,
-                            elementText: '已有账号？返回登录',
+                            elementText: '返回登录',
                           ),
                           category: EventCategory.behavior,
-                          child: Text(
-                            '已有账号？返回登录',
-                            style: TextStyle(
-                              color: Colors.green.shade700,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '已有账号？',
+                                style: TextStyle(
+                                  fontSize: 14 * scale,
+                                  color: _kTextSecondary,
+                                ),
+                              ),
+                              SizedBox(width: 4 * scale),
+                              Text(
+                                '返回登录',
+                                style: TextStyle(
+                                  fontSize: 14 * scale,
+                                  fontWeight: FontWeight.w600,
+                                  color: _kPrimaryPurple,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
