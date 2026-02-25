@@ -10,6 +10,7 @@ import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/account_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/history_screen.dart';
 import 'services/analytics_service.dart';
 import 'widgets/x_wallet_logo.dart';
 import 'config/app_config.dart';
@@ -226,52 +227,6 @@ class _MainNavigationState extends State<MainNavigation> {
         currentIndex: navigationProvider.currentIndex,
         items: MainNavigation._tabItems,
         onTap: _onTabTap,
-      ),
-    );
-  }
-}
-
-/// 记录页面（占位）
-class HistoryScreen extends StatelessWidget {
-  const HistoryScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F3FF),
-      appBar: AppBar(
-        title: const Text('交易记录'),
-        backgroundColor: const Color(0xFF7424F5),
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.history,
-              size: 80,
-              color: const Color(0xFF7424F5).withValues(alpha: 0.3),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '交易记录',
-              style: TextStyle(
-                fontSize: 18,
-                color: const Color(0xFF666666).withValues(alpha: 0.8),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '暂无交易记录',
-              style: TextStyle(
-                fontSize: 14,
-                color: const Color(0xFF999999).withValues(alpha: 0.8),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
