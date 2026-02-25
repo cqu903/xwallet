@@ -185,22 +185,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final suffixIconButtonSize = DesignScale.iconSize(context, 36).clamp(32.0, 40.0).toDouble();
     return Scaffold(
       appBar: AppBar(
-        leading: AnalyticsIconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A1A1A)),
-          tooltip: '返回登录',
-          eventType: AnalyticsEventType.linkClick,
-          properties: AnalyticsEventProperties.click(
-            page: AnalyticsPages.register,
-            flow: AnalyticsFlows.register,
-            elementId: AnalyticsIds.registerBackNav,
-            elementType: AnalyticsElementType.icon,
-            elementText: '返回登录',
-          ),
-          category: EventCategory.behavior,
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
         title: const Text(
           '注册 X Wallet 账号',
           style: TextStyle(
@@ -212,6 +196,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: Colors.white,
         foregroundColor: Color(0xFF1A1A1A),
         elevation: 0,
+        automaticallyImplyLeading: false,
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -352,29 +337,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             labelText: '密码',
                             hintText: '至少6位',
                             prefixIcon: Icon(Icons.lock_outlined, color: _kPrimaryPurple, size: inputIconSize),
-                            suffixIcon: AnalyticsIconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility,
-                                color: _kTextSecondary,
-                                size: inputIconSize,
+                            suffixIconConstraints: BoxConstraints(
+                              minWidth: suffixIconButtonSize,
+                              maxWidth: suffixIconButtonSize,
+                              minHeight: suffixIconButtonSize,
+                              maxHeight: suffixIconButtonSize,
+                            ),
+                            suffixIcon: Align(
+                              widthFactor: 1,
+                              heightFactor: 1,
+                              child: AnalyticsIconButton(
+                                padding: EdgeInsets.zero,
+                                constraints: BoxConstraints.tightFor(
+                                  width: suffixIconButtonSize,
+                                  height: suffixIconButtonSize,
+                                ),
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility,
+                                  color: _kTextSecondary,
+                                  size: inputIconSize,
+                                ),
+                                tooltip: _obscurePassword ? '显示密码' : '隐藏密码',
+                                eventType: AnalyticsEventType.buttonClick,
+                                properties: AnalyticsEventProperties.click(
+                                  page: AnalyticsPages.register,
+                                  flow: AnalyticsFlows.register,
+                                  elementId: AnalyticsIds.registerPasswordVisibility,
+                                  elementType: AnalyticsElementType.icon,
+                                  elementText: _obscurePassword ? '显示密码' : '隐藏密码',
+                                ),
+                                category: EventCategory.behavior,
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
                               ),
-                              tooltip: _obscurePassword ? '显示密码' : '隐藏密码',
-                              eventType: AnalyticsEventType.buttonClick,
-                              properties: AnalyticsEventProperties.click(
-                                page: AnalyticsPages.register,
-                                flow: AnalyticsFlows.register,
-                                elementId: AnalyticsIds.registerPasswordVisibility,
-                                elementType: AnalyticsElementType.icon,
-                                elementText: _obscurePassword ? '显示密码' : '隐藏密码',
-                              ),
-                              category: EventCategory.behavior,
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12 * scale),
@@ -398,35 +398,50 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             labelText: '确认密码',
                             hintText: '再次输入密码',
                             prefixIcon: Icon(Icons.lock_outline, color: _kPrimaryPurple, size: inputIconSize),
-                            suffixIcon: AnalyticsIconButton(
-                              icon: Icon(
-                                _obscureConfirmPassword
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility,
-                                color: _kTextSecondary,
-                                size: inputIconSize,
-                              ),
-                              tooltip: _obscureConfirmPassword
-                                  ? '显示确认密码'
-                                  : '隐藏确认密码',
-                              eventType: AnalyticsEventType.buttonClick,
-                              properties: AnalyticsEventProperties.click(
-                                page: AnalyticsPages.register,
-                                flow: AnalyticsFlows.register,
-                                elementId:
-                                    AnalyticsIds.registerConfirmPasswordVisibility,
-                                elementType: AnalyticsElementType.icon,
-                                elementText: _obscureConfirmPassword
+                            suffixIconConstraints: BoxConstraints(
+                              minWidth: suffixIconButtonSize,
+                              maxWidth: suffixIconButtonSize,
+                              minHeight: suffixIconButtonSize,
+                              maxHeight: suffixIconButtonSize,
+                            ),
+                            suffixIcon: Align(
+                              widthFactor: 1,
+                              heightFactor: 1,
+                              child: AnalyticsIconButton(
+                                padding: EdgeInsets.zero,
+                                constraints: BoxConstraints.tightFor(
+                                  width: suffixIconButtonSize,
+                                  height: suffixIconButtonSize,
+                                ),
+                                icon: Icon(
+                                  _obscureConfirmPassword
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility,
+                                  color: _kTextSecondary,
+                                  size: inputIconSize,
+                                ),
+                                tooltip: _obscureConfirmPassword
                                     ? '显示确认密码'
                                     : '隐藏确认密码',
+                                eventType: AnalyticsEventType.buttonClick,
+                                properties: AnalyticsEventProperties.click(
+                                  page: AnalyticsPages.register,
+                                  flow: AnalyticsFlows.register,
+                                  elementId:
+                                      AnalyticsIds.registerConfirmPasswordVisibility,
+                                  elementType: AnalyticsElementType.icon,
+                                  elementText: _obscureConfirmPassword
+                                      ? '显示确认密码'
+                                      : '隐藏确认密码',
+                                ),
+                                category: EventCategory.behavior,
+                                onPressed: () {
+                                  setState(() {
+                                    _obscureConfirmPassword =
+                                        !_obscureConfirmPassword;
+                                  });
+                                },
                               ),
-                              category: EventCategory.behavior,
-                              onPressed: () {
-                                setState(() {
-                                  _obscureConfirmPassword =
-                                      !_obscureConfirmPassword;
-                                });
-                              },
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12 * scale),
