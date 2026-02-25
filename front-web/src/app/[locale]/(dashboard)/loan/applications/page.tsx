@@ -211,8 +211,12 @@ export default function LoanApplicationsPage() {
   const detail: LoanApplicationAdminDetail | undefined = detailData;
 
   return (
-    <div className="space-y-6">
-      <Card>
+    <div className="space-y-6 animate-fade-in">
+      {/* 装饰性背景 */}
+      <div className="relative overflow-hidden rounded-2xl border border-primary/20">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-primary/5" />
+        <div className="absolute inset-0 bg-grid opacity-10" />
+        <Card className="relative glass">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5" />
@@ -426,6 +430,7 @@ export default function LoanApplicationsPage() {
           )}
         </CardContent>
       </Card>
+      </div>
 
       <Dialog open={isDetailOpen} onOpenChange={handleDetailOpenChange}>
         <DialogContent className="left-auto right-0 top-0 h-full max-h-none w-full max-w-2xl translate-x-0 translate-y-0 overflow-y-auto rounded-none sm:rounded-none">
