@@ -41,6 +41,7 @@ import {
   type LoanApplicationAdminDetail,
   type LoanApplicationAdminItem,
 } from '@/lib/api/loan-applications-admin';
+import { cn } from '@/lib/utils';
 
 const PAGE_SIZE = 10;
 
@@ -376,9 +377,9 @@ export default function LoanApplicationsPage() {
             </Button>
           </div>
 
-          <div className="rounded-md border">
+          <div className="rounded-xl border border-border/50 overflow-hidden bg-card/50 backdrop-blur-sm">
             <Table>
-              <TableHeader>
+              <TableHeader className="bg-muted/30">
                 <TableRow>
                   <TableHead className="w-[160px]">申请编号</TableHead>
                   <TableHead>客户</TableHead>
@@ -388,31 +389,37 @@ export default function LoanApplicationsPage() {
                   <TableHead>合同状态</TableHead>
                   <TableHead>创建时间</TableHead>
                   <TableHead>更新时间</TableHead>
-                  <TableHead className="text-right">操作</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8">
+                    <TableCell colSpan={8} className="text-center py-8">
                       加载中...
                     </TableCell>
                   </TableRow>
                 ) : error ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-destructive">
+                    <TableCell colSpan={8} className="text-center py-8 text-destructive">
                       加载失败，请重试
                     </TableCell>
                   </TableRow>
                 ) : applicationsData?.list?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8">
+                    <TableCell colSpan={8} className="text-center py-8">
                       暂无申请记录
                     </TableCell>
                   </TableRow>
                 ) : (
-                  applicationsData?.list?.map((item) => (
-                    <TableRow key={item.applicationId}>
+                  applicationsData?.list?.map((item, index) => (
+                    <TableRow
+                      key={item.applicationId}
+                      className={cn(
+                        "transition-colors hover:bg-primary/5 cursor-pointer",
+                        index % 2 === 0 ? "bg-transparent" : "bg-muted/20"
+                      )}
+                      onClick={() => handleOpenDetail(item)}
+                    >
                       <TableCell className="font-mono text-xs">{item.applicationNo}</TableCell>
                       <TableCell>{item.customerId} / {item.fullName}</TableCell>
                       <TableCell>{renderEnumBadge(item.status, APPLICATION_STATUS_MAP)}</TableCell>
@@ -421,11 +428,6 @@ export default function LoanApplicationsPage() {
                       <TableCell>{renderEnumBadge(item.contractStatus, CONTRACT_STATUS_MAP)}</TableCell>
                       <TableCell>{formatDateTime(item.createdAt)}</TableCell>
                       <TableCell>{formatDateTime(item.updatedAt)}</TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" onClick={() => handleOpenDetail(item)}>
-                          查看详情
-                        </Button>
-                      </TableCell>
                     </TableRow>
                   ))
                 )}
