@@ -9,6 +9,7 @@ import '../widgets/activity_carousel.dart';
 import '../widgets/quick_actions.dart';
 import '../widgets/transaction_list.dart';
 import '../utils/design_scale.dart';
+import '../providers/navigation_provider.dart';
 
 /// 主页 - 贷款申请落地页（基于设计稿重构）
 /// 设计稿基准宽度: 402px
@@ -153,12 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// 查看全部交易
   void _handleViewAllTransactions() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('跳转到交易记录...'),
-        duration: Duration(seconds: 1),
-      ),
-    );
+    context.read<NavigationProvider>().setIndex(2); // 切换到"记录"标签
   }
 
   /// 处理交易点击
