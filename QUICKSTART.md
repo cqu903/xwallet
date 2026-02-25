@@ -2,27 +2,71 @@
 
 ## 前置条件
 
-1. **MySQL 8.x** - 数据库服务
-2. **JDK 17** - Java开发环境
-3. **Flutter 3.10+** - 前端和移动端开发环境
-4. **浏览器** - Chrome（用于Web管理系统）
+1. **Docker Desktop** - MySQL 运行在 Docker 容器中
+2. **JDK 17** - Java 开发环境
+3. **Node.js 18+** - 前端开发环境（推荐使用 pnpm，npm 也可以）
+4. **Flutter 3.10+** - 移动端开发环境（可选）
+5. **浏览器** - Chrome（用于 Web 管理系统）
 
-## 第一步：初始化数据库
+## 第一步：启动 Docker 和 MySQL
+
+### 1.1 启动 Docker Desktop
+
+**Windows:**
+```bash
+# 启动 Docker Desktop（如果未运行）
+start "" "C:/Program Files/Docker/Docker/Docker Desktop.exe"
+
+# 等待 Docker 启动完成后验证
+docker info
+```
+
+**Linux/Mac:**
+```bash
+# 确保 Docker 服务运行
+sudo systemctl start docker  # Linux
+# 或打开 Docker Desktop 应用 (Mac)
+```
+
+### 1.2 启动 MySQL 容器
 
 ```bash
-# 登录MySQL
-mysql -u root -p
+# 查看容器状态
+docker ps -a --filter "name=mysql"
 
+# 如果容器存在但未运行，启动它
+docker start xwallet-mysql
+
+# 如果容器不存在，创建并启动（首次运行）
+cd backend
+docker-compose up -d
+```
+
+### 1.3 初始化数据库
+
+**方式一：通过 Docker exec（推荐）**
+
+```bash
 # 执行初始化脚本
-source /home/roy/codes/claudes/xwallet/backend/database/init_all.sql
+docker exec -i xwallet-mysql mysql -u root -p123321qQ < backend/database/init_all.sql
 
 # 验证数据表
-USE xwallet;
-SHOW TABLES;
+docker exec -it xwallet-mysql mysql -u root -p123321qQ -e "USE xwallet; SHOW TABLES;"
 
 # 查看测试用户
-SELECT * FROM sys_user;
-SELECT * FROM customer;
+docker exec -it xwallet-mysql mysql -u root -p123321qQ -e "SELECT id, username, email, employee_no FROM xwallet.sys_user;"
+docker exec -it xwallet-mysql mysql -u root -p123321qQ -e "SELECT id, email, nickname FROM xwallet.customer;"
+```
+
+**方式二：直接登录 MySQL**
+
+```bash
+# 进入 MySQL 容器
+docker exec -it xwallet-mysql mysql -u root -p123321qQ
+
+# 在 MySQL 命令行中执行
+source /path/to/xwallet/backend/database/init_all.sql
+# 或手动执行脚本内容
 ```
 
 ## 第二步：配置环境变量
@@ -37,6 +81,13 @@ SELECT * FROM customer;
 
 ```bash
 cd backend
+
+# Windows
+notepad .env
+# 或
+vim .env
+
+# Linux/Mac
 vim .env
 ```
 
@@ -46,7 +97,7 @@ vim .env
 # 数据库配置
 DB_URL=jdbc:mysql://localhost:3306/xwallet?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8
 DB_USERNAME=root
-DB_PASSWORD=your_password_here
+DB_PASSWORD=123321qQ
 
 # 邮件配置
 MAIL_HOST=smtp.exmail.qq.com
@@ -86,8 +137,9 @@ java -jar target/xwallet-backend-1.0.0.jar --spring.profiles.active=dev
 **验证后端是否启动成功：**
 
 - 访问: http://localhost:8080/api/auth/login
-- 应该看到 401 错误或 {"code":401,"errmsg":"未登录或登录已过期"}
+- 应该看到 401 错误或 `{"code":401,"errmsg":"未登录或登录已过期"}`
 - 查看启动日志，确认没有数据库连接错误
+- 看到日志 `Started XWalletBackendApplication in X.XXX seconds` 表示启动成功
 
 **API 文档 (Swagger UI)：**
 
@@ -95,15 +147,23 @@ java -jar target/xwallet-backend-1.0.0.jar --spring.profiles.active=dev
 - OpenAPI JSON: http://localhost:8080/api/v3/api-docs
 - 在 Swagger UI 中先调用「认证 > 用户登录」获取 token，再点击右上角「Authorize」填入 token，即可调试需鉴权的接口。
 
-## 第四步：启动前端Web管理系统
+## 第四步：启动前端 Web 管理系统
 
 ```bash
 cd front-web
 
 # 安装依赖（首次运行）
+# 推荐：使用 pnpm
+pnpm install
+
+# 或者：使用 npm
 npm install
 
 # 启动开发服务器
+# 使用 pnpm
+pnpm dev
+
+# 或者使用 npm
 npm run dev
 ```
 
@@ -114,18 +174,20 @@ Web 管理系统将在浏览器中打开: http://localhost:3000
 - 工号: `ADMIN001`
 - 密码: `admin123`
 
-## 第五步：启动移动端App
+**注意：** Next.js 16.1.4 使用 Turbopack，首次启动可能需要几秒钟编译。
+
+## 第五步：启动移动端 App（可选）
 
 ```bash
-cd /home/roy/codes/claudes/xwallet/app
+cd app
 
 # 安装依赖（首次运行）
 flutter pub get
 
-# 在Android设备/模拟器运行
+# 在 Android 设备/模拟器运行
 flutter run -d android
 
-# 或在iOS设备/模拟器运行（需要Mac）
+# 或在 iOS 设备/模拟器运行（需要 Mac）
 flutter run -d ios
 ```
 
@@ -134,7 +196,48 @@ flutter run -d ios
 - 邮箱: `customer@example.com`
 - 密码: `customer123`
 
-## 使用Postman/cURL测试API
+## 快速验证脚本
+
+**Windows PowerShell:**
+
+```powershell
+# 验证所有服务状态
+Write-Host "=== 检查 Docker ===" -ForegroundColor Green
+docker info --format '{{.ServerVersion}}' 2>$null
+if ($LASTEXITCODE -ne 0) { Write-Host "Docker 未运行，请启动 Docker Desktop" -ForegroundColor Red }
+
+Write-Host "`n=== 检查 MySQL 容器 ===" -ForegroundColor Green
+docker ps --filter "name=mysql" --format "table {{.Names}}\t{{.Status}}"
+
+Write-Host "`n=== 检查后端 API ===" -ForegroundColor Green
+$response = Invoke-WebRequest -Uri "http://localhost:8080/api/auth/login" -UseBasicParsing -ErrorAction SilentlyContinue
+if ($response) { Write-Host "后端运行中: $($response.StatusCode)" -ForegroundColor Green }
+else { Write-Host "后端未启动" -ForegroundColor Red }
+
+Write-Host "`n=== 检查前端 ===" -ForegroundColor Green
+$response = Invoke-WebRequest -Uri "http://localhost:3000" -UseBasicParsing -ErrorAction SilentlyContinue
+if ($response) { Write-Host "前端运行中: $($response.StatusCode)" -ForegroundColor Green }
+else { Write-Host "前端未启动" -ForegroundColor Red }
+```
+
+**Linux/Mac Bash:**
+
+```bash
+# 验证所有服务状态
+echo "=== 检查 Docker ==="
+docker info --format '{{.ServerVersion}}' 2>/dev/null || echo "Docker 未运行"
+
+echo -e "\n=== 检查 MySQL 容器 ==="
+docker ps --filter "name=mysql" --format "table {{.Names}}\t{{.Status}}"
+
+echo -e "\n=== 检查后端 API ==="
+curl -s http://localhost:8080/api/auth/login && echo -e "\n后端运行中" || echo "后端未启动"
+
+echo -e "\n=== 检查前端 ==="
+curl -s http://localhost:3000 > /dev/null && echo "前端运行中" || echo "前端未启动"
+```
+
+## 使用 Postman/cURL 测试 API
 
 ### 1. 系统用户登录
 
@@ -196,10 +299,10 @@ curl -X POST http://localhost:8080/api/auth/login \
 }
 ```
 
-### 3. 验证Token
+### 3. 验证 Token
 
 ```bash
-# 替换YOUR_TOKEN为上一步获取的token
+# 替换 YOUR_TOKEN 为上一步获取的 token
 curl -X GET http://localhost:8080/api/auth/validate \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
@@ -217,7 +320,7 @@ curl -X GET http://localhost:8080/api/auth/validate \
 ### 4. 登出
 
 ```bash
-# 替换YOUR_TOKEN为你的token
+# 替换 YOUR_TOKEN 为你的 token
 curl -X POST http://localhost:8080/api/auth/logout \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
@@ -234,7 +337,43 @@ curl -X POST http://localhost:8080/api/auth/logout \
 
 ## 常见问题
 
-### Q1: 后端启动失败 - 找不到环境变量
+### Q1: Docker Desktop 未启动
+
+**症状：**
+
+```
+error during connect: This error may indicate that the docker daemon is not running
+```
+
+**解决方案：**
+
+1. Windows: 打开 Docker Desktop 应用程序
+2. 等待 Docker 图标显示 "Docker Desktop is running"
+3. 验证: `docker info`
+
+### Q2: MySQL 容器未运行
+
+**症状：**
+
+```
+docker ps 返回空列表或没有 xwallet-mysql
+```
+
+**解决方案：**
+
+```bash
+# 检查容器是否存在
+docker ps -a --filter "name=mysql"
+
+# 如果容器存在但停止了，启动它
+docker start xwallet-mysql
+
+# 如果容器不存在，使用 docker-compose 创建
+cd backend
+docker-compose up -d
+```
+
+### Q3: 后端启动失败 - 找不到环境变量
 
 **症状：**
 
@@ -257,11 +396,12 @@ Could not resolve placeholder 'MAIL_HOST' in value "${MAIL_HOST}"
 2. 如果不存在，创建配置文件：
    ```bash
    cd backend
-   vim .env
+   vim .env  # Linux/Mac
+   notepad .env  # Windows
    ```
 3. 确认 backend/.env 文件包含所有必需的环境变量配置（参考文档中的示例配置）
 
-### Q2: 后端启动失败 - 数据库连接错误
+### Q4: 后端启动失败 - 数据库连接错误
 
 **症状：**
 
@@ -273,19 +413,29 @@ Communications link failure
 
 **解决方案：**
 
-1. 检查 MySQL 是否运行: `docker ps | grep mysql` 或 `sudo systemctl status mysql`
+1. 检查 MySQL 容器是否运行: `docker ps | grep mysql`
 2. 检查 backend/.env 文件中的数据库配置是否正确
-3. 确认数据库已创建: `SHOW DATABASES;`
-4. 测试数据库连接: `mysql -u root -p -h localhost`
+3. 确认数据库已创建:
+   ```bash
+   docker exec -it xwallet-mysql mysql -u root -p123321qQ -e "SHOW DATABASES;"
+   ```
+4. 测试数据库连接:
+   ```bash
+   docker exec -it xwallet-mysql mysql -u root -p123321qQ
+   ```
 
-### Q3: 修改了 .env 文件但后端没有读取新配置
+### Q5: 修改了 .env 文件但后端没有读取新配置
 
 **解决方案：**
 
 1. 重启后端服务：
 
    ```bash
-   # 停止旧进程
+   # 停止旧进程（Ctrl+C 或）
+   # Windows
+   taskkill /F /IM java.exe
+
+   # Linux/Mac
    pkill -f "spring-boot:run"
 
    # 重新启动
@@ -295,15 +445,34 @@ Communications link failure
 
 2. 确认修改的是 backend/.env 文件（不是项目根目录的 .env）
 
-### Q4: 前端无法连接后端
+### Q6: 前端无法连接后端
 
 **解决方案：**
 
 1. 确认后端已启动: `curl http://localhost:8080/api/auth/login`
-2. 检查API地址配置: `front/lib/services/api_service.dart`
-3. 确认baseUrl为: `http://localhost:8080/api`
+2. 检查浏览器控制台是否有 CORS 错误
+3. 确认后端运行在 8080 端口
 
-### Q5: Flutter依赖安装失败
+### Q7: pnpm 命令找不到
+
+**症状：**
+
+```
+'pnpm' is not recognized as an internal or external command
+```
+
+**解决方案：**
+
+```bash
+# 方式一：使用 npm 代替
+npm install
+npm run dev
+
+# 方式二：安装 pnpm
+npm install -g pnpm
+```
+
+### Q8: Flutter 依赖安装失败
 
 **解决方案：**
 
@@ -312,24 +481,24 @@ Communications link failure
 flutter clean
 flutter pub get
 
-# 如果还是失败，升级Flutter
+# 如果还是失败，升级 Flutter
 flutter upgrade
 ```
 
-### Q6: Token验证失败
+### Q9: Token 验证失败
 
 **原因：**
 
-- Token已过期（30分钟有效期）
-- Token格式错误
-- Token在黑名单中
+- Token 已过期（30 分钟有效期）
+- Token 格式错误
+- Token 在黑名单中
 
 **解决方案：**
 
-- 重新登录获取新Token
-- 检查Token格式：`Bearer {token}`
+- 重新登录获取新 Token
+- 检查 Token 格式：`Bearer {token}`
 
-### Q7: 密码错误
+### Q10: 密码错误
 
 **注意：**
 
@@ -344,30 +513,42 @@ flutter upgrade
 xwallet/
 ├── backend/          # 后端服务 (Spring Boot)
 │   ├── database/     # 数据库初始化脚本
+│   │   └── init_all.sql
+│   ├── docker-compose.yml  # MySQL Docker 配置
+│   ├── .env           # 环境变量配置（需创建）
 │   ├── src/main/
-│   │   ├── java/     # Java源代码
-│   │   └── resources/# 配置文件和Mapper XML
-│   └── pom.xml       # Maven配置
+│   │   ├── java/     # Java 源代码
+│   │   └── resources/ # 配置文件和 Mapper XML
+│   └── pom.xml       # Maven 配置
 │
-├── front-web/        # Web管理系统 (Next.js + React)
+├── front-web/        # Web 管理系统 (Next.js + React)
 │   ├── src/
 │   │   ├── app/      # Next.js App Router 页面
-│   │   ├── components/# React 组件
+│   │   ├── components/ # React 组件
 │   │   └── lib/      # 工具库、API、状态管理
-│   └── package.json  # pnpm 配置
+│   └── package.json  # 依赖配置
 │
-├── app/              # 移动端App (Flutter)
+├── app/              # 移动端 App (Flutter)
 │   └── lib/
 │       ├── models/   # 数据模型
-│       ├── services/ # API服务
-│       ├── providers/# 状态管理
-│       ├── screens/  # UI页面
+│       ├── services/ # API 服务
+│       ├── providers/ # 状态管理
+│       ├── screens/  # UI 页面
 │       └── main.dart # 应用入口
 │
-├── LOGIN_README.md           # 详细功能说明
-├── IMPLEMENTATION_SUMMARY.md # 实现总结
-└── QUICKSTART.md             # 本文件
+├── CLAUDE.md         # Claude Code 项目指南
+├── LOGIN_README.md   # 详细功能说明
+└── QUICKSTART.md     # 本文件
 ```
+
+## 服务端口汇总
+
+| 服务 | 端口 | 地址 |
+|------|------|------|
+| MySQL (Docker) | 3306 | localhost:3306 |
+| Backend API | 8080 | http://localhost:8080/api |
+| Swagger UI | 8080 | http://localhost:8080/api/swagger-ui.html |
+| Front-Web | 3000 | http://localhost:3000 |
 
 ## 下一步
 
@@ -383,7 +564,8 @@ xwallet/
 
 如有问题，请查看：
 
-- `/home/roy/codes/claudes/xwallet/LOGIN_README.md` - 详细功能说明
-- `/home/roy/codes/claudes/xwallet/IMPLEMENTATION_SUMMARY.md` - 实现总结
+- `CLAUDE.md` - Claude Code 项目指南
+- `LOGIN_README.md` - 详细功能说明
+- `IMPLEMENTATION_SUMMARY.md` - 实现总结
 
 祝开发顺利！🚀

@@ -143,6 +143,10 @@ backend/src/main/java/com/zerofinance/xwallet/
 ├── model/
 │   ├── entity/         # 数据库实体
 │   └── dto/            # 数据传输对象
+├── mqtt/               # MQTT 埋点数据处理
+│   ├── MqttConfig.java
+│   ├── MqttEventSubscriber.java
+│   └── MqttJsonConverter.java
 ├── util/               # 工具类 (JwtUtil, ResponseResult, UserContext)
 └── annotation/         # 权限注解 (@RequireRole, @RequirePermission)
 ```
@@ -269,6 +273,51 @@ Flutter 移动应用，面向顾客：
    - front-web: 使用 pnpm
    - backend: 使用 Maven
 
+## 测试
+
+### Backend 测试覆盖率要求
+
+项目使用 JaCoCo 强制测试覆盖率门禁：
+- Controller 层: 最低 95% 覆盖率
+- Service 层: 最低 95% 覆盖率
+
+```bash
+cd backend/
+
+# 运行所有测试
+mvn test
+
+# 运行测试并生成覆盖率报告
+mvn verify
+
+# 查看覆盖率报告
+# 报告位置: target/site/jacoco/index.html
+```
+
+### Front-Web 测试
+
+```bash
+cd front-web/
+
+# 运行单元测试
+pnpm test
+
+# 运行 E2E 测试 (Playwright)
+pnpm test:e2e
+```
+
+### App 测试
+
+```bash
+cd app/
+
+# 运行所有测试
+flutter test
+
+# 运行集成测试
+flutter test integration_test
+```
+
 ## 主题色彩
 
 - **Web 管理后台**: 蓝色主题 (`--primary: 221 83% 53%`)
@@ -279,4 +328,11 @@ Flutter 移动应用，面向顾客：
 项目包含详细的设计文档在 `docs/plans/` 目录：
 - `2025-01-21-user-management-design.md` - 用户管理设计
 - `2026-01-22-mqtt-analytics-design.md` - MQTT 埋点系统设计
+- `2026-01-22-mqtt-analytics-implementation.md` - MQTT 埋点系统实现计划
 - `2026-01-24-front-web-refactor-design.md` - Front-Web 重构设计（Next.js 架构详细说明）
+- `2026-02-07-loan-transaction-*-checklist.md` - 贷款交易功能检查清单
+- `2026-02-07-loan-transaction-front-design.md` - 贷款交易前端设计
+- `2026-02-14-loan-application-flow-design.md` - 贷款申请全流程设计
+- `2026-02-14-loan-application-flow-implementation-plan.md` - 贷款申请实现计划
+- `2026-02-16-loan-application-admin-design.md` - 贷款管理后台设计
+- `2026-02-16-loan-application-admin-implementation-plan.md` - 贷款管理后台实现计划
