@@ -31,6 +31,39 @@
         LIMIT 1
     </select>
 
+    <select id="findByCustomerId" resultMap="LoanContractResultMap">
+        SELECT id, contract_no, customer_id, contract_amount, status, signed_at,
+               initial_disbursement_txn_no, created_at, updated_at
+        FROM loan_contract
+        WHERE customer_id = #{customerId}
+        ORDER BY signed_at DESC
+    </select>
+
+    <!-- 获取合同最新交易的本金余额 -->
+    <select id="calculatePrincipalOutstanding" resultType="java.math.BigDecimal">
+        SELECT principal_outstanding_after
+        FROM loan_transaction
+        WHERE contract_no = #{contractNo}
+        AND status = 'POSTED'
+        ORDER BY created_at DESC
+        LIMIT 1
+    </select>
+
+    <!-- 获取合同最新交易的利息余额 -->
+    <!-- 注意：由于 loan_transaction 表没有 interest_outstanding_after 字段，返回 0.00 -->
+    <!-- 实际利息余额应从 loan_account 表获取 -->
+    <select id="calculateInterestOutstanding" resultType="java.math.BigDecimal">
+        SELECT COALESCE(
+            (SELECT interest_outstanding_after
+             FROM loan_transaction
+             WHERE contract_no = #{contractNo}
+             AND status = 'POSTED'
+             ORDER BY created_at DESC
+             LIMIT 1),
+            0.00
+        )
+    </select>
+
     <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.LoanContract" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO loan_contract (
             contract_no, customer_id, contract_amount, status, signed_at,
