@@ -74,6 +74,14 @@ class AnalyticsPages {
     page: 'LoanApplyFlowScreen',
     route: AppRoutes.loanApply,
   );
+  static const contractList = AnalyticsPage(
+    page: 'ContractListPage',
+    route: '/contracts',
+  );
+  static const repayment = AnalyticsPage(
+    page: 'RepaymentPage',
+    route: '/repayment',
+  );
 
   static const apiService = AnalyticsPage(
     page: 'ApiService',
