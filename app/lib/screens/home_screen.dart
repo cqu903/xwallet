@@ -139,12 +139,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// 处理快捷操作
   void _handleQuickAction(QuickActionData action) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('打开: ${action.label}'),
-        duration: const Duration(seconds: 1),
-      ),
-    );
+    switch (action.id) {
+      case 'repay':
+        // 跳转到合同列表页
+        Navigator.of(context).pushNamed(AppRoutes.contractList);
+        break;
+      default:
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('打开: ${action.label}'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+    }
   }
 
   /// 重试最近交易加载
