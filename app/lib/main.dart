@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/contract_provider.dart';
 import 'providers/loan_application_provider.dart';
 import 'providers/navigation_provider.dart';
 import 'providers/transaction_provider.dart';
@@ -11,6 +12,8 @@ import 'screens/home_screen.dart';
 import 'screens/account_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/history_screen.dart';
+import 'screens/contract_list_page.dart';
+import 'screens/repayment_page.dart';
 import 'services/analytics_service.dart';
 import 'widgets/x_wallet_logo.dart';
 import 'config/app_config.dart';
@@ -50,6 +53,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
         ChangeNotifierProvider(create: (_) => LoanApplicationProvider()),
+        ChangeNotifierProvider(create: (_) => ContractProvider()),
       ],
       child: MaterialApp(
         title: 'X Wallet',
@@ -85,6 +89,16 @@ class MyApp extends StatelessWidget {
             case AppRoutes.loanApply:
               return MaterialPageRoute(
                 builder: (_) => const LoanApplyFlowScreen(),
+                settings: settings,
+              );
+            case AppRoutes.contractList:
+              return MaterialPageRoute(
+                builder: (_) => const ContractListPage(),
+                settings: settings,
+              );
+            case AppRoutes.repayment:
+              return MaterialPageRoute(
+                builder: (_) => const RepaymentPage(),
                 settings: settings,
               );
             default:
