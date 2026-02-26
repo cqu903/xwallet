@@ -50,18 +50,19 @@
     </select>
 
     <!-- 获取合同最新交易的利息余额 -->
-    <!-- 注意：由于 loan_transaction 表没有 interest_outstanding_after 字段，返回 0.00 -->
-    <!-- 实际利息余额应从 loan_account 表获取 -->
+    <!--
+        IMPORTANT: The loan_transaction table does NOT have an interest_outstanding_after field.
+        This method currently returns a fixed value of 0.00 as a temporary workaround.
+
+        TODO: In the future, the actual interest outstanding balance should be retrieved
+        from the loan_account table, which will maintain the current interest balance.
+
+        Design Note: The loan_transaction table tracks only the principal balance
+        (principal_outstanding_after), while interest balances should be maintained
+        separately in the loan_account table for accurate interest calculation and tracking.
+    -->
     <select id="calculateInterestOutstanding" resultType="java.math.BigDecimal">
-        SELECT COALESCE(
-            (SELECT interest_outstanding_after
-             FROM loan_transaction
-             WHERE contract_no = #{contractNo}
-             AND status = 'POSTED'
-             ORDER BY created_at DESC
-             LIMIT 1),
-            0.00
-        )
+        SELECT 0.00
     </select>
 
     <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.LoanContract" useGeneratedKeys="true" keyProperty="id">

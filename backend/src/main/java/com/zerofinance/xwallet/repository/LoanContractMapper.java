@@ -35,8 +35,19 @@ public interface LoanContractMapper {
 
     /**
      * 计算合同应还利息（通过最新交易）
-     * 注意：由于 loan_transaction 表没有 interest_outstanding_after 字段，
-     * 此方法返回0.00，利息余额应从 loan_account 表获取
+     *
+     * <p>IMPORTANT: The loan_transaction table does NOT have an interest_outstanding_after field.
+     * This method currently returns a fixed value of 0.00 as a temporary workaround.</p>
+     *
+     * <p>TODO: In the future, the actual interest outstanding balance should be retrieved
+     * from the loan_account table, which will maintain the current interest balance.</p>
+     *
+     * <p>Design Note: The loan_transaction table tracks only the principal balance
+     * (principal_outstanding_after), while interest balances should be maintained
+     * separately in the loan_account table for accurate interest calculation and tracking.</p>
+     *
+     * @param contractNo 合同号
+     * @return 当前返回固定值 0.00，未来应从 loan_account 表获取实际利息余额
      */
     BigDecimal calculateInterestOutstanding(@Param("contractNo") String contractNo);
 
