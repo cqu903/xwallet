@@ -1,4 +1,4 @@
-import { get, post, put, del } from './client';
+import { fetchApi, get, post, put, del } from './client';
 
 /**
  * 权限资源类型
@@ -95,5 +95,8 @@ export async function assignPermissionsToRole(roleId: number, permissionIds: num
  * 移除角色权限
  */
 export async function removePermissionsFromRole(roleId: number, permissionIds: number[]): Promise<void> {
-  return del<void>(`/permissions/role/${roleId}`, permissionIds);
+  return fetchApi<void>(`/permissions/role/${roleId}`, {
+    method: 'DELETE',
+    body: JSON.stringify(permissionIds),
+  });
 }

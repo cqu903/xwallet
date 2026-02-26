@@ -37,7 +37,7 @@ import {
   type LoanTransactionAdminItem,
 } from '@/lib/api/loan-transactions-admin';
 import useSWR from 'swr';
-import { FileText, Plus, Search } from 'lucide-react';
+import { FileText, Plus, Search, Download } from 'lucide-react';
 
 const PAGE_SIZE = 10;
 
@@ -123,6 +123,31 @@ export default function LoanTransactionsPage() {
   const handleSearch = () => {
     setFilters({ ...searchInput });
     setPage(1);
+  };
+
+  const handleExport = async () => {
+    try {
+      // Build query parameters for export
+      const params = new URLSearchParams();
+      if (filters.customerEmail) params.append('customerEmail', filters.customerEmail);
+      if (filters.contractNo) params.append('contractNo', filters.contractNo);
+      if (filters.type) params.append('type', filters.type);
+      if (filters.status) params.append('status', filters.status);
+      if (filters.source) params.append('source', filters.source);
+      if (filters.idempotencyKey) params.append('idempotencyKey', filters.idempotencyKey);
+      if (filters.createdBy) params.append('createdBy', filters.createdBy);
+      if (filters.noteKeyword) params.append('noteKeyword', filters.noteKeyword);
+      if (filters.startTime) params.append('startTime', filters.startTime);
+      if (filters.endTime) params.append('endTime', filters.endTime);
+      if (filters.amountMin) params.append('amountMin', filters.amountMin);
+      if (filters.amountMax) params.append('amountMax', filters.amountMax);
+
+      const exportUrl = `/api/admin/loan/transactions/export?${params.toString()}`;
+      window.open(exportUrl, '_blank');
+    } catch (error) {
+      console.error('导出失败:', error);
+      alert('导出失败，请重试');
+    }
   };
 
   const handleReset = () => {
@@ -369,6 +394,10 @@ export default function LoanTransactionsPage() {
             </Button>
             <Button onClick={handleReset} variant="outline">
               重置
+            </Button>
+            <Button onClick={handleExport} variant="outline" className="gap-2">
+              <Download className="w-4 h-4" />
+              导出
             </Button>
             <Button onClick={() => setIsCreateOpen(true)} className="ml-auto gap-2">
               <Plus className="w-4 h-4" />
