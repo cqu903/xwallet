@@ -22,6 +22,11 @@ public class LoanContractServiceImpl implements LoanContractService {
 
     @Override
     public LoanContractListResponse getCustomerContracts(Long customerId) {
+        log.info("查询顾客合同列表 - customerId: {}", customerId);
+        if (customerId == null || customerId <= 0) {
+            throw new IllegalArgumentException("顾客ID无效");
+        }
+
         List<LoanContract> contracts = contractMapper.findByCustomerId(customerId);
 
         List<LoanContractSummaryResponse> summaryList = contracts.stream()
@@ -36,6 +41,14 @@ public class LoanContractServiceImpl implements LoanContractService {
 
     @Override
     public LoanContractSummaryResponse getContractSummary(Long customerId, String contractNo) {
+        log.info("查询合同摘要 - customerId: {}, contractNo: {}", customerId, contractNo);
+        if (customerId == null || customerId <= 0) {
+            throw new IllegalArgumentException("顾客ID无效");
+        }
+        if (contractNo == null || contractNo.isBlank()) {
+            throw new IllegalArgumentException("合同号不能为空");
+        }
+
         // 验证合同所有权
         LoanContract contract = contractMapper.findByContractNo(contractNo);
         if (contract == null) {
