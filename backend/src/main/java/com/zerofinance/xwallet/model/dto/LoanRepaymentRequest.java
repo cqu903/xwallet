@@ -22,4 +22,7 @@ public class LoanRepaymentRequest {
     @Schema(description = "幂等键", required = true)
     @NotBlank(message = "幂等键不能为空")
     private String idempotencyKey;
+
+    @Schema(description = "合同号（可选，指定还款的合同）")
+    private String contractNo;
 }
