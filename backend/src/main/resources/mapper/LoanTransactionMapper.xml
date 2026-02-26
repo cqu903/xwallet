@@ -165,6 +165,55 @@
         </where>
     </select>
 
+    <select id="findAllAdminByCondition" resultMap="LoanTransactionResultMap">
+        SELECT t.id, t.txn_no, t.customer_id, c.email AS customer_email, t.contract_no, t.txn_type, t.status, t.source, t.amount,
+               t.principal_component, t.interest_component, t.available_limit_after,
+               t.principal_outstanding_after, t.idempotency_key, t.note, t.created_by,
+               t.reversal_of, t.created_at, t.updated_at
+        FROM loan_transaction t
+        LEFT JOIN customer c ON c.id = t.customer_id
+        <where>
+            <if test="query.contractNo != null and query.contractNo != ''">
+                AND t.contract_no = #{query.contractNo}
+            </if>
+            <if test="query.type != null and query.type != ''">
+                AND t.txn_type = #{query.type}
+            </if>
+            <if test="query.status != null and query.status != ''">
+                AND t.status = #{query.status}
+            </if>
+            <if test="query.source != null and query.source != ''">
+                AND t.source = #{query.source}
+            </if>
+            <if test="query.idempotencyKey != null and query.idempotencyKey != ''">
+                AND t.idempotency_key = #{query.idempotencyKey}
+            </if>
+            <if test="query.createdBy != null and query.createdBy != ''">
+                AND t.created_by = #{query.createdBy}
+            </if>
+            <if test="query.noteKeyword != null and query.noteKeyword != ''">
+                AND t.note LIKE CONCAT('%', #{query.noteKeyword}, '%')
+            </if>
+            <if test="query.customerEmail != null and query.customerEmail != ''">
+                AND c.email = #{query.customerEmail}
+            </if>
+            <if test="query.amountMin != null">
+                AND t.amount &gt;= #{query.amountMin}
+            </if>
+            <if test="query.amountMax != null">
+                AND t.amount &lt;= #{query.amountMax}
+            </if>
+            <if test="query.startTime != null and query.startTime != ''">
+                AND t.created_at &gt;= #{query.startTime}
+            </if>
+            <if test="query.endTime != null and query.endTime != ''">
+                AND t.created_at &lt;= #{query.endTime}
+            </if>
+        </where>
+        ORDER BY t.created_at DESC
+        LIMIT 10000
+    </select>
+
     <update id="updateNote">
         UPDATE loan_transaction
         SET note = #{note}
