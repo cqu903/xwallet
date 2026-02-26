@@ -53,7 +53,12 @@ export default function MqttEventsPage() {
   // 获取事件列表
   const { data: eventsData, isLoading, mutate } = useSWR(
     ['analytics-events', page, filters],
-    () => fetchAnalyticsEvents({ ...filters, page, size: 20 }),
+    () => fetchAnalyticsEvents({
+      ...filters,
+      page,
+      size: 20,
+      isCritical: filters.isCritical === 'true' ? true : filters.isCritical === 'false' ? false : undefined
+    }),
     { revalidateOnFocus: false, shouldRetryOnError: false }
   );
 

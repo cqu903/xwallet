@@ -4,6 +4,8 @@ class AnalyticsFlows {
   static const account = 'account';
   static const login = 'login';
   static const register = 'register';
+  static const repayment = 'repayment';
+  static const contractList = 'contract_list';
 }
 
 class AnalyticsIds {
@@ -57,4 +59,9 @@ class AnalyticsIds {
   static const logout = 'logout';
 
   static const closeDetail = 'close_detail';
+  static const contractCard = 'contract_card';
+  static const contractListEmptyAction = 'contract_list_empty_action';
+  static const quickAmountButton = 'quick_amount_button';
+  static const repaymentSubmit = 'repayment_submit';
+  static const repaymentSuccessClose = 'repayment_success_close';
 }

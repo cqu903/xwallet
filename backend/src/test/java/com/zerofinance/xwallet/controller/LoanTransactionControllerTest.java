@@ -206,7 +206,7 @@ class LoanTransactionControllerTest {
     @DisplayName("还款成功")
     void testRepaySuccess() {
         setCustomerUser();
-        LoanRepaymentRequest request = new LoanRepaymentRequest(new BigDecimal("50"), "idem-2");
+        LoanRepaymentRequest request = new LoanRepaymentRequest(new BigDecimal("50"), "idem-2", null);
         LoanRepaymentResponse response = LoanRepaymentResponse.builder().build();
         when(loanTransactionService.repay(100L, request)).thenReturn(response);
 
@@ -221,7 +221,7 @@ class LoanTransactionControllerTest {
     @DisplayName("还款参数异常")
     void testRepayIllegalArgument() {
         setCustomerUser();
-        LoanRepaymentRequest request = new LoanRepaymentRequest(new BigDecimal("50"), "idem-2");
+        LoanRepaymentRequest request = new LoanRepaymentRequest(new BigDecimal("50"), "idem-2", null);
         when(loanTransactionService.repay(100L, request)).thenThrow(new IllegalArgumentException("金额非法"));
 
         ResponseResult<LoanRepaymentResponse> result = loanTransactionController.repay(request);
@@ -234,7 +234,7 @@ class LoanTransactionControllerTest {
     @DisplayName("还款状态异常")
     void testRepayIllegalState() {
         setCustomerUser();
-        LoanRepaymentRequest request = new LoanRepaymentRequest(new BigDecimal("50"), "idem-2");
+        LoanRepaymentRequest request = new LoanRepaymentRequest(new BigDecimal("50"), "idem-2", null);
         when(loanTransactionService.repay(100L, request)).thenThrow(new IllegalStateException("还款冲突"));
 
         ResponseResult<LoanRepaymentResponse> result = loanTransactionController.repay(request);
@@ -247,7 +247,7 @@ class LoanTransactionControllerTest {
     @DisplayName("还款系统异常")
     void testRepayException() {
         setCustomerUser();
-        LoanRepaymentRequest request = new LoanRepaymentRequest(new BigDecimal("50"), "idem-2");
+        LoanRepaymentRequest request = new LoanRepaymentRequest(new BigDecimal("50"), "idem-2", null);
         when(loanTransactionService.repay(100L, request)).thenThrow(new RuntimeException("db down"));
 
         ResponseResult<LoanRepaymentResponse> result = loanTransactionController.repay(request);

@@ -128,6 +128,13 @@
             <version>2.6.0</version>
         </dependency>
 
+        <!-- Excel 导出 -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.5</version>
+        </dependency>
+
         <!-- MQTT Analytics -->
         <dependency>
             <groupId>org.eclipse.paho</groupId>

@@ -54,6 +54,11 @@ public interface LoanTransactionMapper {
     int countAdminByCondition(@Param("query") LoanTransactionAdminQueryRequest query);
 
     /**
+     * 管理后台查询所有（用于导出）
+     */
+    List<LoanTransaction> findAllAdminByCondition(@Param("query") LoanTransactionAdminQueryRequest query);
+
+    /**
      * 更新备注
      */
     int updateNote(@Param("txnNo") String txnNo, @Param("note") String note);

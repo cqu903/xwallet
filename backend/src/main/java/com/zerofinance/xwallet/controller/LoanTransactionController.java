@@ -1,6 +1,7 @@
 package com.zerofinance.xwallet.controller;
 
 import com.zerofinance.xwallet.model.dto.*;
+import com.zerofinance.xwallet.service.LoanContractService;
 import com.zerofinance.xwallet.service.LoanTransactionService;
 import com.zerofinance.xwallet.util.ResponseResult;
 import com.zerofinance.xwallet.util.UserContext;
@@ -24,6 +25,7 @@ import java.util.List;
 public class LoanTransactionController {
 
     private final LoanTransactionService loanTransactionService;
+    private final LoanContractService loanContractService;
 
     @Operation(summary = "账户摘要查询", description = "返回授信额度、可用额度、在贷本金与应还利息")
     @ApiResponses({
@@ -150,6 +152,46 @@ public class LoanTransactionController {
         } catch (Exception e) {
             log.error("再次提款失败", e);
             return ResponseResult.error(500, "再次提款失败");
+        }
+    }
+
+    @Operation(summary = "获取用户合同列表")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "成功"),
+            @ApiResponse(responseCode = "403", description = "非顾客用户"),
+            @ApiResponse(responseCode = "500", description = "系统错误")
+    })
+    @GetMapping("/contracts")
+    public ResponseResult<LoanContractListResponse> getContracts() {
+        try {
+            Long customerId = requireCustomer();
+            return ResponseResult.success(loanContractService.getCustomerContracts(customerId));
+        } catch (SecurityException e) {
+            log.warn("查询合同列表失败 - {}", e.getMessage());
+            return ResponseResult.error(403, e.getMessage());
+        }
+    }
+
+    @Operation(summary = "获取合同详情")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "成功"),
+            @ApiResponse(responseCode = "400", description = "参数错误"),
+            @ApiResponse(responseCode = "403", description = "非顾客用户"),
+            @ApiResponse(responseCode = "500", description = "系统错误")
+    })
+    @GetMapping("/contracts/{contractNo}")
+    public ResponseResult<LoanContractSummaryResponse> getContractDetail(
+            @Parameter(description = "合同号") @PathVariable String contractNo
+    ) {
+        try {
+            Long customerId = requireCustomer();
+            return ResponseResult.success(loanContractService.getContractSummary(customerId, contractNo));
+        } catch (IllegalArgumentException e) {
+            log.warn("查询合同详情失败 - {}", e.getMessage());
+            return ResponseResult.error(400, e.getMessage());
+        } catch (SecurityException e) {
+            log.warn("查询合同详情失败 - {}", e.getMessage());
+            return ResponseResult.error(403, e.getMessage());
         }
     }
 

@@ -6,17 +6,20 @@ import com.zerofinance.xwallet.model.dto.LoanTransactionAdminItemResponse;
 import com.zerofinance.xwallet.model.dto.LoanTransactionAdminQueryRequest;
 import com.zerofinance.xwallet.model.dto.LoanTransactionNoteUpdateRequest;
 import com.zerofinance.xwallet.model.dto.LoanTransactionReversalRequest;
+import com.zerofinance.xwallet.service.ExcelExportService;
 import com.zerofinance.xwallet.service.LoanTransactionService;
 import com.zerofinance.xwallet.util.ResponseResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Map;
 
 @Tag(name = "交易管理", description = "管理后台交易记录查询与操作")
@@ -27,6 +30,7 @@ import java.util.Map;
 public class LoanTransactionAdminController {
 
     private final LoanTransactionService loanTransactionService;
+    private final ExcelExportService excelExportService;
 
     @Operation(summary = "分页查询交易记录", description = "支持客户/合同/类型/状态/时间区间等过滤")
     @ApiResponses({
@@ -113,6 +117,25 @@ public class LoanTransactionAdminController {
         } catch (Exception e) {
             log.error("冲正失败", e);
             return ResponseResult.error(500, "冲正失败");
+        }
+    }
+
+    @Operation(summary = "导出交易记录到 Excel", description = "根据查询条件导出交易记录，返回 Excel 文件")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "成功返回 Excel 文件"),
+            @ApiResponse(responseCode = "400", description = "无数据可导出"),
+            @ApiResponse(responseCode = "401", description = "未登录"),
+            @ApiResponse(responseCode = "403", description = "无权限"),
+            @ApiResponse(responseCode = "500", description = "系统错误")
+    })
+    @GetMapping("/export")
+    @RequirePermission("loan:transaction:read")
+    public void export(@ParameterObject LoanTransactionAdminQueryRequest request, HttpServletResponse response) {
+        try {
+            excelExportService.exportTransactions(response, request);
+        } catch (IOException e) {
+            log.error("导出交易记录失败", e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 }

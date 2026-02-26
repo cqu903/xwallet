@@ -61,10 +61,12 @@ class TransactionProvider with ChangeNotifier {
 
   Future<(bool, String?)> repay({
     required double amount,
+    String? contractNo,
     String? idempotencyKey,
   }) async {
     final (result, error) = await _apiService.repayLoan(
       amount: amount,
+      contractNo: contractNo,
       idempotencyKey: idempotencyKey,
     );
     if (result != null) {
