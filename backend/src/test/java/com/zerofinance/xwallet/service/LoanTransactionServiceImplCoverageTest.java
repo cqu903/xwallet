@@ -221,7 +221,7 @@ class LoanTransactionServiceImplCoverageTest {
     @Test
     @DisplayName("还款 - 账户不存在抛错")
     void testRepayThrowsWhenAccountMissing() {
-        var request = new LoanRepaymentRequest(new BigDecimal("100.00"), "idem-repay-no-account");
+        var request = new LoanRepaymentRequest(new BigDecimal("100.00"), "idem-repay-no-account", null);
 
         when(loanTransactionMapper.findByIdempotencyKey(10L, "idem-repay-no-account")).thenReturn(null);
         when(loanAccountMapper.findByCustomerId(10L)).thenReturn(null);
@@ -236,7 +236,7 @@ class LoanTransactionServiceImplCoverageTest {
     @Test
     @DisplayName("还款 - 合同不存在抛错")
     void testRepayThrowsWhenContractMissing() {
-        var request = new LoanRepaymentRequest(new BigDecimal("100.00"), "idem-repay-no-contract");
+        var request = new LoanRepaymentRequest(new BigDecimal("100.00"), "idem-repay-no-contract", null);
 
         when(loanTransactionMapper.findByIdempotencyKey(10L, "idem-repay-no-contract")).thenReturn(null);
         when(loanAccountMapper.findByCustomerId(10L)).thenReturn(account);
@@ -252,7 +252,7 @@ class LoanTransactionServiceImplCoverageTest {
     @Test
     @DisplayName("还款 - 账户快照更新失败抛错")
     void testRepayThrowsWhenSnapshotUpdateFails() {
-        var request = new LoanRepaymentRequest(new BigDecimal("100.00"), "idem-repay-update-fail");
+        var request = new LoanRepaymentRequest(new BigDecimal("100.00"), "idem-repay-update-fail", null);
         var allocation = new RepaymentAllocationResult(
                 new BigDecimal("10.00"),
                 new BigDecimal("90.00"),
@@ -287,7 +287,7 @@ class LoanTransactionServiceImplCoverageTest {
                 LocalDateTime.now(),
                 LocalDateTime.now()
         );
-        var request = new LoanRepaymentRequest(new BigDecimal("20.00"), "idem-repay-invariant");
+        var request = new LoanRepaymentRequest(new BigDecimal("20.00"), "idem-repay-invariant", null);
         var allocation = new RepaymentAllocationResult(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, List.of());
 
         when(loanTransactionMapper.findByIdempotencyKey(10L, "idem-repay-invariant")).thenReturn(null);
@@ -305,7 +305,7 @@ class LoanTransactionServiceImplCoverageTest {
     @Test
     @DisplayName("还款 - 利息超额清分时欠息归零")
     void testRepayClampsNegativeInterestToZero() {
-        var request = new LoanRepaymentRequest(new BigDecimal("20.00"), "idem-repay-clamp");
+        var request = new LoanRepaymentRequest(new BigDecimal("20.00"), "idem-repay-clamp", null);
         var allocation = new RepaymentAllocationResult(
                 new BigDecimal("80.00"),
                 BigDecimal.ZERO,

@@ -78,7 +78,7 @@ class LoanTransactionServiceTest {
     @Test
     @DisplayName("还款 - 正常清分并更新账户")
     void testRepaySuccess() {
-        LoanRepaymentRequest request = new LoanRepaymentRequest(new BigDecimal("100.00"), "idem-001");
+        LoanRepaymentRequest request = new LoanRepaymentRequest(new BigDecimal("100.00"), "idem-001", null);
         RepaymentAllocationResult allocationResult = new RepaymentAllocationResult(
                 new BigDecimal("50.00"),
                 new BigDecimal("50.00"),
@@ -103,7 +103,7 @@ class LoanTransactionServiceTest {
     @Test
     @DisplayName("还款 - 幂等重复请求返回已有结果")
     void testRepayIdempotent() {
-        LoanRepaymentRequest request = new LoanRepaymentRequest(new BigDecimal("100.00"), "idem-001");
+        LoanRepaymentRequest request = new LoanRepaymentRequest(new BigDecimal("100.00"), "idem-001", null);
         LoanTransaction existing = new LoanTransaction(
                 1L,
                 "TXN-001",
