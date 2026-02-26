@@ -660,18 +660,26 @@ class ApiService implements LoanApplicationApiClient {
   /// 返回: (还款结果, 错误消息)
   Future<(LoanRepaymentResponse?, String?)> repayLoan({
     required double amount,
+    String? contractNo,
     String? idempotencyKey,
   }) async {
     try {
       final headers = await _getHeaders();
       final uri = Uri.parse('$baseUrl/loan/repayments');
+
+      // 构建请求体，仅在 contractNo 非空时才添加该字段
+      final requestBody = <String, dynamic>{
+        'amount': amount,
+        'idempotencyKey': idempotencyKey ?? _generateIdempotencyKey('repay'),
+      };
+      if (contractNo != null && contractNo.isNotEmpty) {
+        requestBody['contractNo'] = contractNo;
+      }
+
       final response = await _post(
         uri,
         headers: headers,
-        body: jsonEncode({
-          'amount': amount,
-          'idempotencyKey': idempotencyKey ?? _generateIdempotencyKey('repay'),
-        }),
+        body: jsonEncode(requestBody),
       );
 
       final Map<String, dynamic>? responseData = _decodeJsonObject(
