@@ -6,6 +6,7 @@ import '../models/login_response.dart';
 import '../models/loan_application.dart';
 import '../models/loan_account_summary.dart';
 import '../models/loan_transaction.dart';
+import '../models/loan_contract.dart';
 import '../models/register_request.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_config.dart';
@@ -694,6 +695,86 @@ class ApiService implements LoanApplicationApiClient {
           response.statusCode,
           responseData,
           fallback: '还款失败',
+        ),
+      );
+    } catch (e) {
+      return (null, '网络错误: $e');
+    }
+  }
+
+  /// 查询贷款合同列表
+  /// 返回: (合同列表响应, 错误消息)
+  Future<(LoanContractListResponse?, String?)> getLoanContracts() async {
+    try {
+      final headers = await _getHeaders();
+      final uri = Uri.parse('$baseUrl/loan/contracts');
+      final response = await _get(
+        uri,
+        headers: headers,
+      );
+
+      final Map<String, dynamic>? responseData = _decodeJsonObject(
+        response.body,
+      );
+      if (response.statusCode == 200 && responseData != null) {
+        final result = ResponseResult<LoanContractListResponse>.fromJson(
+          responseData,
+          (data) =>
+              LoanContractListResponse.fromJson(data as Map<String, dynamic>),
+        );
+        if (result.isSuccess && result.data != null) {
+          return (result.data, null);
+        }
+        return (null, result.message ?? '获取合同列表失败');
+      }
+
+      return (
+        null,
+        _buildHttpErrorMessage(
+          response.statusCode,
+          responseData,
+          fallback: '获取合同列表失败',
+        ),
+      );
+    } catch (e) {
+      return (null, '网络错误: $e');
+    }
+  }
+
+  /// 查询合同摘要（含当前账户状态）
+  /// 返回: (合同详情, 错误消息)
+  Future<(LoanContractDetailResponse?, String?)> getContractSummary(
+    String contractNo,
+  ) async {
+    try {
+      final headers = await _getHeaders();
+      final uri = Uri.parse('$baseUrl/loan/contracts/$contractNo/summary');
+      final response = await _get(
+        uri,
+        headers: headers,
+      );
+
+      final Map<String, dynamic>? responseData = _decodeJsonObject(
+        response.body,
+      );
+      if (response.statusCode == 200 && responseData != null) {
+        final result = ResponseResult<LoanContractDetailResponse>.fromJson(
+          responseData,
+          (data) =>
+              LoanContractDetailResponse.fromJson(data as Map<String, dynamic>),
+        );
+        if (result.isSuccess && result.data != null) {
+          return (result.data, null);
+        }
+        return (null, result.message ?? '获取合同摘要失败');
+      }
+
+      return (
+        null,
+        _buildHttpErrorMessage(
+          response.statusCode,
+          responseData,
+          fallback: '获取合同摘要失败',
         ),
       );
     } catch (e) {
