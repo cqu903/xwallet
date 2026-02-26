@@ -169,6 +169,21 @@ public class LoanTransactionServiceImpl implements LoanTransactionService {
         }
 
         LoanAccount account = requireAccount(customerId);
+
+        // 如果指定了合同号，验证合同所有权
+        if (request.getContractNo() != null && !request.getContractNo().isBlank()) {
+            LoanContract contract = loanContractMapper.findByContractNo(request.getContractNo());
+            if (contract == null) {
+                throw new IllegalArgumentException("合同不存在: " + request.getContractNo());
+            }
+            if (!contract.getCustomerId().equals(customerId)) {
+                throw new IllegalArgumentException("无权访问该合同");
+            }
+            if (contract.getStatus() != 1) {
+                throw new IllegalArgumentException("只有生效中的合同才能还款");
+            }
+        }
+
         LoanContract contract = requireLatestContract(customerId);
         RepaymentAllocationResult allocationResult = repaymentAllocationEngine.allocate(
                 new RepaymentAllocationRequest(
