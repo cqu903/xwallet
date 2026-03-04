@@ -30,7 +30,6 @@ build/
 
 # Tools
 .serena/
-.opencode/
 
 # 环境变量文件
 .env
