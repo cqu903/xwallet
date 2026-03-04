@@ -27,6 +27,7 @@ jwt:
 
 mqtt:
   broker: tcp://localhost:1883
+  client-id: test-client-id
   username:
   password:
 

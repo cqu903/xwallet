@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.*;
  * 此测试使用 Mock 模拟依赖服务的行为
  */
 @SpringBootTest
+@ActiveProfiles("test")
 class MqttIntegrationTest {
 
     @Autowired(required = false)
