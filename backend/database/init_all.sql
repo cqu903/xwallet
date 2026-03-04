@@ -1,6 +1,6 @@
 -- ============================================
 -- xWallet 完整数据库初始化脚本
--- 合并了 init.sql, rbac_init.sql, user_management_update.sql
+-- 合并了 init.sql, rbac_init.sql, user_management_update.sql, customer_management.sql
 -- 日期: 2025-01-22
 -- 更新:
 --   - 2025-01-25: 添加软删除支持（deleted 字段）
@@ -8,6 +8,9 @@
 --                * 删除钱包管理、交易记录菜单
 --                * MQTT事件移至系统管理下
 --                * 添加 analytics_event 表（MQTT埋点事件表）
+--   - 2026-03-04: 整合顾客管理功能
+--                * 在系统管理下添加顾客管理菜单
+--                * 添加顾客启用/禁用按钮权限
 -- ============================================
 
 -- 创建数据库
@@ -401,12 +404,13 @@ INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `componen
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
 (0, '交易管理', 2, NULL, 'loan/index', 'loan:transaction:view', 'FileText', 50);
 
--- 系统管理子菜单: 用户管理、菜单管理、角色管理、MQTT事件
+-- 系统管理子菜单: 用户管理、菜单管理、角色管理、MQTT事件、顾客管理
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '用户管理', 2, '/users', 'users/index', 'user:view', 'User', 1),
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '菜单管理', 2, '/system/menus', 'system/menus/index', 'system:menu', NULL, 2),
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '角色管理', 2, '/system/roles', 'system/roles/index', 'system:role', NULL, 3),
-((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), 'MQTT事件', 2, '/system/mqtt-events', NULL, 'system:mqtt:query', 'activity', 4);
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), 'MQTT事件', 2, '/system/mqtt-events', NULL, 'system:mqtt:query', 'activity', 4),
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'system:view') t), '顾客管理', 2, '/customers', 'customers/index', 'customer:view', 'Users', 5);
 
 -- 交易管理子菜单: 交易记录管理
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
@@ -423,6 +427,10 @@ INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `so
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'user:view') t), '删除用户', 3, 'user:delete', 3),
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'user:view') t), '重置密码', 3, 'user:resetPwd', 4),
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'user:view') t), '启用/禁用用户', 3, 'user:toggleStatus', 5);
+
+-- 顾客管理按钮权限
+INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `sort_order`) VALUES
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'customer:view') t), '启用/禁用顾客', 3, 'customer:toggleStatus', 1);
 
 -- 交易管理按钮权限
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `sort_order`) VALUES
@@ -458,6 +466,7 @@ FROM sys_menu
 WHERE permission IN (
     'dashboard:view',
     'user:view',
+    'customer:view',
     'loan:transaction:view',
     'loan:transaction:read',
     'loan:application:read'
