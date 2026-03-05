@@ -9,34 +9,34 @@
   - `front-web/`：Next.js + TypeScript 管理后台
   - `backend/`：Spring Boot + MyBatis API
   - `app/`：Flutter 移动端
-- 不要假设可以在仓库根目录执行统一 `pnpm build/test/lint`。
+- 不要假设可以在仓库根目录执行统一 `npm build/test/lint`。
 - 一切命令都应在对应子项目目录执行。
 
 ## 2) 构建 / Lint / 测试命令（含单测）
 ### front-web（`front-web/package.json`）
 ```bash
 cd front-web
-pnpm install
-pnpm dev
-pnpm build
-pnpm start
-pnpm lint
-pnpm test
-pnpm test:e2e
+npm install
+npm run dev
+npm run build
+npm start
+npm run lint
+npm test
+npm run test:e2e
 ```
 单测与定向测试：
 ```bash
 cd front-web
-pnpm test -- src/components/__tests__/LoginForm.test.tsx
-pnpm test -- src/__tests__/lib/api/users.test.ts
-pnpm test -- --testNamePattern="login"
-pnpm test -- --watch
-pnpm test -- --coverage
+npm test -- src/components/__tests__/LoginForm.test.tsx
+npm test -- src/__tests__/lib/api/users.test.ts
+npm test -- --testNamePattern="login"
+npm test -- --watch
+npm test -- --coverage
 ```
 说明：
 - Jest 配置在 `front-web/jest.config.js`。
 - 全局覆盖率阈值为 80%（branches/functions/lines/statements）。
-- E2E 使用 Playwright（`pnpm test:e2e`）。
+- E2E 使用 Playwright（`npm run test:e2e`）。
 ### backend（`backend/pom.xml`）
 ```bash
 cd backend
@@ -127,14 +127,33 @@ flutter test -n "login"
 ## 6) 环境变量与运行前提
 - front-web：可用 `NEXT_PUBLIC_API_URL` 覆盖默认后端地址。
 - backend：通过 `backend/.env` + `spring-dotenv` 自动加载。
+- Java 环境变量：依赖 `~/.zshrc` 中的配置（`JAVA_HOME` 和 `PATH`）。非交互式 shell 可能不自动加载，需在启动脚本或 IDE 中显式注入。
 - 当前仓库现实依赖：
   - Node.js >= 18
-  - pnpm
+  - npm
   - Java 21（以 `backend/pom.xml` 为准）
   - Flutter SDK（`sdk: ^3.10.4`）
   - MySQL 8
 
-## 7) Cursor / Copilot 规则检查
+## 7) 测试账号
+
+### 系统管理员（管理后台）
+- **工号**: `ADMIN001`
+- **密码**: `admin123`
+- **角色**: ADMIN
+- **用途**: 前端管理后台登录测试
+
+### 顾客账号（移动端/顾客端）
+- **邮箱**: 见 `backend/database/init_all.sql` 中的 `customer` 表
+- **密码**: `customer123`
+- **用途**: 顾客端功能测试
+
+**注意**:
+- 这些是开发/测试环境账号，仅用于功能验证。
+- 生产环境必须修改或删除这些默认账号。
+- 密码使用 BCrypt 加密存储。
+
+## 8) Cursor / Copilot 规则检查
 已检查路径：
 - `.cursor/rules/`
 - `.cursorrules`
@@ -143,7 +162,7 @@ flutter test -n "login"
 当前仓库未发现上述规则文件。
 如后续新增，请在本节补充摘要并将其纳入执行约束。
 
-## 8) 给智能体的执行清单
+## 9) 给智能体的执行清单
 - 先确认目标子项目，再执行命令，避免在根目录盲跑脚本。
 - 采用小步改动策略，避免无关文件噪音。
 - 完成改动后，至少执行与改动最相关的 lint/test。
