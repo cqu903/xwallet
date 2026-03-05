@@ -1,6 +1,7 @@
 package com.zerofinance.xwallet.controller;
 
 import com.zerofinance.xwallet.model.dto.CollectionTaskQueryRequest;
+import com.zerofinance.xwallet.model.dto.CollectionTaskStatistics;
 import com.zerofinance.xwallet.model.entity.CollectionTask;
 import com.zerofinance.xwallet.service.CollectionTaskService;
 import com.zerofinance.xwallet.util.ResponseResult;
@@ -55,6 +56,16 @@ public class CollectionTaskController {
         Map<String, Object> result = collectionTaskService.queryTasks(request);
         
         return ResponseResult.success(result);
+    }
+
+    @Operation(summary = "获取催收任务统计", description = "获取各状态任务数量统计")
+    @GetMapping("/statistics")
+    public ResponseResult<CollectionTaskStatistics> getStatistics() {
+        log.info("Getting collection task statistics");
+        
+        CollectionTaskStatistics stats = collectionTaskService.getStatistics();
+        
+        return ResponseResult.success(stats);
     }
 
     @Operation(summary = "获取催收任务详情", description = "根据任务ID查询详细信息")

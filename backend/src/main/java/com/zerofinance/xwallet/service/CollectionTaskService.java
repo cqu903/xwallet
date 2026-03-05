@@ -2,6 +2,7 @@ package com.zerofinance.xwallet.service;
 
 import com.zerofinance.xwallet.mapper.CollectionTaskMapper;
 import com.zerofinance.xwallet.model.dto.CollectionTaskQueryRequest;
+import com.zerofinance.xwallet.model.dto.CollectionTaskStatistics;
 import com.zerofinance.xwallet.model.entity.CollectionTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,5 +83,21 @@ public class CollectionTaskService {
         result.put("totalPages", (total + request.getSize() - 1) / request.getSize());
         
         return result;
+    }
+
+    public CollectionTaskStatistics getStatistics() {
+        log.info("Getting collection task statistics");
+        
+        CollectionTaskStatistics stats = new CollectionTaskStatistics();
+        
+        stats.setPending(collectionTaskMapper.countByStatus("PENDING"));
+        stats.setInProgress(collectionTaskMapper.countByStatus("IN_PROGRESS"));
+        stats.setContacted(collectionTaskMapper.countByStatus("CONTACTED"));
+        stats.setPromised(collectionTaskMapper.countByStatus("PROMISED"));
+        stats.setPaid(collectionTaskMapper.countByStatus("PAID"));
+        stats.setClosed(collectionTaskMapper.countByStatus("CLOSED"));
+        stats.setTotal(collectionTaskMapper.countAll());
+        
+        return stats;
     }
 }
