@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zerofinance.xwallet.repository.RepaymentScheduleMapper">
+
+    <resultMap id="RepaymentScheduleResultMap" type="com.zerofinance.xwallet.model.entity.RepaymentSchedule">
+        <id property="id" column="id"/>
+        <result property="loanAccountId" column="loan_account_id"/>
+        <result property="contractNumber" column="contract_number"/>
+        <result property="installmentNumber" column="installment_number"/>
+        <result property="dueDate" column="due_date"/>
+        <result property="principalAmount" column="principal_amount"/>
+        <result property="interestAmount" column="interest_amount"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="paidPrincipal" column="paid_principal"/>
+        <result property="paidInterest" column="paid_interest"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.RepaymentSchedule">
+        INSERT INTO repayment_schedule (
+            loan_account_id, contract_number, installment_number, due_date,
+            principal_amount, interest_amount, total_amount, paid_principal, paid_interest, status
+        ) VALUES (
+            #{loanAccountId}, #{contractNumber}, #{installmentNumber}, #{dueDate},
+            #{principalAmount}, #{interestAmount}, #{totalAmount}, #{paidPrincipal}, #{paidInterest}, #{status}
+        )
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <select id="findById" resultMap="RepaymentScheduleResultMap">
+        SELECT * FROM repayment_schedule WHERE id = #{id}
+    </select>
+
+    <select id="findByLoanAccountId" resultMap="RepaymentScheduleResultMap">
+        SELECT * FROM repayment_schedule 
+        WHERE loan_account_id = #{loanAccountId}
+        ORDER BY installment_number ASC
+    </select>
+
+    <select id="findByStatus" resultMap="RepaymentScheduleResultMap">
+        SELECT * FROM repayment_schedule 
+        WHERE status = #{status}
+        ORDER BY due_date ASC
+    </select>
+
+    <select id="findOverdueSchedules" resultMap="RepaymentScheduleResultMap">
+        SELECT * FROM repayment_schedule 
+        WHERE due_date &lt; #{asOfDate}
+          AND status IN ('PENDING', 'PARTIAL', 'OVERDUE')
+          AND (principal_amount - paid_principal) &gt; 0
+        ORDER BY loan_account_id, due_date ASC
+    </select>
+
+    <select id="findOverdueSchedulesByLoanAccount" resultMap="RepaymentScheduleResultMap">
+        SELECT * FROM repayment_schedule 
+        WHERE loan_account_id = #{loanAccountId}
+          AND due_date &lt; #{asOfDate}
+          AND status IN ('PENDING', 'PARTIAL', 'OVERDUE')
+          AND (principal_amount - paid_principal) &gt; 0
+        ORDER BY due_date ASC
+    </select>
+
+    <update id="update" parameterType="com.zerofinance.xwallet.model.entity.RepaymentSchedule">
+        UPDATE repayment_schedule
+        SET paid_principal = #{paidPrincipal},
+            paid_interest = #{paidInterest},
+            status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE repayment_schedule
+        SET status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM repayment_schedule WHERE id = #{id}
+    </delete>
+
+</mapper>

@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -17,7 +18,17 @@ public class LoanAccount {
     private BigDecimal availableLimit;
     private BigDecimal principalOutstanding;
     private BigDecimal interestOutstanding;
+    private AccountStatus status;
+    private BigDecimal penaltyRate;
+    private LocalDate earliestOverdueDate;
     private Integer version;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    public enum AccountStatus {
+        NORMAL,
+        OVERDUE,
+        FROZEN,
+        CLOSED
+    }
 }
