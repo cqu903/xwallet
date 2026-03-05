@@ -92,4 +92,56 @@
         DELETE FROM collection_task WHERE id = #{id}
     </delete>
 
+    <select id="queryWithFilters" resultMap="CollectionTaskResultMap">
+        SELECT * FROM collection_task
+        <where>
+            <if test="request.status != null and request.status != ''">
+                AND status = #{request.status}
+            </if>
+            <if test="request.priority != null and request.priority != ''">
+                AND priority = #{request.priority}
+            </if>
+            <if test="request.assignedTo != null">
+                AND assigned_to = #{request.assignedTo}
+            </if>
+            <if test="request.overdueDaysMin != null">
+                AND overdue_days &gt;= #{request.overdueDaysMin}
+            </if>
+            <if test="request.overdueDaysMax != null">
+                AND overdue_days &lt;= #{request.overdueDaysMax}
+            </if>
+        </where>
+        ORDER BY priority DESC, overdue_days DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countWithFilters" resultType="int">
+        SELECT COUNT(*) FROM collection_task
+        <where>
+            <if test="request.status != null and request.status != ''">
+                AND status = #{request.status}
+            </if>
+            <if test="request.priority != null and request.priority != ''">
+                AND priority = #{request.priority}
+            </if>
+            <if test="request.assignedTo != null">
+                AND assigned_to = #{request.assignedTo}
+            </if>
+            <if test="request.overdueDaysMin != null">
+                AND overdue_days &gt;= #{request.overdueDaysMin}
+            </if>
+            <if test="request.overdueDaysMax != null">
+                AND overdue_days &lt;= #{request.overdueDaysMax}
+            </if>
+        </where>
+    </select>
+
+    <select id="countByStatus" resultType="int">
+        SELECT COUNT(*) FROM collection_task WHERE status = #{status}
+    </select>
+
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM collection_task
+    </select>
+
 </mapper>

@@ -1,5 +1,6 @@
 package com.zerofinance.xwallet.mapper;
 
+import com.zerofinance.xwallet.model.dto.CollectionTaskQueryRequest;
 import com.zerofinance.xwallet.model.entity.CollectionTask;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -25,4 +26,12 @@ public interface CollectionTaskMapper {
     List<CollectionTask> findByLoanAccountId(@Param("loanAccountId") Long loanAccountId);
     
     int delete(@Param("id") Long id);
+
+    List<CollectionTask> queryWithFilters(@Param("request") CollectionTaskQueryRequest request, @Param("offset") int offset, @Param("limit") int limit);
+
+    int countWithFilters(@Param("request") CollectionTaskQueryRequest request);
+
+    int countByStatus(@Param("status") String status);
+
+    int countAll();
 }

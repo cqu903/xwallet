@@ -1,5 +1,6 @@
 package com.zerofinance.xwallet.controller;
 
+import com.zerofinance.xwallet.model.dto.CollectionTaskQueryRequest;
 import com.zerofinance.xwallet.model.entity.CollectionTask;
 import com.zerofinance.xwallet.service.CollectionTaskService;
 import com.zerofinance.xwallet.util.ResponseResult;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "催收任务管理", description = "催收任务的查询、分配、状态管理")
 @Slf4j
@@ -41,6 +43,18 @@ public class CollectionTaskController {
         }
         
         return ResponseResult.success(tasks);
+    }
+
+    @Operation(summary = "分页查询催收任务", description = "支持高级筛选和分页")
+    @PostMapping("/query")
+    public ResponseResult<Map<String, Object>> queryTasks(
+            @RequestBody CollectionTaskQueryRequest request) {
+        
+        log.info("Querying collection tasks: {}", request);
+        
+        Map<String, Object> result = collectionTaskService.queryTasks(request);
+        
+        return ResponseResult.success(result);
     }
 
     @Operation(summary = "获取催收任务详情", description = "根据任务ID查询详细信息")

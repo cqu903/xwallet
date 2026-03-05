@@ -1,12 +1,16 @@
 package com.zerofinance.xwallet.service;
 
 import com.zerofinance.xwallet.mapper.CollectionTaskMapper;
+import com.zerofinance.xwallet.model.dto.CollectionTaskQueryRequest;
 import com.zerofinance.xwallet.model.entity.CollectionTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -61,5 +65,22 @@ public class CollectionTaskService {
 
     public List<CollectionTask> findByLoanAccountId(Long loanAccountId) {
         return collectionTaskMapper.findByLoanAccountId(loanAccountId);
+    }
+
+    public Map<String, Object> queryTasks(CollectionTaskQueryRequest request) {
+        log.info("Querying collection tasks: {}", request);
+        
+        int offset = (request.getPage() - 1) * request.getSize();
+        List<CollectionTask> tasks = collectionTaskMapper.queryWithFilters(request, offset, request.getSize());
+        int total = collectionTaskMapper.countWithFilters(request);
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", tasks);
+        result.put("total", (long) total);
+        result.put("page", request.getPage());
+        result.put("size", request.getSize());
+        result.put("totalPages", (total + request.getSize() - 1) / request.getSize());
+        
+        return result;
     }
 }
