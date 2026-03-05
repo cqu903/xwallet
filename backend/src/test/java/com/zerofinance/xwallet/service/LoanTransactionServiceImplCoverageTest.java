@@ -74,17 +74,19 @@ class LoanTransactionServiceImplCoverageTest {
 
     @BeforeEach
     void setUp() {
-        account = new LoanAccount(
-                1L,
-                10L,
-                new BigDecimal("1000.00"),
-                new BigDecimal("200.00"),
-                new BigDecimal("800.00"),
-                new BigDecimal("50.00"),
-                1,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
+        account = LoanAccount.builder()
+                .id(1L)
+                .customerId(10L)
+                .creditLimit(new BigDecimal("1000.00"))
+                .availableLimit(new BigDecimal("200.00"))
+                .principalOutstanding(new BigDecimal("800.00"))
+                .interestOutstanding(new BigDecimal("50.00"))
+                .status(LoanAccount.AccountStatus.NORMAL)
+                .penaltyRate(new BigDecimal("0.0005"))
+                .version(1)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
         contract = new LoanContract(
                 1L,
                 "CONTRACT-001",
@@ -276,17 +278,19 @@ class LoanTransactionServiceImplCoverageTest {
     @Test
     @DisplayName("还款 - 额度不变量破坏时抛错")
     void testRepayThrowsWhenInvariantBroken() {
-        var brokenAccount = new LoanAccount(
-                1L,
-                10L,
-                new BigDecimal("1000.00"),
-                new BigDecimal("100.00"),
-                new BigDecimal("700.00"),
-                new BigDecimal("20.00"),
-                1,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
+        var brokenAccount = LoanAccount.builder()
+                .id(1L)
+                .customerId(10L)
+                .creditLimit(new BigDecimal("1000.00"))
+                .availableLimit(new BigDecimal("100.00"))
+                .principalOutstanding(new BigDecimal("700.00"))
+                .interestOutstanding(new BigDecimal("20.00"))
+                .status(LoanAccount.AccountStatus.NORMAL)
+                .penaltyRate(new BigDecimal("0.0005"))
+                .version(1)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
         var request = new LoanRepaymentRequest(new BigDecimal("20.00"), "idem-repay-invariant", null);
         var allocation = new RepaymentAllocationResult(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, List.of());
 
@@ -634,17 +638,19 @@ class LoanTransactionServiceImplCoverageTest {
         original.setPrincipalComponent(new BigDecimal("60.00"));
         original.setInterestComponent(new BigDecimal("10.00"));
 
-        LoanAccount lowAvailable = new LoanAccount(
-                2L,
-                10L,
-                new BigDecimal("1000.00"),
-                new BigDecimal("50.00"),
-                new BigDecimal("950.00"),
-                new BigDecimal("10.00"),
-                1,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
+        LoanAccount lowAvailable = LoanAccount.builder()
+                .id(2L)
+                .customerId(10L)
+                .creditLimit(new BigDecimal("1000.00"))
+                .availableLimit(new BigDecimal("50.00"))
+                .principalOutstanding(new BigDecimal("950.00"))
+                .interestOutstanding(new BigDecimal("10.00"))
+                .status(LoanAccount.AccountStatus.NORMAL)
+                .penaltyRate(new BigDecimal("0.0005"))
+                .version(1)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
 
         when(loanTransactionMapper.findByTxnNo("TXN-RP-1")).thenReturn(original);
         when(loanAccountMapper.findByCustomerId(10L)).thenReturn(lowAvailable);
@@ -662,17 +668,19 @@ class LoanTransactionServiceImplCoverageTest {
         LoanTransaction original = buildTransaction("TXN-RD-1", "REDRAW_DISBURSEMENT", "POSTED");
         original.setAmount(new BigDecimal("200.00"));
 
-        LoanAccount lowPrincipal = new LoanAccount(
-                3L,
-                10L,
-                new BigDecimal("200.00"),
-                new BigDecimal("100.00"),
-                new BigDecimal("100.00"),
-                BigDecimal.ZERO,
-                1,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
+        LoanAccount lowPrincipal = LoanAccount.builder()
+                .id(3L)
+                .customerId(10L)
+                .creditLimit(new BigDecimal("200.00"))
+                .availableLimit(new BigDecimal("100.00"))
+                .principalOutstanding(new BigDecimal("100.00"))
+                .interestOutstanding(BigDecimal.ZERO)
+                .status(LoanAccount.AccountStatus.NORMAL)
+                .penaltyRate(new BigDecimal("0.0005"))
+                .version(1)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
 
         when(loanTransactionMapper.findByTxnNo("TXN-RD-1")).thenReturn(original);
         when(loanAccountMapper.findByCustomerId(10L)).thenReturn(lowPrincipal);
@@ -688,17 +696,19 @@ class LoanTransactionServiceImplCoverageTest {
     @DisplayName("冲正 - 账户值为负触发不变量校验")
     void testReverseTransactionThrowsWhenInvariantNegativeValue() {
         LoanTransaction original = buildTransaction("TXN-MANUAL-1", "MANUAL_ADJUST", "POSTED");
-        LoanAccount negativeAccount = new LoanAccount(
-                4L,
-                10L,
-                new BigDecimal("1000.00"),
-                new BigDecimal("-1.00"),
-                new BigDecimal("1001.00"),
-                BigDecimal.ZERO,
-                1,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
+        LoanAccount negativeAccount = LoanAccount.builder()
+                .id(4L)
+                .customerId(10L)
+                .creditLimit(new BigDecimal("1000.00"))
+                .availableLimit(new BigDecimal("-1.00"))
+                .principalOutstanding(new BigDecimal("1001.00"))
+                .interestOutstanding(BigDecimal.ZERO)
+                .status(LoanAccount.AccountStatus.NORMAL)
+                .penaltyRate(new BigDecimal("0.0005"))
+                .version(1)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
 
         when(loanTransactionMapper.findByTxnNo("TXN-MANUAL-1")).thenReturn(original);
         when(loanAccountMapper.findByCustomerId(10L)).thenReturn(negativeAccount);

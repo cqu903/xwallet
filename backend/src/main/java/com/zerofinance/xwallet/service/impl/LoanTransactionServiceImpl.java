@@ -115,17 +115,18 @@ public class LoanTransactionServiceImpl implements LoanTransactionService {
         );
         loanContractMapper.insert(contract);
 
-        LoanAccount newAccount = new LoanAccount(
-                null,
-                customerId,
-                request.getContractAmount(),
-                BigDecimal.ZERO,
-                request.getContractAmount(),
-                BigDecimal.ZERO,
-                0,
-                now,
-                now
-        );
+        LoanAccount newAccount = LoanAccount.builder()
+                .customerId(customerId)
+                .creditLimit(request.getContractAmount())
+                .availableLimit(BigDecimal.ZERO)
+                .principalOutstanding(request.getContractAmount())
+                .interestOutstanding(BigDecimal.ZERO)
+                .status(LoanAccount.AccountStatus.NORMAL)
+                .penaltyRate(new BigDecimal("0.0005"))
+                .version(0)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
         loanAccountMapper.insert(newAccount);
 
         LoanTransaction transaction = buildTransaction(

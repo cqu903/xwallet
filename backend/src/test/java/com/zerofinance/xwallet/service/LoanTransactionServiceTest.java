@@ -51,17 +51,19 @@ class LoanTransactionServiceTest {
 
     @BeforeEach
     void setUp() {
-        account = new LoanAccount(
-                1L,
-                10L,
-                new BigDecimal("1000.00"),
-                new BigDecimal("200.00"),
-                new BigDecimal("800.00"),
-                new BigDecimal("50.00"),
-                1,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
+        account = LoanAccount.builder()
+                .id(1L)
+                .customerId(10L)
+                .creditLimit(new BigDecimal("1000.00"))
+                .availableLimit(new BigDecimal("200.00"))
+                .principalOutstanding(new BigDecimal("800.00"))
+                .interestOutstanding(new BigDecimal("50.00"))
+                .status(LoanAccount.AccountStatus.NORMAL)
+                .penaltyRate(new BigDecimal("0.0005"))
+                .version(1)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
         contract = new LoanContract(
                 1L,
                 "CONTRACT-001",

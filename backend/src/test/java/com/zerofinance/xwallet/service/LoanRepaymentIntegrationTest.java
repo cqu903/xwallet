@@ -75,17 +75,19 @@ class LoanRepaymentIntegrationTest {
     @BeforeEach
     void setUp() {
         // 创建测试账户
-        testAccount = new LoanAccount(
-                1L,
-                TEST_CUSTOMER_ID,
-                new BigDecimal("50000.00"),
-                new BigDecimal("5000.00"),
-                new BigDecimal("45000.00"),
-                new BigDecimal("500.00"),
-                0,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
+        testAccount = LoanAccount.builder()
+                .id(1L)
+                .customerId(TEST_CUSTOMER_ID)
+                .creditLimit(new BigDecimal("50000.00"))
+                .availableLimit(new BigDecimal("5000.00"))
+                .principalOutstanding(new BigDecimal("45000.00"))
+                .interestOutstanding(new BigDecimal("500.00"))
+                .status(LoanAccount.AccountStatus.NORMAL)
+                .penaltyRate(new BigDecimal("0.0005"))
+                .version(0)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
 
         // 创建生效中的测试合同
         testContract = new LoanContract(
