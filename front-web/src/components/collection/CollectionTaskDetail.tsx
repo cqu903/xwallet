@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import useSWR from 'swr';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { fetchApi } from '@/lib/api/client';
@@ -61,41 +61,19 @@ const contactResultLabels: Record<string, string> = {
 };
 
 export function CollectionTaskDetail({ taskId }: CollectionTaskDetailProps) {
-  const [task, setTask] = useState<CollectionTask | null>(null);
-  const [records, setRecords] = useState<CollectionRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: taskData, isLoading } = useSWR<{ data: CollectionTask }>(
+    taskId ? `/admin/collection/tasks/${taskId}` : null,
+    fetchApi
+  );
 
-  useEffect(() => {
-    if (taskId) {
-      fetchTask();
-      fetchRecords();
-    }
-  }, [taskId]);
+  const { data: recordsData } = useSWR<{ data: CollectionRecord[] }>(
+    taskId ? `/admin/collection/tasks/${taskId}/records` : null,
+    fetchApi
+  );
 
-  const fetchTask = async () => {
-    try {
-      setLoading(true);
-      const data = await fetchApi<{ data: CollectionTask }>(
-        `/admin/collection/tasks/${taskId}`
-      );
-      setTask(data.data);
-    } catch (error) {
-      console.error('Failed to fetch task:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchRecords = async () => {
-    try {
-      const data = await fetchApi<{ data: CollectionRecord[] }>(
-        `/admin/collection/tasks/${taskId}/records`
-      );
-      setRecords(data.data || []);
-    } catch (error) {
-      console.error('Failed to fetch records:', error);
-    }
-  };
+  const task = taskData?.data;
+  const records = recordsData?.data || [];
+  const loading = isLoading;
 
   if (loading) {
     return <div className="text-center py-8">加载中...</div>;

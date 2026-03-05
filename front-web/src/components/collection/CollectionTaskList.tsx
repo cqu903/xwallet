@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import useSWR from 'swr';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -55,8 +56,27 @@ const priorityColors: Record<string, string> = {
 };
 
 export function CollectionTaskList() {
-  const [tasks, setTasks] = useState<CollectionTask[]>([]);
-  const [statistics, setStatistics] = useState<Statistics>({
+  const [filters, setFilters] = useState({
+    status: '',
+    priority: '',
+  });
+
+  const params = new URLSearchParams();
+  if (filters.status) params.append('status', filters.status);
+  if (filters.priority) params.append('priority', filters.priority);
+
+  const { data: tasksData } = useSWR<{ data: CollectionTask[] }>(
+    `/admin/collection/tasks?${params.toString()}`,
+    fetchApi
+  );
+
+  const { data: statsData } = useSWR<{ data: Statistics }>(
+    '/admin/collection/tasks/statistics',
+    fetchApi
+  );
+
+  const tasks = tasksData?.data || [];
+  const statistics = statsData?.data || {
     pending: 0,
     inProgress: 0,
     contacted: 0,
@@ -64,41 +84,6 @@ export function CollectionTaskList() {
     paid: 0,
     closed: 0,
     total: 0,
-  });
-  const [filters, setFilters] = useState({
-    status: '',
-    priority: '',
-  });
-
-  useEffect(() => {
-    fetchTasks();
-    fetchStatistics();
-  }, [filters]);
-
-  const fetchTasks = async () => {
-    try {
-      const params = new URLSearchParams();
-      if (filters.status) params.append('status', filters.status);
-      if (filters.priority) params.append('priority', filters.priority);
-      
-      const data = await fetchApi<{ data: CollectionTask[] }>(
-        `/admin/collection/tasks?${params.toString()}`
-      );
-      setTasks(data.data || []);
-    } catch (error) {
-      console.error('Failed to fetch tasks:', error);
-    }
-  };
-
-  const fetchStatistics = async () => {
-    try {
-      const data = await fetchApi<{ data: Statistics }>(
-        '/admin/collection/tasks/statistics'
-      );
-      setStatistics(data.data);
-    } catch (error) {
-      console.error('Failed to fetch statistics:', error);
-    }
   };
 
   const getPriorityBadge = (priority: string) => {
