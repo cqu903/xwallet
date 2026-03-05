@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zerofinance.xwallet.repository.PaymentAllocationMapper">
+
+    <resultMap id="PaymentAllocationResultMap" type="com.zerofinance.xwallet.model.entity.PaymentAllocation">
+        <id property="id" column="id"/>
+        <result property="paymentRecordId" column="payment_record_id"/>
+        <result property="repaymentScheduleId" column="repayment_schedule_id"/>
+        <result property="installmentNumber" column="installment_number"/>
+        <result property="allocatedPrincipal" column="allocated_principal"/>
+        <result property="allocatedInterest" column="allocated_interest"/>
+        <result property="allocatedTotal" column="allocated_total"/>
+        <result property="allocationRule" column="allocation_rule"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="findById" resultMap="PaymentAllocationResultMap">
+        SELECT id, payment_record_id, repayment_schedule_id, installment_number,
+               allocated_principal, allocated_interest, allocated_total,
+               allocation_rule, created_at
+        FROM payment_allocation
+        WHERE id = #{id}
+    </select>
+
+    <select id="findByPaymentRecordId" resultMap="PaymentAllocationResultMap">
+        SELECT id, payment_record_id, repayment_schedule_id, installment_number,
+               allocated_principal, allocated_interest, allocated_total,
+               allocation_rule, created_at
+        FROM payment_allocation
+        WHERE payment_record_id = #{paymentRecordId}
+        ORDER BY installment_number ASC
+    </select>
+
+    <select id="findByRepaymentScheduleId" resultMap="PaymentAllocationResultMap">
+        SELECT id, payment_record_id, repayment_schedule_id, installment_number,
+               allocated_principal, allocated_interest, allocated_total,
+               allocation_rule, created_at
+        FROM payment_allocation
+        WHERE repayment_schedule_id = #{repaymentScheduleId}
+        ORDER BY created_at DESC
+    </select>
+
+    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.PaymentAllocation" 
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO payment_allocation (
+            payment_record_id, repayment_schedule_id, installment_number,
+            allocated_principal, allocated_interest, allocated_total,
+            allocation_rule, created_at
+        ) VALUES (
+            #{paymentRecordId}, #{repaymentScheduleId}, #{installmentNumber},
+            #{allocatedPrincipal}, #{allocatedInterest}, #{allocatedTotal},
+            #{allocationRule}, #{createdAt}
+        )
+    </insert>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO payment_allocation (
+            payment_record_id, repayment_schedule_id, installment_number,
+            allocated_principal, allocated_interest, allocated_total,
+            allocation_rule, created_at
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.paymentRecordId}, #{item.repaymentScheduleId}, #{item.installmentNumber},
+                #{item.allocatedPrincipal}, #{item.allocatedInterest}, #{item.allocatedTotal},
+                #{item.allocationRule}, #{item.createdAt}
+            )
+        </foreach>
+    </insert>
+
+</mapper>

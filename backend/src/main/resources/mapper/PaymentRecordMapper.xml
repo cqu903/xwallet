@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zerofinance.xwallet.repository.PaymentRecordMapper">
+
+    <resultMap id="PaymentRecordResultMap" type="com.zerofinance.xwallet.model.entity.PaymentRecord">
+        <id property="id" column="id"/>
+        <result property="loanAccountId" column="loan_account_id"/>
+        <result property="contractNumber" column="contract_number"/>
+        <result property="transactionId" column="transaction_id"/>
+        <result property="paymentAmount" column="payment_amount"/>
+        <result property="paymentTime" column="payment_time"/>
+        <result property="accountingTime" column="accounting_time"/>
+        <result property="paymentMethod" column="payment_method"/>
+        <result property="paymentSource" column="payment_source"/>
+        <result property="status" column="status"/>
+        <result property="referenceNumber" column="reference_number"/>
+        <result property="notes" column="notes"/>
+        <result property="operatorId" column="operator_id"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findById" resultMap="PaymentRecordResultMap">
+        SELECT id, loan_account_id, contract_number, transaction_id, payment_amount,
+               payment_time, accounting_time, payment_method, payment_source,
+               status, reference_number, notes, operator_id, created_at, updated_at
+        FROM payment_record
+        WHERE id = #{id}
+    </select>
+
+    <select id="findByLoanAccountId" resultMap="PaymentRecordResultMap">
+        SELECT id, loan_account_id, contract_number, transaction_id, payment_amount,
+               payment_time, accounting_time, payment_method, payment_source,
+               status, reference_number, notes, operator_id, created_at, updated_at
+        FROM payment_record
+        WHERE loan_account_id = #{loanAccountId}
+        ORDER BY payment_time DESC
+    </select>
+
+    <select id="findByContractNumber" resultMap="PaymentRecordResultMap">
+        SELECT id, loan_account_id, contract_number, transaction_id, payment_amount,
+               payment_time, accounting_time, payment_method, payment_source,
+               status, reference_number, notes, operator_id, created_at, updated_at
+        FROM payment_record
+        WHERE contract_number = #{contractNumber}
+        ORDER BY payment_time DESC
+    </select>
+
+    <select id="findByStatus" resultMap="PaymentRecordResultMap">
+        SELECT id, loan_account_id, contract_number, transaction_id, payment_amount,
+               payment_time, accounting_time, payment_method, payment_source,
+               status, reference_number, notes, operator_id, created_at, updated_at
+        FROM payment_record
+        WHERE status = #{status}
+        ORDER BY payment_time DESC
+    </select>
+
+    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.PaymentRecord" 
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO payment_record (
+            loan_account_id, contract_number, transaction_id, payment_amount,
+            payment_time, accounting_time, payment_method, payment_source,
+            status, reference_number, notes, operator_id, created_at, updated_at
+        ) VALUES (
+            #{loanAccountId}, #{contractNumber}, #{transactionId}, #{paymentAmount},
+            #{paymentTime}, #{accountingTime}, #{paymentMethod}, #{paymentSource},
+            #{status}, #{referenceNumber}, #{notes}, #{operatorId}, #{createdAt}, #{updatedAt}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.zerofinance.xwallet.model.entity.PaymentRecord">
+        UPDATE payment_record
+        SET accounting_time = #{accountingTime},
+            status = #{status},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+</mapper>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
-    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zerofinance.xwallet.repository.RepaymentScheduleMapper">
 
     <resultMap id="RepaymentScheduleResultMap" type="com.zerofinance.xwallet.model.entity.RepaymentSchedule">
@@ -19,37 +19,46 @@
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
-    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.RepaymentSchedule">
-        INSERT INTO repayment_schedule (
-            loan_account_id, contract_number, installment_number, due_date,
-            principal_amount, interest_amount, total_amount, paid_principal, paid_interest, status
-        ) VALUES (
-            #{loanAccountId}, #{contractNumber}, #{installmentNumber}, #{dueDate},
-            #{principalAmount}, #{interestAmount}, #{totalAmount}, #{paidPrincipal}, #{paidInterest}, #{status}
-        )
-        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
-            SELECT LAST_INSERT_ID()
-        </selectKey>
-    </insert>
-
     <select id="findById" resultMap="RepaymentScheduleResultMap">
-        SELECT * FROM repayment_schedule WHERE id = #{id}
+        SELECT id, loan_account_id, contract_number, installment_number, due_date,
+               principal_amount, interest_amount, total_amount, paid_principal,
+               paid_interest, status, created_at, updated_at
+        FROM repayment_schedule
+        WHERE id = #{id}
     </select>
 
     <select id="findByLoanAccountId" resultMap="RepaymentScheduleResultMap">
-        SELECT * FROM repayment_schedule 
+        SELECT id, loan_account_id, contract_number, installment_number, due_date,
+               principal_amount, interest_amount, total_amount, paid_principal,
+               paid_interest, status, created_at, updated_at
+        FROM repayment_schedule
         WHERE loan_account_id = #{loanAccountId}
         ORDER BY installment_number ASC
     </select>
 
+    <select id="findByContractNumber" resultMap="RepaymentScheduleResultMap">
+        SELECT id, loan_account_id, contract_number, installment_number, due_date,
+               principal_amount, interest_amount, total_amount, paid_principal,
+               paid_interest, status, created_at, updated_at
+        FROM repayment_schedule
+        WHERE contract_number = #{contractNumber}
+        ORDER BY installment_number ASC
+    </select>
+
     <select id="findByStatus" resultMap="RepaymentScheduleResultMap">
-        SELECT * FROM repayment_schedule 
+        SELECT id, loan_account_id, contract_number, installment_number, due_date,
+               principal_amount, interest_amount, total_amount, paid_principal,
+               paid_interest, status, created_at, updated_at
+        FROM repayment_schedule
         WHERE status = #{status}
         ORDER BY due_date ASC
     </select>
 
     <select id="findOverdueSchedules" resultMap="RepaymentScheduleResultMap">
-        SELECT * FROM repayment_schedule 
+        SELECT id, loan_account_id, contract_number, installment_number, due_date,
+               principal_amount, interest_amount, total_amount, paid_principal,
+               paid_interest, status, created_at, updated_at
+        FROM repayment_schedule
         WHERE due_date &lt; #{asOfDate}
           AND status IN ('PENDING', 'PARTIAL', 'OVERDUE')
           AND (principal_amount - paid_principal) &gt; 0
@@ -57,7 +66,10 @@
     </select>
 
     <select id="findOverdueSchedulesByLoanAccount" resultMap="RepaymentScheduleResultMap">
-        SELECT * FROM repayment_schedule 
+        SELECT id, loan_account_id, contract_number, installment_number, due_date,
+               principal_amount, interest_amount, total_amount, paid_principal,
+               paid_interest, status, created_at, updated_at
+        FROM repayment_schedule
         WHERE loan_account_id = #{loanAccountId}
           AND due_date &lt; #{asOfDate}
           AND status IN ('PENDING', 'PARTIAL', 'OVERDUE')
@@ -65,17 +77,32 @@
         ORDER BY due_date ASC
     </select>
 
+    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.RepaymentSchedule"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO repayment_schedule (
+            loan_account_id, contract_number, installment_number, due_date,
+            principal_amount, interest_amount, total_amount, paid_principal,
+            paid_interest, status, created_at, updated_at
+        ) VALUES (
+            #{loanAccountId}, #{contractNumber}, #{installmentNumber}, #{dueDate},
+            #{principalAmount}, #{interestAmount}, #{totalAmount}, #{paidPrincipal},
+            #{paidInterest}, #{status}, #{createdAt}, #{updatedAt}
+        )
+    </insert>
+
     <update id="update" parameterType="com.zerofinance.xwallet.model.entity.RepaymentSchedule">
         UPDATE repayment_schedule
         SET paid_principal = #{paidPrincipal},
             paid_interest = #{paidInterest},
-            status = #{status}
+            status = #{status},
+            updated_at = CURRENT_TIMESTAMP
         WHERE id = #{id}
     </update>
 
     <update id="updateStatus">
         UPDATE repayment_schedule
-        SET status = #{status}
+        SET status = #{status},
+            updated_at = CURRENT_TIMESTAMP
         WHERE id = #{id}
     </update>
 

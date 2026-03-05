@@ -1,13 +1,22 @@
-package com.zerofinance.xwallet.model.entity;
+package com.zerofinance.xwallet.model.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
+/**
+ * 还款计划响应DTO
+ */
 @Data
-public class RepaymentSchedule {
-    
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class RepaymentScheduleResponse {
+
     private Long id;
     private Long loanAccountId;
     private String contractNumber;
@@ -18,14 +27,8 @@ public class RepaymentSchedule {
     private BigDecimal totalAmount;
     private BigDecimal paidPrincipal;
     private BigDecimal paidInterest;
-    private ScheduleStatus status;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
-    public enum ScheduleStatus {
-        PENDING,
-        PARTIAL,
-        PAID,
-        OVERDUE
-    }
+    private BigDecimal remainingAmount;
+    private String status;
+    private String createdAt;
+    private String updatedAt;
 }
