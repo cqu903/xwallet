@@ -30,6 +30,7 @@ build/
 
 # Tools
 .serena/
+.worktrees/
 
 # 环境变量文件
 .env
