@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zerofinance.xwallet.mapper.CollectionTaskMapper">
+
+    <resultMap id="CollectionTaskResultMap" type="com.zerofinance.xwallet.model.entity.CollectionTask">
+        <id property="id" column="id"/>
+        <result property="loanAccountId" column="loan_account_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="contractNumber" column="contract_number"/>
+        <result property="overdueDays" column="overdue_days"/>
+        <result property="overduePrincipal" column="overdue_principal"/>
+        <result property="overdueInterest" column="overdue_interest"/>
+        <result property="overdueTotal" column="overdue_total"/>
+        <result property="penaltyRate" column="penalty_rate"/>
+        <result property="lastCalculatedAt" column="last_calculated_at"/>
+        <result property="status" column="status"/>
+        <result property="assignedTo" column="assigned_to"/>
+        <result property="priority" column="priority"/>
+        <result property="lastContactDate" column="last_contact_date"/>
+        <result property="nextContactDate" column="next_contact_date"/>
+        <result property="promiseAmount" column="promise_amount"/>
+        <result property="promiseDate" column="promise_date"/>
+        <result property="notes" column="notes"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.CollectionTask">
+        INSERT INTO collection_task (
+            loan_account_id, customer_id, contract_number, overdue_days,
+            overdue_principal, overdue_interest, overdue_total, penalty_rate,
+            status, assigned_to, priority, notes
+        ) VALUES (
+            #{loanAccountId}, #{customerId}, #{contractNumber}, #{overdueDays},
+            #{overduePrincipal}, #{overdueInterest}, #{overdueTotal}, #{penaltyRate},
+            #{status}, #{assignedTo}, #{priority}, #{notes}
+        )
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <update id="update" parameterType="com.zerofinance.xwallet.model.entity.CollectionTask">
+        UPDATE collection_task
+        SET overdue_days = #{overdueDays},
+            overdue_principal = #{overduePrincipal},
+            overdue_interest = #{overdueInterest},
+            overdue_total = #{overdueTotal},
+            last_calculated_at = #{lastCalculatedAt},
+            status = #{status},
+            assigned_to = #{assignedTo},
+            priority = #{priority},
+            last_contact_date = #{lastContactDate},
+            next_contact_date = #{nextContactDate},
+            promise_amount = #{promiseAmount},
+            promise_date = #{promiseDate},
+            notes = #{notes}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE collection_task
+        SET status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateAssignedTo">
+        UPDATE collection_task
+        SET assigned_to = #{assignedTo}
+        WHERE id = #{id}
+    </update>
+
+    <select id="findById" resultMap="CollectionTaskResultMap">
+        SELECT * FROM collection_task WHERE id = #{id}
+    </select>
+
+    <select id="findByStatus" resultMap="CollectionTaskResultMap">
+        SELECT * FROM collection_task WHERE status = #{status}
+    </select>
+
+    <select id="findActiveTasks" resultMap="CollectionTaskResultMap">
+        SELECT * FROM collection_task
+        WHERE status IN ('PENDING', 'IN_PROGRESS', 'CONTACTED', 'PROMISED')
+    </select>
+
+    <select id="findByLoanAccountId" resultMap="CollectionTaskResultMap">
+        SELECT * FROM collection_task WHERE loan_account_id = #{loanAccountId}
+    </select>
+
+    <delete id="delete">
+        DELETE FROM collection_task WHERE id = #{id}
+    </delete>
+
+</mapper>
