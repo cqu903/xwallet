@@ -7,10 +7,13 @@ import com.zerofinance.xwallet.service.CollectionTaskService;
 import com.zerofinance.xwallet.util.ResponseResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 
@@ -66,6 +69,41 @@ public class CollectionTaskController {
         CollectionTaskStatistics stats = collectionTaskService.getStatistics();
         
         return ResponseResult.success(stats);
+    }
+
+    @Operation(summary = "导出催收任务", description = "导出催收任务为CSV文件")
+    @GetMapping("/export")
+    public void exportTasks(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String priority,
+            HttpServletResponse response) throws IOException {
+        
+        log.info("Exporting collection tasks");
+        
+        response.setContentType("text/csv;charset=UTF-8");
+        response.setHeader("Content-Disposition", 
+            "attachment; filename=collection_tasks.csv");
+        
+        List<CollectionTask> tasks = collectionTaskService.findActiveTasks();
+        
+        PrintWriter writer = response.getWriter();
+        writer.println("ID,合同编号,逾期天数,逾期本金,逾期利息,逾期总额,状态,优先级,负责人ID");
+        
+        for (CollectionTask task : tasks) {
+            writer.println(String.format("%d,%s,%d,%.2f,%.2f,%.2f,%s,%s,%s",
+                task.getId(),
+                task.getContractNumber(),
+                task.getOverdueDays(),
+                task.getOverduePrincipal() != null ? task.getOverduePrincipal() : 0.0,
+                task.getOverdueInterest() != null ? task.getOverdueInterest() : 0.0,
+                task.getOverdueTotal() != null ? task.getOverdueTotal() : 0.0,
+                task.getStatus(),
+                task.getPriority(),
+                task.getAssignedTo() != null ? task.getAssignedTo() : ""
+            ));
+        }
+        
+        writer.flush();
     }
 
     @Operation(summary = "获取催收任务详情", description = "根据任务ID查询详细信息")
