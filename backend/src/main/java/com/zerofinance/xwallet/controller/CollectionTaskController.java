@@ -55,4 +55,41 @@ public class CollectionTaskController {
         
         return ResponseResult.success(task);
     }
+
+    @Operation(summary = "分配催收任务", description = "将任务分配给指定催收员")
+    @PutMapping("/{id}/assign")
+    public ResponseResult<Void> assignTask(
+            @PathVariable Long id,
+            @RequestBody AssignTaskRequest request) {
+        
+        log.info("Assigning task {} to user {}", id, request.getAssignedTo());
+        
+        collectionTaskService.assignTask(id, request.getAssignedTo());
+        
+        return ResponseResult.success(null);
+    }
+
+    @Operation(summary = "更新催收任务状态", description = "更新任务的处理状态")
+    @PutMapping("/{id}/status")
+    public ResponseResult<Void> updateStatus(
+            @PathVariable Long id,
+            @RequestBody UpdateStatusRequest request) {
+        
+        log.info("Updating task {} status to {}", id, request.getStatus());
+        
+        collectionTaskService.updateStatus(id, 
+            CollectionTask.CollectionStatus.valueOf(request.getStatus()));
+        
+        return ResponseResult.success(null);
+    }
+
+    @lombok.Data
+    public static class AssignTaskRequest {
+        private Long assignedTo;
+    }
+
+    @lombok.Data
+    public static class UpdateStatusRequest {
+        private String status;
+    }
 }
