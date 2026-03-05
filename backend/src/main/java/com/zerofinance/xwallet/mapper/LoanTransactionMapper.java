@@ -1,4 +1,4 @@
-package com.zerofinance.xwallet.repository;
+package com.zerofinance.xwallet.mapper;
 
 import com.zerofinance.xwallet.model.entity.LoanTransaction;
 import com.zerofinance.xwallet.model.dto.LoanTransactionAdminQueryRequest;

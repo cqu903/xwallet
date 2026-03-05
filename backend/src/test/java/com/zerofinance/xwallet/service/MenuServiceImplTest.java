@@ -2,8 +2,8 @@ package com.zerofinance.xwallet.service;
 
 import com.zerofinance.xwallet.model.dto.MenuItemDTO;
 import com.zerofinance.xwallet.model.entity.SysMenu;
-import com.zerofinance.xwallet.repository.SysMenuMapper;
-import com.zerofinance.xwallet.repository.SysRoleMapper;
+import com.zerofinance.xwallet.mapper.SysMenuMapper;
+import com.zerofinance.xwallet.mapper.SysRoleMapper;
 import com.zerofinance.xwallet.service.impl.MenuServiceImpl;
 import com.zerofinance.xwallet.util.UserContext;
 import org.junit.jupiter.api.AfterEach;

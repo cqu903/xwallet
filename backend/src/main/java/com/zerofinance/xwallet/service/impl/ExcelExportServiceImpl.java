@@ -3,7 +3,7 @@ package com.zerofinance.xwallet.service.impl;
 import com.zerofinance.xwallet.model.dto.LoanTransactionAdminItemResponse;
 import com.zerofinance.xwallet.model.dto.LoanTransactionAdminQueryRequest;
 import com.zerofinance.xwallet.model.entity.LoanTransaction;
-import com.zerofinance.xwallet.repository.LoanTransactionMapper;
+import com.zerofinance.xwallet.mapper.LoanTransactionMapper;
 import com.zerofinance.xwallet.service.ExcelExportService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

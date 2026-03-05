@@ -2,7 +2,7 @@ package com.zerofinance.xwallet.service;
 
 import com.zerofinance.xwallet.model.dto.AnalyticsEvent;
 import com.zerofinance.xwallet.model.entity.AnalyticsEventEntity;
-import com.zerofinance.xwallet.repository.AnalyticsEventMapper;
+import com.zerofinance.xwallet.mapper.AnalyticsEventMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

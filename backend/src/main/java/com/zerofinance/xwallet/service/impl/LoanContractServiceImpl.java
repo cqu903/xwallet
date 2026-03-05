@@ -3,7 +3,7 @@ package com.zerofinance.xwallet.service.impl;
 import com.zerofinance.xwallet.model.dto.LoanContractListResponse;
 import com.zerofinance.xwallet.model.dto.LoanContractSummaryResponse;
 import com.zerofinance.xwallet.model.entity.LoanContract;
-import com.zerofinance.xwallet.repository.LoanContractMapper;
+import com.zerofinance.xwallet.mapper.LoanContractMapper;
 import com.zerofinance.xwallet.service.LoanContractService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

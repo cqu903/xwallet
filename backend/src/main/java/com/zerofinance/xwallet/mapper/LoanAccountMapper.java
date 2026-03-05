@@ -1,4 +1,4 @@
-package com.zerofinance.xwallet.repository;
+package com.zerofinance.xwallet.mapper;
 
 import com.zerofinance.xwallet.model.entity.LoanAccount;
 import org.apache.ibatis.annotations.Mapper;

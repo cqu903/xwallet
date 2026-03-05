@@ -1,7 +1,7 @@
 package com.zerofinance.xwallet.config;
 
 import com.zerofinance.xwallet.model.entity.SysUser;
-import com.zerofinance.xwallet.repository.SysUserMapper;
+import com.zerofinance.xwallet.mapper.SysUserMapper;
 import com.zerofinance.xwallet.service.RoleService;
 import com.zerofinance.xwallet.util.JwtUtil;
 import com.zerofinance.xwallet.util.UserContext;

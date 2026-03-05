@@ -2,7 +2,7 @@ package com.zerofinance.xwallet.service;
 
 import com.zerofinance.xwallet.model.dto.AnalyticsEvent;
 import com.zerofinance.xwallet.model.entity.AnalyticsEventEntity;
-import com.zerofinance.xwallet.repository.AnalyticsEventMapper;
+import com.zerofinance.xwallet.mapper.AnalyticsEventMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

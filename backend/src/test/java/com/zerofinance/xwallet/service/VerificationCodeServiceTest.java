@@ -2,8 +2,8 @@ package com.zerofinance.xwallet.service;
 
 import com.zerofinance.xwallet.model.entity.Customer;
 import com.zerofinance.xwallet.model.entity.VerificationCode;
-import com.zerofinance.xwallet.repository.CustomerMapper;
-import com.zerofinance.xwallet.repository.VerificationCodeMapper;
+import com.zerofinance.xwallet.mapper.CustomerMapper;
+import com.zerofinance.xwallet.mapper.VerificationCodeMapper;
 import com.zerofinance.xwallet.service.impl.VerificationCodeServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -4,7 +4,7 @@ import com.zerofinance.xwallet.model.dto.CustomerQueryRequest;
 import com.zerofinance.xwallet.model.dto.CustomerResponse;
 import com.zerofinance.xwallet.model.dto.PageResponse;
 import com.zerofinance.xwallet.model.entity.Customer;
-import com.zerofinance.xwallet.repository.CustomerMapper;
+import com.zerofinance.xwallet.mapper.CustomerMapper;
 import com.zerofinance.xwallet.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

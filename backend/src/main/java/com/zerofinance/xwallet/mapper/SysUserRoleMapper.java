@@ -1,4 +1,4 @@
-package com.zerofinance.xwallet.repository;
+package com.zerofinance.xwallet.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

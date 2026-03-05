@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zerofinance.xwallet.repository.PaymentAllocationMapper">
+<mapper namespace="com.zerofinance.xwallet.mapper.PaymentAllocationMapper">
 
     <resultMap id="PaymentAllocationResultMap" type="com.zerofinance.xwallet.model.entity.PaymentAllocation">
         <id property="id" column="id"/>

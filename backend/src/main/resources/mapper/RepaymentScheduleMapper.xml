@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zerofinance.xwallet.repository.RepaymentScheduleMapper">
+<mapper namespace="com.zerofinance.xwallet.mapper.RepaymentScheduleMapper">
 
     <resultMap id="RepaymentScheduleResultMap" type="com.zerofinance.xwallet.model.entity.RepaymentSchedule">
         <id property="id" column="id"/>

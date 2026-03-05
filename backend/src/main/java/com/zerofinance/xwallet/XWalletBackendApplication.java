@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 钱包后端服务启动类
  */
 @SpringBootApplication
-@MapperScan({"com.zerofinance.xwallet.repository", "com.zerofinance.xwallet.mapper"})
+@MapperScan("com.zerofinance.xwallet.mapper")
 public class XWalletBackendApplication {
 
     public static void main(String[] args) {

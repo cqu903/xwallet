@@ -1,7 +1,7 @@
 package com.zerofinance.xwallet.service.impl;
 
 import com.zerofinance.xwallet.model.entity.PaymentAllocation;
-import com.zerofinance.xwallet.repository.PaymentAllocationMapper;
+import com.zerofinance.xwallet.mapper.PaymentAllocationMapper;
 import com.zerofinance.xwallet.service.PaymentAllocationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

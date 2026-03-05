@@ -1,7 +1,7 @@
 package com.zerofinance.xwallet.service.impl;
 
 import com.zerofinance.xwallet.model.entity.RepaymentSchedule;
-import com.zerofinance.xwallet.repository.RepaymentScheduleMapper;
+import com.zerofinance.xwallet.mapper.RepaymentScheduleMapper;
 import com.zerofinance.xwallet.service.RepaymentScheduleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

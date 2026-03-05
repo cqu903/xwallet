@@ -2,8 +2,8 @@ package com.zerofinance.xwallet.service.impl;
 
 import com.zerofinance.xwallet.model.entity.Customer;
 import com.zerofinance.xwallet.model.entity.VerificationCode;
-import com.zerofinance.xwallet.repository.CustomerMapper;
-import com.zerofinance.xwallet.repository.VerificationCodeMapper;
+import com.zerofinance.xwallet.mapper.CustomerMapper;
+import com.zerofinance.xwallet.mapper.VerificationCodeMapper;
 import com.zerofinance.xwallet.service.EmailService;
 import com.zerofinance.xwallet.service.VerificationCodeService;
 import lombok.RequiredArgsConstructor;

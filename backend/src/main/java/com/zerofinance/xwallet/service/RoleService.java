@@ -2,9 +2,9 @@ package com.zerofinance.xwallet.service;
 
 import com.zerofinance.xwallet.model.dto.*;
 import com.zerofinance.xwallet.model.entity.SysRole;
-import com.zerofinance.xwallet.repository.SysRoleMapper;
-import com.zerofinance.xwallet.repository.SysRoleMenuMapper;
-import com.zerofinance.xwallet.repository.SysUserRoleMapper;
+import com.zerofinance.xwallet.mapper.SysRoleMapper;
+import com.zerofinance.xwallet.mapper.SysRoleMenuMapper;
+import com.zerofinance.xwallet.mapper.SysUserRoleMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;

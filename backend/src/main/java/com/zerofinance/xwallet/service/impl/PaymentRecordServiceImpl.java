@@ -1,7 +1,7 @@
 package com.zerofinance.xwallet.service.impl;
 
 import com.zerofinance.xwallet.model.entity.PaymentRecord;
-import com.zerofinance.xwallet.repository.PaymentRecordMapper;
+import com.zerofinance.xwallet.mapper.PaymentRecordMapper;
 import com.zerofinance.xwallet.service.PaymentRecordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
