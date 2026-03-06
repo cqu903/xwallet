@@ -151,10 +151,10 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 ```bash
 cd front-web
-pnpm test -- src/__tests__/lib/api/loan-applications-admin.test.ts
-pnpm test -- src/app/[locale]/(dashboard)/loan/applications/__tests__/page.test.tsx
-pnpm lint
-pnpm build
+npm test -- src/__tests__/lib/api/loan-applications-admin.test.ts
+npm test -- src/app/[locale]/(dashboard)/loan/applications/__tests__/page.test.tsx
+npm run lint
+npm run build
 ```
 
 ## 7. 交付清单

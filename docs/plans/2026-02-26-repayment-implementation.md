@@ -2482,7 +2482,7 @@ const handleExport = async () => {
 
 **Step 3: 类型检查**
 
-Run: `cd front-web && pnpm build`
+Run: `cd front-web && npm run build`
 Expected: 构建成功
 
 **Step 4: 提交**

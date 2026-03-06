@@ -156,7 +156,7 @@ mvn test -Dtest=UserServiceTest
 ### 前端测试
 ```bash
 cd /Users/royyuan/Downloads/codes/xwallet/front-web
-pnpm test
+npm test
 ```
 
 ## 修复验证

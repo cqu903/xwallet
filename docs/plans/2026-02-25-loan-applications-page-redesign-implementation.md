@@ -69,7 +69,7 @@ return (
 
 **Step 3: 运行开发服务器验证**
 
-Run: `cd front-web && pnpm dev`
+Run: `cd front-web && npm run dev`
 Expected: 服务器启动成功，访问页面显示带装饰背景的卡片
 
 **Step 4: 提交**
@@ -694,7 +694,7 @@ git commit -m "feat(table): beautify loading and empty states with icons"
 
 **Step 1: 启动开发服务器**
 
-Run: `cd front-web && pnpm dev`
+Run: `cd front-web && npm run dev`
 
 **Step 2: 测试亮色主题**
 
@@ -736,7 +736,7 @@ git commit -m "fix(page): add dark mode compatibility fixes"
 
 **Step 1: 运行现有测试**
 
-Run: `cd front-web && pnpm test src/app/[locale]/(dashboard)/loan/applications/__tests__/page.test.tsx`
+Run: `cd front-web && npm test -- src/app/[locale]/(dashboard)/loan/applications/__tests__/page.test.tsx`
 
 Expected: 所有测试通过
 

@@ -46,7 +46,7 @@
 | 技术 | 用途 |
 |------|------|
 | Turborepo | Monorepo 构建工具 |
-| pnpm | 包管理器 |
+| npm | 包管理器 |
 | ESLint + Prettier | 代码规范 |
 | Husky + lint-staged | Git Hooks |
 | Jest + Testing Library | 单元测试 |
@@ -76,7 +76,7 @@ xwallet/
 │   ├── shared-utils/     # 共享工具函数
 │   └── eslint-config/    # 共享 ESLint 配置
 ├── turbo.json            # Turborepo 配置
-└── pnpm-workspace.yaml   # pnpm workspace 配置
+└── package.json          # npm workspaces 配置
 ```
 
 ### 3.2 架构层次
@@ -462,39 +462,39 @@ NEXT_PUBLIC_APP_NAME=xWallet
 
 ```bash
 # 项目根目录
-pnpm install
+npm install
 
 # 单独安装 front-web 依赖
-pnpm --filter front-web install
+npm install --workspace front-web
 ```
 
 ### 10.3 开发命令
 
 ```bash
 # 启动开发服务器
-pnpm --filter front-web dev
+npm --workspace front-web run dev
 
 # 构建生产版本
-pnpm --filter front-web build
+npm --workspace front-web run build
 
 # 运行测试
-pnpm --filter front-web test
+npm --workspace front-web test
 
 # 运行 E2E 测试
-pnpm --filter front-web test:e2e
+npm --workspace front-web run test:e2e
 
 # 代码检查
-pnpm --filter front-web lint
+npm --workspace front-web run lint
 
 # 代码格式化
-pnpm --filter front-web format
+npm --workspace front-web run format
 ```
 
 ## 11. 实施计划
 
 ### 11.1 第一阶段：基础架构搭建
 - [ ] 初始化 Next.js 项目
-- [ ] 配置 Turborepo 和 pnpm workspace
+- [ ] 配置 Turborepo 和 npm workspaces
 - [ ] 配置 TypeScript、ESLint、Prettier
 - [ ] 配置 Tailwind CSS 和 shadcn/ui
 - [ ] 配置 next-intl 国际化

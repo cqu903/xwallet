@@ -44,22 +44,22 @@ flutter clean                # 清理构建缓存
 cd front-web/
 
 # 安装依赖
-pnpm install
+npm install
 
 # 启动开发服务器 (http://localhost:3000)
-pnpm dev
+npm run dev
 
 # 构建生产版本
-pnpm build
+npm run build
 
 # 启动生产服务器
-pnpm start
+npm start
 
 # 运行 ESLint
-pnpm lint
+npm run lint
 
 # 运行测试
-pnpm test
+npm test
 ```
 
 ### Backend (Spring Boot)
@@ -270,7 +270,7 @@ Flutter 移动应用，面向顾客：
    - Front-web: 默认使用硬编码 API 地址，`.env.local` 为可选配置
 7. **包管理**:
    - app: 使用 Flutter pub
-   - front-web: 使用 pnpm
+   - front-web: 使用 npm
    - backend: 使用 Maven
 
 ## 测试
@@ -300,10 +300,10 @@ mvn verify
 cd front-web/
 
 # 运行单元测试
-pnpm test
+npm test
 
 # 运行 E2E 测试 (Playwright)
-pnpm test:e2e
+npm run test:e2e
 ```
 
 ### App 测试

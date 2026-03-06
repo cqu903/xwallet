@@ -4,7 +4,7 @@
 
 1. **Docker Desktop** - MySQL 运行在 Docker 容器中
 2. **JDK 17** - Java 开发环境
-3. **Node.js 18+** - 前端开发环境（推荐使用 pnpm，npm 也可以）
+3. **Node.js 18+** - 前端开发环境（使用 npm）
 4. **Flutter 3.10+** - 移动端开发环境（可选）
 5. **浏览器** - Chrome（用于 Web 管理系统）
 
@@ -153,17 +153,9 @@ java -jar target/xwallet-backend-1.0.0.jar --spring.profiles.active=dev
 cd front-web
 
 # 安装依赖（首次运行）
-# 推荐：使用 pnpm
-pnpm install
-
-# 或者：使用 npm
 npm install
 
 # 启动开发服务器
-# 使用 pnpm
-pnpm dev
-
-# 或者使用 npm
 npm run dev
 ```
 
@@ -453,23 +445,23 @@ Communications link failure
 2. 检查浏览器控制台是否有 CORS 错误
 3. 确认后端运行在 8080 端口
 
-### Q7: pnpm 命令找不到
+### Q7: npm 命令找不到
 
 **症状：**
 
 ```
-'pnpm' is not recognized as an internal or external command
+'npm' is not recognized as an internal or external command
 ```
 
 **解决方案：**
 
 ```bash
-# 方式一：使用 npm 代替
-npm install
-npm run dev
+# 安装/重装 Node.js（包含 npm）
+# 下载: https://nodejs.org/
 
-# 方式二：安装 pnpm
-npm install -g pnpm
+# 验证安装
+node -v
+npm -v
 ```
 
 ### Q8: Flutter 依赖安装失败

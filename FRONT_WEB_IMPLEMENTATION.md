@@ -28,14 +28,14 @@ xwallet/
 │   ├── shared-types/       # 共享类型定义
 │   └── shared-utils/       # 共享工具函数
 ├── package.json            # 根 package.json
-├── pnpm-workspace.yaml     # pnpm workspace 配置
+├── package.json            # npm workspaces 配置
 └── turbo.json              # Turborepo 配置
 ```
 
 **配置文件**：
 
 - ✅ `package.json` - 根项目配置，定义统一的 scripts
-- ✅ `pnpm-workspace.yaml` - pnpm workspace 配置
+- ✅ `package.json` - npm workspaces 配置
 - ✅ `turbo.json` - Turborepo 构建优化配置
 - ✅ `.prettierrc` - Prettier 代码格式化配置
 - ✅ `.prettierignore` - Prettier 忽略配置
@@ -241,7 +241,7 @@ front-web/src/
 最初在 `package.json` 中使用 `"@xwallet/shared-types": "workspace:*"`，npm 无法识别此协议。
 
 **解决方案**：
-暂时移除 workspace 依赖，直接安装所需包。后续需要配置 pnpm 或使用 TypeScript path mapping。
+暂时移除 workspace 依赖，直接安装所需包。后续需要配置 npm workspaces 或使用 TypeScript path mapping。
 
 ### 问题 2：Tailwind CSS v4 语法差异
 
