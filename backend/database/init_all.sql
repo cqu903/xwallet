@@ -560,7 +560,7 @@ INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `componen
 
 -- 贷后管理子菜单: 催收任务
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
-((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'post-loan:view') t), '催收任务', 1, '/post-loan/collection-tasks', 'post-loan/collection-tasks/index', 'collection:task:view', 'Users', 1);
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'post-loan:view') t), '催收任务', 2, '/post-loan/collection-tasks', 'post-loan/collection-tasks/index', 'collection:task:view', 'Users', 1);
 
 -- 记录催收任务菜单ID，避免与同权限按钮冲突
 SET @collection_task_menu_id = LAST_INSERT_ID();
