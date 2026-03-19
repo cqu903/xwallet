@@ -16,7 +16,7 @@
         <result property="createdAt" column="created_at"/>
     </resultMap>
 
-    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.CollectionRecord">
+    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.CollectionRecord" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO collection_record (
             collection_task_id, operator_id, contact_method, contact_result,
             contact_time, notes, next_action, next_contact_date
@@ -24,9 +24,6 @@
             #{collectionTaskId}, #{operatorId}, #{contactMethod}, #{contactResult},
             #{contactTime}, #{notes}, #{nextAction}, #{nextContactDate}
         )
-        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
-            SELECT LAST_INSERT_ID()
-        </selectKey>
     </insert>
 
     <select id="findById" resultMap="CollectionRecordResultMap">

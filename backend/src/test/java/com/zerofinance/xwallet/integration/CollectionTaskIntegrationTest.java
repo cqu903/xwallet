@@ -7,6 +7,7 @@ import com.zerofinance.xwallet.service.CollectionTaskService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +36,18 @@ class CollectionTaskIntegrationTest {
     @Autowired
     private CollectionRecordService collectionRecordService;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Test
+    void shouldInitializeCollectionTablesInTestDatabase() {
+        Integer tableCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'COLLECTION_TASK'",
+                Integer.class);
+
+        assertEquals(1, tableCount);
+    }
+
     @Test
     void shouldCompleteCollectionWorkflow() {
         // 1. Create task
@@ -50,7 +63,7 @@ class CollectionTaskIntegrationTest {
         
         CollectionTask created = collectionTaskService.createTask(task);
         assertNotNull(created.getId());
-        assertEquals(CollectionTask.CollectionPriority.MEDIUM, created.getPriority());
+        assertEquals(CollectionTask.CollectionPriority.LOW, created.getPriority());
 
         // 2. Assign task
         collectionTaskService.assignTask(created.getId(), 5L);

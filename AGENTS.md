@@ -127,7 +127,6 @@ flutter test -n "login"
 ## 6) 环境变量与运行前提
 - front-web：可用 `NEXT_PUBLIC_API_URL` 覆盖默认后端地址。
 - backend：通过 `backend/.env` + `spring-dotenv` 自动加载。
-- Java 环境变量：依赖 `~/.zshrc` 中的配置（`JAVA_HOME` 和 `PATH`）。非交互式 shell 可能不自动加载，需在启动脚本或 IDE 中显式注入。
 - 当前仓库现实依赖：
   - Node.js >= 18
   - npm

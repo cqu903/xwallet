@@ -26,7 +26,7 @@
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
-    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.CollectionTask">
+    <insert id="insert" parameterType="com.zerofinance.xwallet.model.entity.CollectionTask" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO collection_task (
             loan_account_id, customer_id, contract_number, overdue_days,
             overdue_principal, overdue_interest, overdue_total, penalty_rate,
@@ -36,9 +36,6 @@
             #{overduePrincipal}, #{overdueInterest}, #{overdueTotal}, #{penaltyRate},
             #{status}, #{assignedTo}, #{priority}, #{notes}
         )
-        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
-            SELECT LAST_INSERT_ID()
-        </selectKey>
     </insert>
 
     <update id="update" parameterType="com.zerofinance.xwallet.model.entity.CollectionTask">

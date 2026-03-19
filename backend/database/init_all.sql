@@ -11,6 +11,10 @@
 --   - 2026-03-04: 整合顾客管理功能
 --                * 在系统管理下添加顾客管理菜单
 --                * 添加顾客启用/禁用按钮权限
+--   - 2026-03-05: 整合贷后管理迁移脚本
+--                * loan_account 增加状态与罚息字段
+--                * 新增还款计划/还款记录/还款分配/催收任务/催收记录表
+--                * 新增贷后管理与催收权限菜单，新增 COLLECTOR 角色
 -- ============================================
 
 -- 创建数据库
@@ -152,12 +156,142 @@ CREATE TABLE `loan_account` (
     `available_limit` DECIMAL(19,2) NOT NULL COMMENT '可用额度',
     `principal_outstanding` DECIMAL(19,2) NOT NULL COMMENT '在贷本金余额',
     `interest_outstanding` DECIMAL(19,2) NOT NULL COMMENT '应还利息余额',
+    `status` VARCHAR(20) NOT NULL DEFAULT 'NORMAL' COMMENT '账户状态: NORMAL/OVERDUE/FROZEN/CLOSED',
+    `penalty_rate` DECIMAL(10,6) DEFAULT 0.0005 COMMENT '罚息率（日利率）',
+    `earliest_overdue_date` DATE COMMENT '最早逾期日期',
     `version` INT NOT NULL DEFAULT 0 COMMENT '版本号(并发控制)',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     UNIQUE KEY `uk_loan_account_customer` (`customer_id`),
-    INDEX `idx_loan_account_customer` (`customer_id`)
+    INDEX `idx_loan_account_customer` (`customer_id`),
+    INDEX `idx_loan_account_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='贷款账户快照表';
+
+-- ============================================
+-- 表2-4: 还款计划表
+-- ============================================
+DROP TABLE IF EXISTS `repayment_schedule`;
+CREATE TABLE `repayment_schedule` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
+    `loan_account_id` BIGINT NOT NULL COMMENT '贷款账户ID',
+    `contract_number` VARCHAR(50) NOT NULL COMMENT '合同编号',
+    `installment_number` INT NOT NULL COMMENT '期数（第N期）',
+    `due_date` DATE NOT NULL COMMENT '到期日',
+    `principal_amount` DECIMAL(15,2) NOT NULL COMMENT '本期应还本金',
+    `interest_amount` DECIMAL(15,2) NOT NULL COMMENT '本期应还利息',
+    `total_amount` DECIMAL(15,2) NOT NULL COMMENT '本期应还总额',
+    `paid_principal` DECIMAL(15,2) DEFAULT 0 COMMENT '已还本金',
+    `paid_interest` DECIMAL(15,2) DEFAULT 0 COMMENT '已还利息',
+    `status` ENUM('PENDING', 'PARTIAL', 'PAID', 'OVERDUE') NOT NULL COMMENT '还款状态',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX `idx_loan_account` (`loan_account_id`),
+    INDEX `idx_contract_number` (`contract_number`),
+    INDEX `idx_status` (`status`),
+    INDEX `idx_due_date` (`due_date`),
+    UNIQUE KEY `uk_loan_installment` (`loan_account_id`, `installment_number`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='还款计划表';
+
+-- ============================================
+-- 表2-5: 还款记录表
+-- ============================================
+DROP TABLE IF EXISTS `payment_record`;
+CREATE TABLE `payment_record` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
+    `loan_account_id` BIGINT NOT NULL COMMENT '贷款账户ID',
+    `contract_number` VARCHAR(50) NOT NULL COMMENT '合同编号',
+    `transaction_id` BIGINT COMMENT '关联的交易ID（loan_transaction）',
+    `payment_amount` DECIMAL(15,2) NOT NULL COMMENT '还款总金额',
+    `payment_time` DATETIME NOT NULL COMMENT '用户还款时间',
+    `accounting_time` DATETIME COMMENT '入账时间',
+    `payment_method` ENUM('BANK_TRANSFER', 'AUTO_DEBIT', 'MANUAL', 'OTHER') COMMENT '还款方式',
+    `payment_source` ENUM('APP', 'ADMIN', 'SYSTEM') NOT NULL COMMENT '还款来源',
+    `status` ENUM('PENDING', 'SUCCESS', 'FAILED', 'REVERSED') NOT NULL COMMENT '还款状态',
+    `reference_number` VARCHAR(100) COMMENT '外部参考号（银行流水号等）',
+    `notes` TEXT COMMENT '备注',
+    `operator_id` BIGINT COMMENT '操作人ID（如果是后台录入）',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX `idx_loan_account` (`loan_account_id`),
+    INDEX `idx_contract_number` (`contract_number`),
+    INDEX `idx_payment_time` (`payment_time`),
+    INDEX `idx_status` (`status`),
+    INDEX `idx_transaction` (`transaction_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='还款记录表';
+
+-- ============================================
+-- 表2-6: 还款分配明细表
+-- ============================================
+DROP TABLE IF EXISTS `payment_allocation`;
+CREATE TABLE `payment_allocation` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
+    `payment_record_id` BIGINT NOT NULL COMMENT '还款记录ID',
+    `repayment_schedule_id` BIGINT NOT NULL COMMENT '还款计划ID',
+    `installment_number` INT NOT NULL COMMENT '期数',
+    `allocated_principal` DECIMAL(15,2) NOT NULL COMMENT '分配到本金的金额',
+    `allocated_interest` DECIMAL(15,2) NOT NULL COMMENT '分配到利息的金额',
+    `allocated_total` DECIMAL(15,2) NOT NULL COMMENT '分配总额',
+    `allocation_rule` ENUM('PRINCIPAL_FIRST', 'INTEREST_FIRST', 'PROPORTIONAL', 'MANUAL') COMMENT '分配规则',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_payment_record` (`payment_record_id`),
+    INDEX `idx_repayment_schedule` (`repayment_schedule_id`),
+    INDEX `idx_installment` (`installment_number`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='还款分配明细表';
+
+-- ============================================
+-- 表2-7: 催收任务表
+-- ============================================
+DROP TABLE IF EXISTS `collection_task`;
+CREATE TABLE `collection_task` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
+    `loan_account_id` BIGINT NOT NULL COMMENT '贷款账户ID',
+    `customer_id` BIGINT NOT NULL COMMENT '客户ID',
+    `contract_number` VARCHAR(50) NOT NULL COMMENT '合同编号',
+    `overdue_days` INT NOT NULL COMMENT '逾期天数',
+    `overdue_principal` DECIMAL(15,2) NOT NULL COMMENT '逾期本金',
+    `overdue_interest` DECIMAL(15,2) NOT NULL COMMENT '逾期利息（含罚息）',
+    `overdue_total` DECIMAL(15,2) NOT NULL COMMENT '逾期总额',
+    `penalty_rate` DECIMAL(10,6) DEFAULT 0.0005 COMMENT '罚息率（日利率）',
+    `last_calculated_at` TIMESTAMP COMMENT '最后计算时间',
+    `status` ENUM('PENDING', 'IN_PROGRESS', 'CONTACTED', 'PROMISED', 'PAID', 'CLOSED') NOT NULL COMMENT '催收状态',
+    `assigned_to` BIGINT COMMENT '分配给的用户ID（催收员）',
+    `priority` ENUM('LOW', 'MEDIUM', 'HIGH', 'URGENT') DEFAULT 'MEDIUM' COMMENT '优先级',
+    `last_contact_date` DATE COMMENT '最后联系日期',
+    `next_contact_date` DATE COMMENT '下次计划联系日期',
+    `promise_amount` DECIMAL(15,2) COMMENT '承诺还款金额',
+    `promise_date` DATE COMMENT '承诺还款日期',
+    `notes` TEXT COMMENT '催收备注',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX `idx_loan_account` (`loan_account_id`),
+    INDEX `idx_customer` (`customer_id`),
+    INDEX `idx_status` (`status`),
+    INDEX `idx_assigned_to` (`assigned_to`),
+    INDEX `idx_priority` (`priority`),
+    INDEX `idx_overdue_days` (`overdue_days`),
+    INDEX `idx_next_contact` (`next_contact_date`),
+    INDEX `idx_last_calculated` (`last_calculated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='催收任务表';
+
+-- ============================================
+-- 表2-8: 催收跟进记录表
+-- ============================================
+DROP TABLE IF EXISTS `collection_record`;
+CREATE TABLE `collection_record` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
+    `collection_task_id` BIGINT NOT NULL COMMENT '催收任务ID',
+    `operator_id` BIGINT NOT NULL COMMENT '操作人ID',
+    `contact_method` ENUM('PHONE', 'SMS', 'EMAIL', 'VISIT', 'OTHER') NOT NULL COMMENT '联系方式',
+    `contact_result` ENUM('NO_ANSWER', 'PROMISED', 'REFUSED', 'UNREACHABLE', 'WRONG_NUMBER', 'OTHER') NOT NULL COMMENT '联系结果',
+    `contact_time` DATETIME NOT NULL COMMENT '联系时间',
+    `notes` TEXT COMMENT '联系备注',
+    `next_action` VARCHAR(255) COMMENT '下一步行动',
+    `next_contact_date` DATE COMMENT '下次计划联系日期',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_collection_task` (`collection_task_id`),
+    INDEX `idx_operator` (`operator_id`),
+    INDEX `idx_contact_time` (`contact_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='催收跟进记录表';
 
 -- ============================================
 -- 表2-2: 贷款合同表
@@ -420,6 +554,17 @@ INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `componen
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'loan:transaction:view') t), '申请单据', 2, '/loan/applications', 'loan/applications/index', 'loan:application:read', 'FileText', 2);
 
+-- 一级菜单: 贷后管理
+INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
+(0, '贷后管理', 1, '/post-loan', NULL, 'post-loan:view', 'ClipboardList', 30);
+
+-- 贷后管理子菜单: 催收任务
+INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'post-loan:view') t), '催收任务', 1, '/post-loan/collection-tasks', 'post-loan/collection-tasks/index', 'collection:task:view', 'Users', 1);
+
+-- 记录催收任务菜单ID，避免与同权限按钮冲突
+SET @collection_task_menu_id = LAST_INSERT_ID();
+
 -- 用户管理按钮权限
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `sort_order`) VALUES
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'user:view') t), '新增用户', 3, 'user:create', 1),
@@ -438,13 +583,22 @@ INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `so
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'loan:transaction:read') t), '更新备注', 3, 'loan:transaction:update_note', 2),
 ((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'loan:transaction:read') t), '冲正交易', 3, 'loan:transaction:reverse', 3);
 
+-- 催收任务按钮权限
+INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `sort_order`) VALUES
+(@collection_task_menu_id, '查看催收任务', 2, 'collection:task:view', 1),
+(@collection_task_menu_id, '分配催收任务', 2, 'collection:task:assign', 2),
+(@collection_task_menu_id, '更新催收状态', 2, 'collection:task:update', 3),
+(@collection_task_menu_id, '添加跟进记录', 2, 'collection:record:create', 4),
+(@collection_task_menu_id, '导出催收记录', 2, 'collection:record:export', 5);
+
 -- ============================================
 -- 4. 初始化角色数据
 -- ============================================
 INSERT INTO `sys_role` (`role_code`, `role_name`, `description`, `sort_order`) VALUES
 ('ADMIN', '超级管理员', '拥有所有权限', 1),
 ('OPERATOR', '操作员', '钱包日常操作权限', 2),
-('VIEWER', '查看员', '只读权限', 3);
+('VIEWER', '查看员', '只读权限', 3),
+('COLLECTOR', '催收员', '负责催收任务的跟进和管理', 4);
 
 -- ============================================
 -- 5. 初始化角色菜单关联 (ADMIN 拥有所有权限)
@@ -469,7 +623,23 @@ WHERE permission IN (
     'customer:view',
     'loan:transaction:view',
     'loan:transaction:read',
-    'loan:application:read'
+    'loan:application:read',
+    'collection:task:view',
+    'collection:record:create'
+);
+
+-- ============================================
+-- 7-1. 初始化角色菜单关联 (COLLECTOR 权限)
+-- ============================================
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`)
+SELECT
+    (SELECT id FROM sys_role WHERE role_code = 'COLLECTOR'),
+    id
+FROM sys_menu
+WHERE permission IN (
+    'post-loan:view',
+    'collection:task:view',
+    'collection:record:create'
 );
 
 -- ============================================
