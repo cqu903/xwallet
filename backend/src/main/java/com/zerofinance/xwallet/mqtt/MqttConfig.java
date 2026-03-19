@@ -2,6 +2,7 @@ package com.zerofinance.xwallet.mqtt;
 
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.channel.DirectChannel;
@@ -57,6 +58,7 @@ public class MqttConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(prefix = "mqtt", name = "enabled", havingValue = "true", matchIfMissing = true)
     public MqttPahoMessageDrivenChannelAdapter mqttAdapter(
             MqttPahoClientFactory factory) {
         MqttPahoMessageDrivenChannelAdapter adapter =
