@@ -560,7 +560,7 @@ INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `componen
 
 -- 贷后管理子菜单: 催收任务
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `path`, `component`, `permission`, `icon`, `sort_order`) VALUES
-((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'post-loan:view') t), '催收任务', 1, '/post-loan/collection-tasks', 'post-loan/collection-tasks/index', 'collection:task:view', 'Users', 1);
+((SELECT id FROM (SELECT id FROM sys_menu WHERE permission = 'post-loan:view') t), '催收任务', 2, '/post-loan/collection-tasks', 'post-loan/collection-tasks/index', 'collection:task:view', 'Users', 1);
 
 -- 记录催收任务菜单ID，避免与同权限按钮冲突
 SET @collection_task_menu_id = LAST_INSERT_ID();
@@ -585,11 +585,11 @@ INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `so
 
 -- 催收任务按钮权限
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `menu_type`, `permission`, `sort_order`) VALUES
-(@collection_task_menu_id, '查看催收任务', 2, 'collection:task:view', 1),
-(@collection_task_menu_id, '分配催收任务', 2, 'collection:task:assign', 2),
-(@collection_task_menu_id, '更新催收状态', 2, 'collection:task:update', 3),
-(@collection_task_menu_id, '添加跟进记录', 2, 'collection:record:create', 4),
-(@collection_task_menu_id, '导出催收记录', 2, 'collection:record:export', 5);
+(@collection_task_menu_id, '查看催收任务', 3, 'collection:task:view', 1),
+(@collection_task_menu_id, '分配催收任务', 3, 'collection:task:assign', 2),
+(@collection_task_menu_id, '更新催收状态', 3, 'collection:task:update', 3),
+(@collection_task_menu_id, '添加跟进记录', 3, 'collection:record:create', 4),
+(@collection_task_menu_id, '导出催收记录', 3, 'collection:record:export', 5);
 
 -- ============================================
 -- 4. 初始化角色数据
